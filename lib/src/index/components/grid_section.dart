@@ -183,20 +183,13 @@ class HomeGridSection extends StatelessWidget {
                       10), // Set border radius for the card
                 ),
                 child: GridWidget(
-                  image: AssetsList.productImage,
+                  image: AssetsList.salereport,
                   name: "Sales",
                   name2: "Report",
                   onTap: () {
                     Navigator.pushNamed(context, salesReportPath,
                         arguments: {"Customer"});
 
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) =>
-                    //         LedgerReportPartyBillScreen(glCode: customerState.dataList[index].glCode,customerName: customerState.dataList[index].glDesc),
-                    //   ),
-                    // );
                   },
                 ),
               ),
@@ -209,7 +202,7 @@ class HomeGridSection extends StatelessWidget {
                       10), // Set border radius for the card
                 ),
                 child: GridWidget(
-                  image: AssetsList.reportImage,
+                  image: AssetsList.customerreport,
                   name: "Customer",
                   name2: "Report",
                   icon: const Icon(FontAwesomeIcons.fontAwesome),
@@ -221,6 +214,55 @@ class HomeGridSection extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(
+          height: 8.0,
+        ),
+        Text(
+          'Report',
+          style: cardTextStyleTitle,
+        ),
+        const SizedBox(
+          height: 4.0,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                elevation: 1, // Set elevation for the card
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      10), // Set border radius for the card
+                ),
+                child: GridWidget(
+                  image: AssetsList.reportPurchase,
+                  name: "Daily",
+                  name2: "Report",
+                  onTap: () {
+                    Navigator.pushNamed(context, dailyReport);
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: Card(
+                elevation: 1, // Set elevation for the card
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      10), // Set border radius for the card
+                ),
+                child: GridWidget(
+                  image: AssetsList.reportPurchase,
+                  name: "Pdc",
+                  name2: "Report",
+                  onTap: () {
+                    Navigator.pushNamed(context, pDCScreen);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+
       ],
     );
   }

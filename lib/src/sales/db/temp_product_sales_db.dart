@@ -76,4 +76,17 @@ class TempProductOrderDatabase {
       return TempProductOrderModel.fromJson(mapData[i]);
     });
   }
+
+  Future<List<TempProductOrderModel>> getProductAlready(
+      {required String pcode}) async {
+    db = await DatabaseHelper.instance.database;
+
+    final List<Map<String, dynamic>> mapData = await db!.rawQuery('''SELECT * FROM ${DatabaseDetails.tempOrderProductTable} WHERE PShortName ='${pcode}' ''');
+
+    CustomLog.successLog(value: "MapData => $mapData");
+
+    return List.generate(mapData.length, (i) {
+      return TempProductOrderModel.fromJson(mapData[i]);
+    });
+  }
 }

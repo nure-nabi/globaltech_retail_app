@@ -5,14 +5,11 @@ import 'package:retail_app/utils/custom_log.dart';
 class SalesReportApi{
   static Future<SalesModel> apiCall({required String databaseName,required String unitCode}) async{
     var jsonData = await APIProvider.getAPI(
-      endPoint:
-      "MasterList/MobileLastThirtyDaysSalesReport?DbName=$databaseName&Brcode=$unitCode",
-    );
+      endPoint: "MasterList/MobileLastThirtyDaysSalesReport?DbName=$databaseName&Brcode=$unitCode");
     CustomLog.successLog(value: "RESPONSE Sales Report Unit => $jsonData");
     return SalesModel.fromJson(jsonData);
   }
 }
 
 // 1 change initila
-// 2 change initila
-// 2 change initila master
+// 2 change initila// 2 change initila master

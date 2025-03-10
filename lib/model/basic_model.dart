@@ -27,3 +27,28 @@ class BasicModel {
         "status": status,
       };
 }
+
+class BasicUpdatePrintModel {
+  BasicUpdatePrintModel({
+    required this.message,
+    required this.statusCode,
+
+  });
+
+  final String message;
+  final int statusCode;
+
+
+  factory BasicUpdatePrintModel.fromJson(Map<String, dynamic> json) {
+    return BasicUpdatePrintModel(
+      message: json["MESSAGE"] ?? "",
+      statusCode: json["STATUS_CODE"] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "MESSAGE": message,
+    "STATUS_CODE": statusCode,
+
+  };
+}

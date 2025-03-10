@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:retail_app/services/router/router_name.dart';
 import 'package:retail_app/services/sharepref/get_all_pref.dart';
 import 'package:retail_app/src/login/model/login_model.dart';
@@ -25,6 +26,7 @@ class ProductState extends ChangeNotifier {
 
   init() async {
     await clear();
+    await getGroupProductListFromDB();
     await checkConnection();
   }
 
@@ -37,8 +39,8 @@ class ProductState extends ChangeNotifier {
 
   clear() async {
     _isLoading = false;
-    _filterGroupList = [];
-    _groupList = [];
+  //  _filterGroupList = [];
+   // _groupList = [];
   }
 
   late bool _isLoading = false;
@@ -50,12 +52,19 @@ class ProductState extends ChangeNotifier {
 
   checkConnection() async {
     CheckNetwork.check().then((network) async {
+
       getCompanyDetail = await GetAllPref.companyDetail();
-      if (network) {
-        await networkSuccess();
-      } else {
+      if(_filterGroupList.isEmpty){
+        if (network) {
+          await networkSuccess();
+        } else {
+          await getGroupProductListFromDB();
+        }
+      }else{
         await getGroupProductListFromDB();
       }
+
+
     });
   }
 
@@ -66,8 +75,9 @@ class ProductState extends ChangeNotifier {
     getLoading = false;
   }
 
-  late List<ProductDataModel> _groupList = [], _filterGroupList = [];
+  late List<ProductDataModel> _groupList = [], _filterGroupList = [],_unitList = [];
   List<ProductDataModel> get groupList => _groupList;
+  List<ProductDataModel> get unitList => _unitList;
   List<ProductDataModel> get filterGroupList => _filterGroupList;
 
 
@@ -78,6 +88,11 @@ class ProductState extends ChangeNotifier {
   set getProductGroupList(List<ProductDataModel> value) {
     _groupList = value;
     _filterGroupList = _groupList;
+    notifyListeners();
+  }
+
+  set getProductUnit(List<ProductDataModel> value) {
+    _unitList = value;
     notifyListeners();
   }
 
@@ -102,13 +117,16 @@ class ProductState extends ChangeNotifier {
   }
 
   getDataFromAPI() async {
+    getLoading = true;
     ProductModel productData = await ProductAPI.getProduct(
       dbName: _companyDetail.dbName, unitCode: await GetAllPref.unitCode(),
     );
     if (productData.statusCode == 200) {
       await onSuccess(dataModel: productData.data);
+      getLoading = false;
     } else {
       ShowToast.errorToast(msg: "Faild to get data");
+      getLoading = false;
     }
 
     notifyListeners();
@@ -129,6 +147,14 @@ class ProductState extends ChangeNotifier {
   getGroupProductListFromDB() async {
     await ProductDatabase.instance.getProductGroupData().then((value) {
       getProductGroupList = value;
+    });
+    getProductUnitListFromDB();
+    notifyListeners();
+  }
+
+  getProductUnitListFromDB() async {
+    await ProductDatabase.instance.getProductUnit().then((value) {
+      getProductUnit = value;
     });
     notifyListeners();
   }
@@ -169,6 +195,30 @@ class ProductState extends ChangeNotifier {
     await getProductListFromDB(groupName: _selectedGroup.groupName);
 
     navigator.pushNamed(productListPath);
+    notifyListeners();
+  }
+  late List<ProductDataModel> _qrProductList = [];
+
+  List<ProductDataModel> get qrProductList => _qrProductList;
+
+  set getQrProductList(List<ProductDataModel> value) {
+    _qrProductList = value;
+    notifyListeners();
+  }
+  getQRProductListFromDB({code}) async {
+    await ProductDatabase.instance.getQRProduct(qrCode:code).then((value) {
+      getQrProductList = value;
+    });
+    notifyListeners();
+  }
+
+  getQRTempProductListFromDB({code}) async {
+    String qrCode = await GetAllPref.getQRData();
+
+    await ProductDatabase.instance.getQRProduct(qrCode:code).then((value) {
+      getQrProductList = value;
+    });
+
     notifyListeners();
   }
 }

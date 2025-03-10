@@ -23,8 +23,12 @@ import 'package:retail_app/src/vendor_report_bill/vendor_report_bill_state.dart'
 import 'package:retail_app/src/vendor_report_ledger/vendor_report_ledger_state.dart';
 import '../src/branch/branch_state.dart';
 
+import '../src/imagepicker/image_picker_state.dart';
 import '../src/ledger_report_party_bill/provider/data_provider.dart';
 import '../src/ledger_report_party_bill/provider/report_provider.dart';
+import '../src/pdc/state/pdc_entries_state.dart';
+import '../src/pdc/state/pdc_state.dart';
+import '../src/product_order/product_order_state.dart';
 import '../src/provider/dashboard_provider.dart';
 import '../src/purchase/state/purchase_bill_term_state.dart';
 import '../src/purchase/state/purchase_state.dart';
@@ -38,7 +42,8 @@ List<SingleChildWidget> myStateList = [
   ChangeNotifierProvider(create: (_) => ProductState()),
   ChangeNotifierProvider(create: (_) => ProductOrderState()),
   ChangeNotifierProvider(create: (_) => DatePickerState()),
-  ChangeNotifierProvider(create: (_) => PDCState()),
+  ChangeNotifierProvider(create: (_) => PDCEntriesState()),
+
   ChangeNotifierProvider(create: (_) => BillNoByVnoState()),
   ChangeNotifierProvider(create: (_) => ProductMaterState()),
   ChangeNotifierProvider(create: (_) => MaterState()),
@@ -61,4 +66,8 @@ List<SingleChildWidget> myStateList = [
   ChangeNotifierProvider(create: (_) => VendorReportLedgerState()),
   ChangeNotifierProvider(create: (_) => VendorReportBillState()),
   ChangeNotifierProvider(create: (_) => VendorPartyBillDetailsState()),
+  ChangeNotifierProvider(create: (_) => ProductOrderScanState()),
+  ChangeNotifierProvider(create: (_) => ImagePickerState()),
+  ChangeNotifierProvider(create: (_) => PDCState()),
+
 ];

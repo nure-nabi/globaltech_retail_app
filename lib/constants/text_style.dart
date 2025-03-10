@@ -21,6 +21,13 @@ var cardTextStyleHeader = const TextStyle(
   overflow: TextOverflow.ellipsis,
   color: Colors.white,
 );
+var cardTextStyleHeaderLogin = const TextStyle(
+  fontFamily: 'Montserrat Medium',
+  fontSize: 14,
+  fontWeight: FontWeight.w700,
+  overflow: TextOverflow.ellipsis,
+  color: Colors.orange,
+);
 var cardTextStyleTitle = const TextStyle(
   fontFamily: 'Montserrat Medium',
   fontSize: 14,
@@ -50,14 +57,14 @@ var cardTextStyleDropDownHeader = const TextStyle(
   fontSize: 14,
   overflow: TextOverflow.ellipsis,
   fontWeight: FontWeight.w600,
-  color: Colors.orange,
+  color: Colors.black,
 );
 var cardTextStyleDropDownTitle = const TextStyle(
   fontFamily: 'Montserrat Regular',
   fontSize: 12,
   overflow: TextOverflow.ellipsis,
   fontWeight: FontWeight.w600,
-  color: Colors.black54,
+  color: Colors.grey,
 );
 
 var cardTextWriteTitle = const TextStyle(

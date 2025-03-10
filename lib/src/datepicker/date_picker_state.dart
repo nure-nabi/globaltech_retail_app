@@ -9,6 +9,8 @@ class DatePickerState extends ChangeNotifier {
   //  _fromDate = NepaliDateTime.now().subtract(const Duration(days: 30)).toString().substring(0, 10);
 
     _toDate = DateTime.now().toString().substring(0, 10);
+   // _fromDate = DateTime.now().toString().substring(0, 10);
+
     _fromDate = DateTime.now().subtract(const Duration(days: 30)).toString().substring(0, 10);
   }
 

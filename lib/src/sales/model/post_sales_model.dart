@@ -35,6 +35,7 @@ class OrderDetail {
   OrderDetail({
     required this.outletCode,
     required this.unit,
+    required this.payAmount,
     required this.bTerm1,
     required this.bTerm1Rate,
     required this.bTerm1Amount,
@@ -44,11 +45,14 @@ class OrderDetail {
     required this.bTerm3,
     required this.bTerm3Rate,
     required this.bTerm3Amount,
+    required this.billNetAmt,
+    required this.userCode,
     required this.itemDetails,
   });
 
   final String outletCode;
   final String unit;
+  final String payAmount;
   final String bTerm1;
   final String bTerm1Rate;
   final String bTerm1Amount;
@@ -58,15 +62,18 @@ class OrderDetail {
   final String bTerm3;
   final String bTerm3Rate;
   final String bTerm3Amount;
+  final String billNetAmt;
+  final String userCode;
   final List<OrderPostItemDetailModel> itemDetails;
 
-  //
+
 
 
   factory OrderDetail.fromJson(Map<String, dynamic> json) {
     return OrderDetail(
       outletCode: json["OutletCode"] ?? "",
       unit: json["Unit"] ?? "",
+      payAmount: json["PayAmount"] ?? "",
       bTerm1: json["BTerm1"] ?? "",
       bTerm1Rate: json["BTerm1Rate"] ?? "",
       bTerm1Amount: json["BTerm1Amount"] ?? "",
@@ -76,26 +83,19 @@ class OrderDetail {
       bTerm3: json["BTerm3"] ?? "",
       bTerm3Rate: json["BTerm3Rate"] ?? "",
       bTerm3Amount: json["BTerm3Amount"] ?? "",
+      billNetAmt: json["BillNetAmt"] ?? "",
+      userCode: json["UserCode"] ?? "",
       itemDetails: json["ItemDetails"] == null
           ? []
           : List<OrderPostItemDetailModel>.from(
           json["ItemDetails"].map((x) => OrderPostItemDetailModel.fromJson(x))),
     );
   }
-// "OutletCode": "17",
-  // "Unit": "HETAUDA_BROILER",
-  // "BTerm1": "",
-  // "BTerm1Rate": "0.0",
-  // "BTerm1Amount": "0.0",
-  // "BTerm2": "",
-  // "BTerm2Rate": "0.0",
-  // "BTerm2Amount": "0.0",
-  // "BTerm3": "",
-  // "BTerm3Rate": "0.0",
-  // "BTerm3Amount": "0.0",
+
   Map<String, dynamic> toJson() => {
     "OutletCode": outletCode,
     "Unit": unit,
+    "PayAmount": payAmount,
     "BTerm1": bTerm1,
     "BTerm1Rate": bTerm1Rate,
     "BTerm1Amount": bTerm1Amount,
@@ -105,6 +105,8 @@ class OrderDetail {
     "BTerm3": bTerm3,
     "BTerm3Rate": bTerm3Rate,
     "BTerm3Amount": bTerm3Amount,
+    "BillNetAmt": billNetAmt,
+    "UserCode": userCode,
     "ItemDetails": List<dynamic>.from(itemDetails.map((x) => x.toJson())),
   };
 }

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:retail_app/src/login/model/login_model.dart';
-import '../../services/services.dart';
-import '../pdf/pdf.dart';
-import 'api/pdc_api.dart';
-import 'model/pdc_model.dart';
-import 'model/pdf_print_model.dart';
+import 'package:provider/provider.dart';
+import '../../../services/sharepref/get_all_pref.dart';
+import '../../login/model/login_model.dart';
+import '../../pdf/bill_pdf.dart';
+import '../../pdf/pdc_pdf.dart';
+import '../../products/products.dart';
+import '../../purchase/vendor_state.dart';
+import '../api/pdc_api.dart';
+import '../model/pdc_model.dart';
+import '../model/pdf_bounce_cheque_model.dart';
+import '../model/pdf_print_model.dart';
 
 class PDCState extends ChangeNotifier {
   PDCState();
@@ -21,24 +26,37 @@ class PDCState extends ChangeNotifier {
   }
 
   late bool _isLoading = false;
-
   bool get isLoading => _isLoading;
-
   set getLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
-  // late ProductState productState;
+  late bool _isCustomerFilter = false;
+  bool get isCustomerFilter => _isCustomerFilter;
+  set getCustomerFilter(bool value) {
+    _isCustomerFilter = value;
+    notifyListeners();
+  }
 
-  // getOutletInfoState() {
-  //   productState = Provider.of<ProductState>(context, listen: false);
-  // }
+  late ProductState productState;
+
+  getOutletInfoState() {
+    productState = Provider.of<ProductState>(context, listen: false);
+  }
 
   init() async {
+
     await clear();
-    // await getOutletInfoState();
-    await getPDCReportListFromAPI();
+    await  ledger();
+    await getOutletInfoState();
+
+
+    await Future.wait([
+      getPDCReportListFromAPI(),
+      getPDCBounceListFromAPI(),
+
+    ]);
   }
 
   late CompanyDetailsModel _companyDetail = CompanyDetailsModel.fromJson({});
@@ -53,9 +71,9 @@ class PDCState extends ChangeNotifier {
   clear() async {
     _isLoading = false;
     _companyDetail = await GetAllPref.companyDetail();
-    Future.delayed(const Duration(seconds: 0), () {
-      searchListData = "Deu";
-    });
+
+    _bounceList = [];
+    _dataList = [];
   }
 
   late List<PDCReportDataModel> _dataList = [], _filterDataList = [];
@@ -67,14 +85,15 @@ class PDCState extends ChangeNotifier {
   set getDataList(List<PDCReportDataModel> value) {
     _dataList = value;
     _filterDataList = _dataList;
+    searchListData = "Due";
     notifyListeners();
   }
 
   set searchListData(value) {
+    debugPrint("TYPE VALUE => $value");
     if (value.toString().toUpperCase() != "ALL") {
       _filterDataList = _dataList
-          .where((u) =>
-      (u.depositType.toLowerCase() == value.toString().toLowerCase()))
+          .where((u) => (u.bankName.toLowerCase() == value.toString().toLowerCase()))
           .toList();
     } else {
       _filterDataList = _dataList;
@@ -82,12 +101,13 @@ class PDCState extends ChangeNotifier {
     notifyListeners();
   }
 
-  getPDCReportListFromAPI() async {
+  Future getPDCReportListFromAPI() async {
     getLoading = true;
     PDCReportModel reportModel = await PDCReportAPI.apiCall(
       databaseName: _companyDetail.dbName,
-      // glCode: productState.outletDetail.glCode,
-      glCode: _companyDetail.ledgerCode,
+      glCode: ledgerState.selectedGlCode!.isNotEmpty ? ledgerState.selectedGlCode! : "",
+      agentCode: "",
+      // agentCode: "4",
     );
 
     if (reportModel.statusCode == 200) {
@@ -100,6 +120,40 @@ class PDCState extends ChangeNotifier {
   }
 
   final filterTypeList = ["All", "Deposit", "Due", "Cancel"];
+
+  /// ***************************************
+  /// ***************************************
+  /// ***************************************
+
+ late LedgerState ledgerState;
+ Future ledger()async{
+    ledgerState =  Provider.of<LedgerState>(context,listen: false);
+  }
+  Future getPDCBounceListFromAPI() async {
+    getLoading = true;
+    PdcBounceModel reportModel = await PDCReportAPI.apiCallfromBounceList(
+      databaseName: _companyDetail.dbName,
+      glCode: ledgerState.selectedGlCode!.isNotEmpty? ledgerState.selectedGlCode! :"",
+      agentCode: "",
+      // agentCode: "",
+    );
+
+    if (reportModel.statusCode == 200) {
+      bounceList = reportModel.data;
+      getLoading = false;
+    } else {
+      getLoading = false;
+    }
+    notifyListeners();
+  }
+
+  late List<PdcBounceDataModel> _bounceList = [];
+  List<PdcBounceDataModel> get bounceList => _bounceList;
+  set bounceList(List<PdcBounceDataModel> value) {
+    _bounceList = value;
+
+    notifyListeners();
+  }
 
   /// ***************************************
   /// ***************************************
@@ -148,8 +202,8 @@ class PDCState extends ChangeNotifier {
         receivedFrom: value.gldesc,
         receivedAmount: "${value.amount}",
         remarks: value.remarks,
-        // receivedBy: _companyDetail.loginName,
-        receivedBy: _companyDetail.phoneNo,
+        receivedBy: await GetAllPref.userName(),
+        branchName: '',
       );
 
       ////  opening the pdf file

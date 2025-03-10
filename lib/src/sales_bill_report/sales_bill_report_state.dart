@@ -10,6 +10,7 @@ import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
+import '../../model/basic_model.dart';
 import 'db/sales_bill_report.dart';
 
 class SalesBillReportState extends ChangeNotifier {
@@ -67,6 +68,7 @@ class SalesBillReportState extends ChangeNotifier {
   }
 
   getSalesBillReportFromAPI({required String billNo}) async {
+
     getLoading = true;
     SalesBillReportModel model = await SalesBillReportApi.apiCall(
       databaseName: _companyDetail.dbName,
@@ -99,6 +101,19 @@ class SalesBillReportState extends ChangeNotifier {
     });
     calculate();
     notifyListeners();
+  }
+
+
+  getSalesBillUpdateFromAPI({required String billNo}) async {
+    getLoading = true;
+    BasicUpdatePrintModel model = await SalesBillReportApi.salesBillUpdateApiCall(
+      databaseName: _companyDetail.dbName,
+      billNo: billNo,);
+    if (model.statusCode == 200) {
+
+    } else {
+    }
+    //notifyListeners();
   }
 
   late List<SalesBillReportDataModel> _salesBillReportList = [];
@@ -191,8 +206,8 @@ class SalesBillReportState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> printReceipt({required List<SalesBillReportDataModel> value}) async {
-
+  Future<void> printReceipt({required List<SalesBillReportDataModel> value, required billNo}) async {
+   await getSalesBillUpdateFromAPI(billNo: billNo);
     await SunmiPrinter.initPrinter();
     await SunmiPrinter.startTransactionPrint(true);
     /// COMPANY NAME
@@ -213,16 +228,23 @@ class SalesBillReportState extends ChangeNotifier {
     // if (_companyDetail.vatNo.isNotEmpty) {
     // await SunmiPrinter.printText('INVOICE');
     // } else {
-    await SunmiPrinter.printText('SALES INVOICE');
+    await SunmiPrinter.printText('INVOICE');
     // }
-
     await SunmiPrinter.setCustomFontSize(19);
-    await SunmiPrinter.printText('Invoice No : ${await GetAllPref.getVoucher()}');
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
+    await SunmiPrinter.printText("${await GetAllPref.unitCode()}     ${int.parse(value[0].hPrintCopy) > 0 ? "Copy of original(${value[0].hPrintCopy})" : ""}");
+    // await SunmiPrinter.setCustomFontSize(20);
+    // await SunmiPrinter.printText('${await GetAllPref.unitCode()}');
     await SunmiPrinter.setCustomFontSize(19);
-    await SunmiPrinter.printText('Name : ${await GetAllPref.customerName()}');
+    await SunmiPrinter.printText('Bill No : ${value[0].hvno}');
     await SunmiPrinter.setCustomFontSize(19);
-    await SunmiPrinter.printText('Address : ${await GetAllPref.customerAddress()}');
-
+    await SunmiPrinter.printText('Date    : ${value[0].hDate.substring(0,10)}(${value[0].hMiti.substring(0,10)})');
+    await SunmiPrinter.setCustomFontSize(19);
+    await SunmiPrinter.printText('Name    : ${value[0].hGlDesc}');
+    await SunmiPrinter.setCustomFontSize(19);
+    await SunmiPrinter.printText('Address :${value[0].address}');
+    await SunmiPrinter.setCustomFontSize(19);
+    await SunmiPrinter.printText('Pan No  :${value[0].hPanNo}');
     await SunmiPrinter.line();
     await SunmiPrinter.setCustomFontSize(19);
     await SunmiPrinter.printRow(cols: [
@@ -232,7 +254,7 @@ class SalesBillReportState extends ChangeNotifier {
         align: SunmiPrintAlign.LEFT,
       ),
       ColumnMaker(
-        text: "Item",
+        text: "HSN Item",
         width: 15,
         align: SunmiPrintAlign.LEFT,
       ),
@@ -265,11 +287,24 @@ class SalesBillReportState extends ChangeNotifier {
           width: 4,
           align: SunmiPrintAlign.LEFT,
         ),
-        ColumnMaker(
-          text: item.dpDesc,
-          width: 15,
-          align: SunmiPrintAlign.LEFT,
-        ),
+        if(item.altUnitCode.isNotEmpty)...[
+          ColumnMaker(
+            text: '${adjustStringLength(item.dpDesc)}${item.altUnitCode == "" ? "" : " ${item.altUnitCode}"}',
+            //  text: '                HSN${item.hsCode} ${item.altUnit == "" ? "" : " ${item.altUnit}"}',
+            // text: '${item.pName}    HSN ${item.altUnit} ${item.factor}',
+            width: 15,
+            align: SunmiPrintAlign.LEFT,
+          ),
+        ]else...[
+          ColumnMaker(
+            text: adjustStringLength(item.dpDesc),
+            //  text: '                HSN${item.hsCode} ${item.altUnit == "" ? "" : " ${item.altUnit}"}',
+            // text: '${item.pName}    HSN ${item.altUnit} ${item.factor}',
+            width: 15,
+            align: SunmiPrintAlign.LEFT,
+          ),
+        ],
+
         ColumnMaker(
           text: double.parse(item.dQty).toStringAsFixed(0),
           width: 5,
@@ -291,25 +326,38 @@ class SalesBillReportState extends ChangeNotifier {
     }
 
     await SunmiPrinter.line();
+    await SunmiPrinter.setCustomFontSize(19);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.RIGHT);
+    await SunmiPrinter.printText("Grand Total: ${grandTotal.toStringAsFixed(2)}");
 
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Grand Total:",
-        width: 20,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-        text: grandTotal.toStringAsFixed(2),
-        width: 10,
-        align: SunmiPrintAlign.RIGHT,
-      ),
-    ]);
+    // await SunmiPrinter.printRow(cols: [
+    //   ColumnMaker(
+    //     text: "Grand Total:",
+    //     width: 20,
+    //     align: SunmiPrintAlign.LEFT,
+    //   ),
+    //   ColumnMaker(
+    //     text: grandTotal.toStringAsFixed(2),
+    //     width: 10,
+    //     align: SunmiPrintAlign.RIGHT,
+    //   ),
+    // ]);
     await SunmiPrinter.line();
+    await SunmiPrinter.setCustomFontSize(18);
+    await SunmiPrinter.printText('Print Date & Time : ${await MyDate.showDateTime()}');
     await SunmiPrinter.printText('Prepared by : ${ await GetAllPref.userName()}');
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText("Thank you");
     await SunmiPrinter.submitTransactionPrint();
     await SunmiPrinter.lineWrap(3);
     await SunmiPrinter.exitTransactionPrint(true);
+  }
+
+  String adjustStringLength(String input) {
+    if (input.length < 15) {
+      return input.padRight(15, ' '); // Pad with spaces if it's shorter than 15
+    } else {
+      return input.substring(0, 15); // Truncate if it's longer than 15
+    }
   }
 }

@@ -148,7 +148,7 @@ class _LedgerReportPartyBillScreenState extends State<LedgerReportPartyBillScree
                             },
                             child: Card(
                               child: Container(
-                                height: 80,
+                                height: 95,
                                 decoration:  BoxDecoration(
                                   borderRadius: const BorderRadius.all(
                                       Radius.circular(12.0)),

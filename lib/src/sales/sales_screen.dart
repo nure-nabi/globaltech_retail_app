@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,8 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
   List<TextEditingController> _controllers = [] ;
   List<TextEditingController> _controllersAmount = [] ;
   double value = 0.00;
+  //double altCountAltQty=0.0;
+  double altCountQty=0.0;
   @override
   void initState() {
     super.initState();
@@ -161,13 +164,14 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state2 = context.watch<SalesTermState>();
+   // final state2 = context.watch<SalesTermState>();
     final state = context.watch<ProductOrderState>();
 
     final stateSalesTerm = context.watch<SalesTermState>();
     for(int i=0; i<stateSalesTerm.termList.length; i++){
       _controllers.add(TextEditingController());
       _controllersAmount.add(TextEditingController());
+
     }
 
     return SingleChildScrollView(
@@ -234,7 +238,6 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
           ),
           StatefulBuilder(
             builder: (context, void Function(void Function()) setState) {
-
               return CustomAlertWidget(
                 title: state.productDetail.pDesc,
                 child: Form(
@@ -245,71 +248,102 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        verticalSpace(10.0),
+                        verticalSpace(5.0),
 
+                        // RowDataWidget(
+                        //   valueFlex: 2,
+                        //   title: "Code",
+                        //   titleBold: true,
+                        //   valueBold: true,
+                        //   value: state.productDetail.pShortName.isNotEmpty
+                        //       ? state.productDetail.pShortName
+                        //       : state.productDetail.pCode,
+                        // ),
+                        // RowDataWidget(
+                        //   valueFlex: 2,
+                        //   title: "Group",
+                        //   titleBold: true,
+                        //   valueBold: true,
+                        //   value: state.productDetail.groupName,
+                        // ),
+                        // RowDataWidget(
+                        //   valueFlex: 2,
+                        //   title: "Buy Rate",
+                        //   titleBold: true,
+                        //   valueBold: true,
+                        //   value: state.productDetail.buyRate,
+                        // ),
+                        if(double.parse(state.productDetail.altQty) > 0)
                         RowDataWidget(
                           valueFlex: 2,
-                          title: "Code",
+                          title: "Unit Code",
                           titleBold: true,
                           valueBold: true,
-                          value: state.productDetail.pShortName.isNotEmpty
-                              ? state.productDetail.pShortName
-                              : state.productDetail.pCode,
+                          value: '1.00  ${state.productDetail.altUnit} ${state.productDetail.altQty}  ${state.productDetail.unit}',
                         ),
-                        RowDataWidget(
-                          valueFlex: 2,
-                          title: "Group",
-                          titleBold: true,
-                          valueBold: true,
-                          value: state.productDetail.groupName,
-                        ),
-                        RowDataWidget(
-                          valueFlex: 2,
-                          title: "Buy Rate",
-                          titleBold: true,
-                          valueBold: true,
-                          value: state.productDetail.buyRate,
-                        ),
-
+                        if(double.parse(state.productDetail.altQty) > 0)
                         Divider(color: hintColor),
-
+                        if(double.parse(state.productDetail.altQty) > 0)
+                        // alt quantity
                         Container(
-                          margin: const EdgeInsets.all(3.0),
-                          child: Row(children: [
-                            const Expanded(
-                              flex: 2,
+                         // margin: const EdgeInsets.all(0),
+                          child: Row(
+                             // crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                             Expanded(
+                              flex: 1,
                               child: Text(
-                                "Quantity",
+                                "Alt Qty\n(${state.productDetail.altUnit})",
                                 style: TextStyle(fontSize: 14.0),
                               ),
                             ),
                             const Expanded(
-
                               child: Text(' : ',
                                   textAlign: TextAlign.center),
                             ),
                             Expanded(
-                              flex: 5,
+                              flex: 2,
                               child: TextFormField(
-                                controller: state.quantity,
+                                controller: state.altQuantity,
                                 onTap: () async {
-                                  state.quantity.text = "";
+                                  state.lastEditedField = "altQty";
+                                  state.altQuantity.text = "";
+                                  state.quantity.text = "0.00";
+                                  state.altCountAltQty = 0.0;
+                                  altCountQty = 0.0;
+                                  state.calculate();
 
                                 },
                                 validator: (value) {
                                   if (value!.isEmpty ||
-                                      state.quantity.text == "0.00") {
+                                      state.altQuantity.text == "0.00") {
                                     return "";
                                   } else {
                                     return null;
                                   }
                                 },
                                 onChanged: (text) async {
-                                  // state.orderFormKey.currentState!
-                                  // .validate();
+                                  if(text==""){
+                                    state.altCountAltQty = 0.0;
+                                    altCountQty = 0.0;
+                                    state.quantity.text = "0.0";
+                                    setState(() {});
+                                  }else{
+                                    altCountQty = double.parse(state.quantity.text);
+                                  }
+
+                                  state.lastEditedField = "altQty";
+                                  state.orderFormKey.currentState!.validate();
                                   state.calculate();
-                                  state.calculateProductQty();
+                                  state.altCountAltQty = double.parse(text);
+
                                   setState(() {});
+
+
+                                  // state.calculate();
+                                  // state.calculateProductQty();
+                                  // setState(() {});
                                 },
                                 keyboardType: TextInputType.number,
                                 inputFormatters: <TextInputFormatter>[
@@ -348,16 +382,219 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                                 ),
                               ),
                             ),
+                            SizedBox(width: 5,),
+                            Expanded(
+                              flex: 2,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                InkWell(
+                                  onTap: ()async{
+                                    if(state.altCountAltQty>0) {
+                                      state.altCountAltQty--;
+                                      state.altQuantity.text = state.altCountAltQty.toString();
+                                      state.lastEditedField = "altQty";
+                                      state.orderFormKey.currentState!.validate();
+                                      state.calculate();
+                                      altCountQty =  double.parse(state.quantity.text);
+                                      setState(() {});
+                                    }
+                                  },
+                                  child: Container(
+                                      padding: EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(color: Colors.grey),
+                                          borderRadius: BorderRadius.all(Radius.circular(50))
+                                      ),
+                                      child: Icon(EvaIcons.minus,size: 20,)),
+                                ),
+                                SizedBox(width: 10,),
+                               // Text('${state.altCountAltQty.toStringAsFixed(1)}'),
+                               // SizedBox(width: 5,),
+                                InkWell(
+                                  onTap: ()async{
+                                    state.altCountAltQty++;
+                                    state.altQuantity.text = state.altCountAltQty.toString();
+                                    state.lastEditedField = "altQty";
+                                    state.orderFormKey.currentState!.validate();
+                                    state.calculate();
+                                    if(state.altCountAltQty==0){
+                                      altCountQty =  double.parse(state.productDetail.altQty);
+                                    }else{
+                                      altCountQty =  double.parse(state.quantity.text);
+                                    }
+
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                      padding: EdgeInsets.all(2),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(color: Colors.grey),
+                                          borderRadius: BorderRadius.all(Radius.circular(50))
+                                      ),
+                                      child: Icon(EvaIcons.plus,size: 20,)),
+                                )
+                              ],
+                            ))
+                          ]),
+                        ),
+                        //quantity
+                        Container(
+                          margin: const EdgeInsets.all(0),
+                          child: Row(children: [
+                             Expanded(
+                              flex: 1,
+                              child: Text(
+                                "Qty",
+                                style: TextStyle(fontSize: 14.0),
+                              ),
+                            ),
+                            const Expanded(
+
+                              child: Text(' : ',
+                                  textAlign: TextAlign.center),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: TextFormField(
+                                controller: state.quantity,
+                                onTap: () async {
+                                 // state.quantity.text = "";
+
+                                  state.lastEditedField = "quantity";
+                                  state.quantity.text = "";
+                                  state.altQuantity.text = "0.00";
+                                  state.altCountAltQty = 0.0;
+                                  altCountQty = 0.0;
+                                  state.calculate();
+
+                                },
+                                validator: (value) {
+                                  if (value!.isEmpty ||
+                                      state.quantity.text == "0.00") {
+                                    return "";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                                onChanged: (text) async {
+                                  if(text==""){
+                                    state.altCountAltQty = 0.0;
+                                    altCountQty = 0.0;
+                                    setState(() {});
+                                  }else{
+
+                                  }
+                                  state.lastEditedField = "quantity";
+                                  state.orderFormKey.currentState!.validate();
+                                  altCountQty = double.parse(text);
+                                  state.calculate();
+                                  setState(() {});
+
+                                  // state.calculate();
+                                  // state.calculateProductQty();
+                                  // setState(() {})r;
+                                },
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d+\.?\d{0,3}')),
+                                ],
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  counter: const Offstage(),
+                                  isDense: true,
+                                  hintText: "",
+                                  labelStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0,
+                                  ),
+                                  contentPadding:
+                                  const EdgeInsets.all(10.0),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(5.0),
+                                    borderSide: BorderSide(
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(5.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(5.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                           Expanded(
+                             flex: 2,
+                               child:
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.end,
+                             children: [
+                               SizedBox(width: 5,),
+                               InkWell(
+                                 onTap: ()async{
+                                   if(altCountQty>0) {
+                                     altCountQty--;
+                                     state.quantity.text = altCountQty.toString();
+                                     state.lastEditedField = "quantity";
+                                     state.orderFormKey.currentState!.validate();
+                                     state.calculate();
+                                     setState(() {});
+                                   }
+                                 },
+                                 child: Container(
+                                     padding: EdgeInsets.all(2),
+                                     decoration: BoxDecoration(
+                                         border: Border.all(color: Colors.grey),
+                                         borderRadius: BorderRadius.all(Radius.circular(50))
+                                     ),
+                                     child: Icon(EvaIcons.minus,size: 20,)),
+                               ),
+                               SizedBox(width: 10,),
+                               //Text('${altCountQty.toString()}'),
+                              // SizedBox(width: 5,),
+                               InkWell(
+                                 onTap: ()async{
+                                   altCountQty++;
+                                   state.lastEditedField = "quantity";
+                                   state.quantity.text = altCountQty.toString();
+                                   state.orderFormKey.currentState!.validate();
+                                   state.calculate();
+                                   if(altCountQty==0){
+                                     altCountQty =  double.parse(state.productDetail.altQty);
+                                   }else{
+                                     altCountQty =  double.parse(state.quantity.text);
+                                   }
+                                   setState(() {});
+                                 },
+                                 child: Container(
+                                     padding: EdgeInsets.all(2),
+                                     decoration: BoxDecoration(
+                                         border: Border.all(color: Colors.grey),
+                                         borderRadius: BorderRadius.all(Radius.circular(50))
+                                     ),
+                                     child: Icon(EvaIcons.plus,size: 20,)),
+                               )
+                             ],
+                           ))
                           ]),
                         ),
 
                         Container(
-                          margin: const EdgeInsets.all(3.0),
+                          margin: const EdgeInsets.all(0),
                           child: Row(children: [
                             const Expanded(
-                              flex: 2,
+                              flex: 1,
                               child: Text(
-                                "Sales Rate",
+                                "Rate",
                                 style: TextStyle(fontSize: 14.0),
                               ),
                             ),
@@ -421,28 +658,29 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                             ),
                           ]),
                         ),
-                        Row(children: [
-                          const Expanded(
-                              flex: 2,
-                              child: Text(
-                                "Amount",
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                ),
-                              )),
-                          const Expanded(
-                              child: Text(' : ',
-                                  textAlign: TextAlign.center)),
-                          Expanded(
-                              flex: 5,
-                              child: Text(
-                                state.totalSalesPrice.toStringAsFixed(2),
-                                style: const TextStyle(
-                                  fontSize: 15.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )),
-                        ]),
+                        // Row(children: [
+                        //   const Expanded(
+                        //       flex: 2,
+                        //       child: Text(
+                        //         "Amount",
+                        //         style: TextStyle(
+                        //           fontSize: 14.0,
+                        //         ),
+                        //       )),
+                        //   const Expanded(
+                        //       child: Text(' : ',
+                        //           textAlign: TextAlign.center)),
+                        //   Expanded(
+                        //       flex: 5,
+                        //       child: Text(
+                        //       //  state.totalSalesPrice.toStringAsFixed(2),
+                        //         state.totalPrice.toStringAsFixed(2),
+                        //         style: const TextStyle(
+                        //           fontSize: 15.0,
+                        //           fontWeight: FontWeight.bold,
+                        //         ),
+                        //       )),
+                        // ]),
 
                         SizedBox(height: 5,),
                         stateSalesTerm.termList.isNotEmpty ?
@@ -728,7 +966,7 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                           ),
                         ):SizedBox(),
                         const SizedBox(
-                          height: 12.0,
+                          height: 0,
                         ),
                         Row(children: [
                           const Expanded(
@@ -736,7 +974,7 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                               child: Text(
                                 "Total Amount",
                                 style: TextStyle(
-                                  fontSize: 18.0,
+                                  fontSize: 15.0,
                                   fontWeight: FontWeight.bold,
                                 ),
                               )),
@@ -757,11 +995,11 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                         Divider(
                           thickness: 1,
                           color: Colors.grey.shade200,
-                          height: 10.0,
+                          height: 5.0,
                         ),
 
                         Container(
-                          padding: EdgeInsets.only(bottom: 10),
+                          padding: EdgeInsets.only(bottom: 2),
                           margin: const EdgeInsets.symmetric(
                               horizontal: 10.0),
                           child: Row(
@@ -794,6 +1032,7 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                                     if(double.parse(state.quantity.text) > 0) {
 
                                       await state.saveTempProduct();
+
                                       Navigator.push(context, PageTransition(type: PageTransitionType.rightToLeft,
                                         child: const OrderListSection(),),);
                                     }else{

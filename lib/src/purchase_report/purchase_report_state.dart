@@ -203,8 +203,10 @@ class PurchaseReportState extends ChangeNotifier {
       getCustomerList = value;
       toDate="";
       fromDate="";
-      calculate();
+
     });
+    await getPurchaseTotalFromDB();
+    await calculate();
     notifyListeners();
   }
 

@@ -24,6 +24,15 @@ class MaterState extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  late bool _mappingInsert = false;
+
+  bool get mappingInsert => _mappingInsert;
+
+  set setMappingInsert(bool value) {
+    _mappingInsert = value;
+    notifyListeners();
+  }
+
   set getLoading(bool value) {
     _isLoading = value;
     notifyListeners();

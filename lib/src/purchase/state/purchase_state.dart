@@ -61,6 +61,13 @@ class PurchaseOrderState extends ChangeNotifier {
     notifyListeners();
   }
 
+  late bool _dataInserted = false;
+  bool get dataInserted => _dataInserted;
+  set setDataInserted(bool value) {
+    _dataInserted = value;
+    notifyListeners();
+  }
+
   init() async {
 
     // await clear2();
@@ -763,6 +770,7 @@ class PurchaseOrderState extends ChangeNotifier {
         await SetAllPref.setVoucherNo(value: modelData.message);
         await PurchaseProductOrderDatabase.instance.deleteData();
         await productOrderComplete(ctx, true, "Sales successfully !!!");
+        setDataInserted = false;
         Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
       } else {
         await PurchaseProductOrderDatabase.instance.deleteData();
@@ -968,6 +976,7 @@ class PurchaseOrderState extends ChangeNotifier {
     // getCompanyDetail = await GetAllPref.companyDetail();
     OutletModel outletData = await OutletList.partyList(
       dbName: _companyDetail.dbName,
+      unitCode: await GetAllPref.unitCode(),
     );
     if (outletData.statusCode == 200) {
       //  getcustomerList = outletData.data;

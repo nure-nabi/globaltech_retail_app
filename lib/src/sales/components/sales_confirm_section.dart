@@ -6,6 +6,7 @@ import 'package:retail_app/src/sales/sales_state.dart';
 import 'package:retail_app/utils/loading_indicator.dart';
 import '../../../themes/themes.dart';
 import '../../../widgets/widgets.dart';
+import '../../imagepicker/image_picker_state.dart';
 
 
 class OrderConfirmSection extends StatefulWidget {
@@ -104,8 +105,10 @@ class _OrderConfirmSectionState extends State<OrderConfirmSection> {
                 onPressed: () async {
                   if (state.commentKey.currentState!.validate()) {
                     await state.onFinalOrderSaveToDB().whenComplete(() async {
+                      state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
                       await state.productOrderAPICall(context);
                     });
+
                   }
                 },
                 child: const Text("Add Comment"),

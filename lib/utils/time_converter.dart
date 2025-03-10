@@ -14,4 +14,9 @@ class MyTimeConverter {
     int timestamp = dateTime.millisecondsSinceEpoch;
     return timestamp.toString().substring(0, 10);
   }
+  static Future<String> showDateTime()async{
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+    return formattedDate;
+  }
 }

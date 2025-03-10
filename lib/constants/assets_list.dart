@@ -19,10 +19,13 @@ class AssetsList {
   static String reportImage = "assets/images/report.png";
   static String purchaseImage = "assets/images/purchase.png";
   static String createImage = "assets/images/edit.png";
+  static String salereport = "assets/icons/salesreport.webp";
   static String faviImage = "assets/images/favicon.png";
+
   static String productImage = "assets/images/product.png";
   static String reportPurchase = "assets/images/report_purchase.png";
   static String abPallet = "assets/images/ABPallet.jpg";
+  static String customerreport = "assets/images/customerreport.jpg";
 
 
   ///

@@ -12,6 +12,8 @@ class LedgerReportPartyBillApi{
   }) async {
     var jsonData = await APIProvider.getAPI(
       endPoint: "MasterList/ListMobileRepLedgerDetailswithoutPDC?DbName=$databaseName&GlCode=$glCode",
+      //http://kkmapi.omsird.com:802/api/MasterList/ListMobileRepLedgerSummary?DbName=kkmpl08101&Catagory=customer&unitcode=headoffice
+      //http://kkmapi.omsird.com:802/api/generalledger/LedgerList?dbname=kkmpl08101&unitCode=KAPAN
     );
 
     CustomLog.successLog(value: "RESPONSE => $jsonData");

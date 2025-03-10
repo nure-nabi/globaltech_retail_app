@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:retail_app/services/sharepref/get_all_pref.dart';
 import 'package:retail_app/src/login/model/login_model.dart';
@@ -10,6 +11,7 @@ import 'package:retail_app/utils/connection_status.dart';
 import 'package:retail_app/utils/custom_log.dart';
 
 import '../datepicker/date_picker_state.dart';
+import '../ledger_report_party_bill/provider/report_provider.dart';
 
 class SalesReportState extends ChangeNotifier {
   SalesReportState();
@@ -54,8 +56,16 @@ class SalesReportState extends ChangeNotifier {
   }
 
   clean() async {
+    _filterCustomerList= [];
+    _dataList= [];
     _isLoading = false;
     _companyDetail = await GetAllPref.companyDetail();
+  }
+
+  dateReceivedSalesReport() async{
+    getFromDate = Provider.of<DatePickerState>(context, listen: false).fromDate;
+    getToDate = Provider.of<DatePickerState>(context, listen: false).toDate;
+    notifyListeners();
   }
 
   late CompanyDetailsModel _companyDetail = CompanyDetailsModel.fromJson({});
@@ -87,21 +97,41 @@ class SalesReportState extends ChangeNotifier {
   }
 
   set filterCustomerList(value) {
-    _filterCustomerList = _customerList
-        .where((u) => (u.glDesc.toLowerCase().contains(value.toLowerCase())))
-        .toList();
+    _filterCustomerList = _customerList.where((u) => (u.glDesc.toLowerCase().contains(value.toLowerCase()))).toList();
     notifyListeners();
   }
 
   onDatePickerConfirm() async {
-    getDataList = [];
+   // getDataList = [];
     getFromDate = Provider.of<DatePickerState>(context, listen: false).fromDate;
     getToDate = Provider.of<DatePickerState>(context, listen: false).toDate;
-    // await getDataFromDatabase().whenComplete(() {
+    await getLedgerDateWiseFromDB(fromDate,toDate);
+    // await getLedgerDateWiseFromDB(fromDate,toDate).whenComplete(() {
     //   Navigator.pop(context);
     // });
     notifyListeners();
   }
+
+  dailyReport() async {
+    // toDate = "";
+    // fromDate = "";
+    // _toDate = NepaliDateTime.now().toString().substring(0, 10);
+    //  _fromDate = NepaliDateTime.now().subtract(const Duration(days: 30)).toString().substring(0, 10);
+  //  getToDate = DateTime.now().toString().substring(0, 10);
+  //  getFromDate = DateTime.now().toString().substring(0, 10);
+
+     DateTime _fromDateEng  = Provider.of<ReportProvider>(context, listen: false).fromDateEng;
+     DateTime toDateEng  = Provider.of<ReportProvider>(context, listen: false).toDateEng;
+
+     getFromDate = _fromDateEng.toString().substring(0, 10);
+     getToDate =toDateEng.toString().substring(0, 10);
+
+     await getLedgerDateWiseFromDB(fromDate,toDate);
+
+    //_fromDate = DateTime.now().subtract(const Duration(days: 30)).toString().substring(0, 10);
+    notifyListeners();
+  }
+
   String toDate = "";
   String fromDate = "";
   set getFromDate(String value) {
@@ -115,7 +145,11 @@ class SalesReportState extends ChangeNotifier {
   }
 
   Future<void> checkConnection() async {
+     // toDate = "";
+     // fromDate = "";
+
     try {
+      await dateReceivedSalesReport();
       bool network = await CheckNetwork.check();
       if (network) {
         await networkSuccess();
@@ -130,24 +164,34 @@ class SalesReportState extends ChangeNotifier {
 
   Future<void> networkSuccess() async {
     _isLoading = true;
-    getPurchaseReportFromAPI();
+    await getLedgerDateWiseFromDB(fromDate,toDate);
+    if(filterCustomerList.isNotEmpty){
+      await getLedgerDateWiseFromDB(fromDate,toDate);
+    }else{
+      getSalesReportFromAPI();
+    }
+
     _isLoading = false;
   }
 
-  Future<void> getPurchaseReportFromAPI() async {
-    getLoading = true;
-    SalesModel model = await SalesReportApi.apiCall(
-      databaseName: _companyDetail.dbName,
-      unitCode: await GetAllPref.unitCode(),
-    );
+  Future<void> getSalesReportFromAPI() async {
 
-    if (model.statusCode == 200) {
-     // getDataList = model.data;
-      await onSuccess(dataModel: model.data);
-      getLoading = false;
-    } else {
-      getLoading = false;
+    try{
+      getLoading = true;
+      SalesModel model = await SalesReportApi.apiCall(
+        databaseName: _companyDetail.dbName,
+        unitCode: await GetAllPref.unitCode(),
+      );
+      if (model.statusCode == 200) {
+        await onSuccess(dataModel: model.data);
+        getLoading = false;
+      } else {
+        getLoading = false;
+      }
+    }catch(e){
+
     }
+
     notifyListeners();
   }
 
@@ -170,29 +214,25 @@ class SalesReportState extends ChangeNotifier {
 
   onSuccess({required List<SalesDataModel> dataModel}) async {
     await SalesReportDbDatabase.instance.deleteData();
-
     for (var element in dataModel) {
       await SalesReportDbDatabase.instance.insertData(element);
     }
     await getLedgerDateWiseFromDB(fromDate,toDate);
-    notifyListeners();
-  }
-
-  getCustomerListFromDB() async {
-    await SalesReportDbDatabase.instance.getAllSalesReportData().then((value) {
-      getCustomerList = value;
-    });
-    notifyListeners();
+   // notifyListeners();
   }
 
   getLedgerDateWiseFromDB( String fromDated, String toDated,) async {
+   // getLoading = false;
     await SalesReportDbDatabase.instance.getDateWiseList(fromDate: fromDate, toDate: toDate).then((value) {
       getDataList = value;
       getCustomerList = value;
-      toDate="";
-      fromDate="";
-      calculate();
+      // toDate="";
+      // fromDate="";
     });
+
+    getLoading = false;
+    await getSaleTotalFromDB();
+    await calculate();
     notifyListeners();
   }
   double _totalAmount = 0.0;

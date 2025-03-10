@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:retail_app/src/products/products_state.dart';
 
+import '../../constants/assets_list.dart';
 import '../../constants/text_style.dart';
+import '../../services/router/router_name.dart';
 import '../../themes/themes.dart';
+import '../../utils/flutter_speed_dial.dart';
 import '../../utils/utils.dart';
 import '../../widgets/widgets.dart';
+import '../index/components/grid_section.dart';
+import '../qr_scanner/qr_list_product.dart';
+import '../qr_scanner/qr_scanner.dart';
 import 'model/product_model.dart';
 
 
@@ -28,7 +34,20 @@ class _ProductScreenState extends State<ProductScreen> {
     return Consumer<ProductState>(builder: (context, state, child) {
       return Stack(children: [
         Scaffold(
-          appBar: AppBar(title:  Text("Product Groups",style: cardTextStyleHeader,)),
+          appBar: AppBar(
+
+            title:  Text("Product Groups",style: cardTextStyleHeader,),
+            actions:   [
+              IconButton(
+                icon: Icon(Icons.sync),
+                onPressed: () {
+                  state.getDataFromAPI();
+                },
+              )
+            ],
+            //getDataFromAPI
+
+          ),
           body: Column(
             children: [
              // verticalSpace(10.0),
@@ -89,7 +108,25 @@ class _ProductScreenState extends State<ProductScreen> {
               )
             ],
           ),
+          floatingActionButton: FloatingActionButton(
+            heroTag: "Options",
+            onPressed: () => {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  opaque: false,
+                  barrierColor: Colors.black.withOpacity(.4),
+                  transitionDuration: const Duration(milliseconds: 100),
+                  reverseTransitionDuration: const Duration(milliseconds: 100),
+                  pageBuilder: (_, __, ___) => const SpeedDialOptionsWidget(),
+                ),
+              ),
+
+              ///
+            },
+            child: const Icon(Icons.menu, size: 35.0),
+          ),
         ),
+
         if (state.isLoading) LoadingScreen.loadingScreen(),
       ]);
     });

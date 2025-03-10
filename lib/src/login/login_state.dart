@@ -6,6 +6,7 @@ import 'package:retail_app/src/login/db/login_db.dart';
 import 'package:retail_app/src/login/model/login_model.dart';
 import '../../config/app_detail.dart';
 import '../../services/sharepref/sharepref.dart';
+import '../../utils/location_permission.dart';
 import '../../utils/utils.dart';
 import 'api/login_api.dart';
 import 'companylist_screen.dart';
@@ -74,6 +75,19 @@ class LoginState extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  permissionHandler(bool isRemembeMre) async {
+    await MyPermission.askPermissions().then((value) async {
+      if (value) {
+        await isOnline(isRemembeMre);
+        // await getLoginAPICall();
+      } else {
+        await MyPermission.askPermissions();
+      }
+    });
+    notifyListeners();
+  }
+
   setAPI() async {
     if (apiKey.currentState!.validate()) {
       CustomLog.actionLog(value: apiController.text.trim());
@@ -104,11 +118,13 @@ class LoginState extends ChangeNotifier {
     if (loginKey.currentState!.validate()) {
       if (demoLoginCheck()) {
       //  navigator.pushReplacementNamed(indexPath);
-        Fluttertoast.showToast(msg: "msg");
+
         return;
       } else {
       //  Fluttertoast.showToast(msg: "msg2");
-        await isOnline(isRemembeMre);
+
+      await  permissionHandler(isRemembeMre);
+       // await isOnline(isRemembeMre);
       }
     }
     notifyListeners();
@@ -160,17 +176,22 @@ class LoginState extends ChangeNotifier {
       await ClientListDBHelper.instance.insertData(element);
     }
 
+
+
     await onSuccess(isRemembeMre);
     notifyListeners();
   }
 
   onSuccess(bool isRemembeMre) async {
     getLoading = false;
-
-    //
     await SetAllPref.userName(value: userNameController.text.trim());
     await SetAllPref.setPassword(value: passwordController.text.trim());
     await SetAllPref.isLogin(value: isRemembeMre);
+    final location = MyLocation();
+    final String latitude = await location.lat();
+    final String longitude = await location.long();
+    await SetAllPref.latitude(value: latitude);
+    await SetAllPref.longitude(value: longitude);
     await getCompanyFromDatabase();
 
     ///

@@ -220,7 +220,7 @@ class Invoice {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
 
-            Text("Total:          ", textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Total: ", textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold)),
                 // Container(
                 //   margin: const EdgeInsets.only(right: 100),
                 //   height: 20.0,

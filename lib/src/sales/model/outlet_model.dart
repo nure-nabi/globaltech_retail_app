@@ -33,6 +33,7 @@ class OutletDataModel {
     required this.glCatagory,
     required this.mobile,
     required this.address,
+    required this.panno,
   });
 
   final String glCode;
@@ -40,6 +41,7 @@ class OutletDataModel {
   final String glCatagory;
   final String mobile;
   final String address;
+  final String panno;
 
   factory OutletDataModel.fromJson(Map<String, dynamic> json) {
     return OutletDataModel(
@@ -48,6 +50,7 @@ class OutletDataModel {
       glCatagory: json["GlCatagory"] ?? "",
       mobile: json["MobileNo"] ?? "",
       address: json["Address"] ?? "",
+      panno: json["Panno"] ?? "",
     );
   }
 
@@ -57,5 +60,6 @@ class OutletDataModel {
     "GlCatagory": glCatagory,
     "MobileNo": mobile,
     "Address": address,
+    "Panno": panno,
   };
 }

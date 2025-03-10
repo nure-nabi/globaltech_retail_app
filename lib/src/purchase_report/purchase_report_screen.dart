@@ -30,7 +30,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   void initState() {
     super.initState();
     Provider.of<PurchaseReportState>(context, listen: false).getContext = context;
-    Provider.of<PurchaseReportState>(context, listen: false).getPurchaseTotalFromDB();
+   // Provider.of<PurchaseReportState>(context, listen: false).getPurchaseTotalFromDB();
   }
 
   @override

@@ -52,9 +52,14 @@ class SalesReportDbDatabase {
        ORDER BY
            substr(${DatabaseDetails.billDate}, 7) || '-' ||
            substr(${DatabaseDetails.billDate}, 4, 2) || '-' ||
-           substr(${DatabaseDetails.billDate}, 1, 2) ASC ''';
+           substr(${DatabaseDetails.billDate}, 1, 2) DESC ''';
     }else{
-      myQuery = ''' select * from SalesReportTable ''';
+      myQuery = ''' SELECT * FROM ${DatabaseDetails.salesReportTable}
+      ORDER BY
+           substr(${DatabaseDetails.billDate}, 7) || '-' ||
+           substr(${DatabaseDetails.billDate}, 4, 2) || '-' ||
+           substr(${DatabaseDetails.billDate}, 1, 2) DESC 
+      ''';
     }
 
     db = await DatabaseHelper.instance.database;

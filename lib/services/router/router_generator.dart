@@ -3,19 +3,25 @@ import 'package:page_transition/page_transition.dart';
 import 'package:retail_app/services/router/router_name.dart';
 import 'package:retail_app/src/branch/screen/branch_screen.dart';
 import 'package:retail_app/src/index/index_screen.dart';
-import 'package:retail_app/src/ledger_master/ledger_master_screen.dart';
 import 'package:retail_app/src/ledger_report_party/ledger_report_party_screen.dart';
 import 'package:retail_app/src/login/login_screen.dart';
 import 'package:retail_app/src/product_master/product_master_screen.dart';
 import 'package:retail_app/src/products/components/product_list_screen.dart';
 import 'package:retail_app/src/purchase_report/purchase_report_screen.dart';
 import 'package:retail_app/src/sales/components/sales_confirm_section.dart';
+import 'package:retail_app/src/salesreport/daily_report.dart';
 import 'package:retail_app/src/salesreport/sales_report_screen.dart';
 import 'package:retail_app/src/splash/splash_screen.dart';
 import 'package:retail_app/src/vendor_report_ledger/vendor_report_ledger_screen.dart';
+import '../../src/ledger_master/ledger_master_page.dart';
 import '../../src/ledger_report_party_bill/ledger_report_party_bill.dart';
+import '../../src/pdc/pdc.dart';
+import '../../src/pdc/pdc_entry.dart';
+import '../../src/pdc/pdc_screen.dart';
 import '../../src/products/products_screen.dart';
 import '../../src/purchase/screen/vendor_screen.dart';
+import '../../src/qr_scanner/qr_list_product.dart';
+import '../../src/qr_scanner/qr_productList.dart';
 import '../../src/sales/customer_list_entry.dart';
 
 class RouteGenerator {
@@ -39,7 +45,7 @@ class RouteGenerator {
       case createLedgerPath:
         return PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: const LedgerMasterScreen(),
+          child: const LedgerMasterPage(),
         );
       case productScreenPath:
         return PageTransition(
@@ -58,6 +64,16 @@ class RouteGenerator {
           child: const CustomerScreen(),
           //  CustomerScreen
         );
+      // case qrSectionPath:
+      //   return PageTransition(
+      //     type: PageTransitionType.rightToLeft,
+      //     child:  QrProductListSection(),
+      //   ); //
+      case qrScreenPath:
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child:  QRProductListScreen(),
+        ); //QrProductListSection
       case orderConfirmPath:
         return PageTransition(
           type: PageTransitionType.rightToLeft,
@@ -73,6 +89,11 @@ class RouteGenerator {
           type: PageTransitionType.rightToLeft,
           child: const PurchaseScreen(),
         );
+      case dailyReport:
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: const DailyReport(),
+        );
       case salesReportPath:
         return PageTransition(
           type: PageTransitionType.rightToLeft,
@@ -82,6 +103,16 @@ class RouteGenerator {
         return PageTransition(
           type: PageTransitionType.rightToLeft,
           child: const CustomerListEntry(ledgerName: 'customer',),
+        );
+      case pdcEntry:
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: const PDCEntriesScreen(),
+        );
+      case pDCScreen:
+        return PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: const PDCScreen(),
         );
       case branchPath:
         return PageTransition(

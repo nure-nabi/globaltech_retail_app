@@ -50,6 +50,7 @@ class LedgerState extends ChangeNotifier {
   }
 
   init(String ledgerName) async {
+    await getLedgerListFromDB(ledgerName);
     await checkConnection(ledgerName);
     getCustomer = null;
   }
@@ -57,23 +58,32 @@ class LedgerState extends ChangeNotifier {
   checkConnection(String ledgerName) async {
     CheckNetwork.check().then((network) async {
       getCompanyDetail = await GetAllPref.companyDetail();
-      if (network) {
-        await getDataList(ledgerName);
-      } else {
-         await getLedgerListFromDB(ledgerName);
+      if(LedgerList.isEmpty){
+        if (network) {
+          await getDataList(ledgerName);
+        } else {
+          await getLedgerListFromDB(ledgerName);
+        }
+      }else{
+        await getLedgerListFromDB(ledgerName);
       }
+
     });
   }
 
   clear() async {
-    _isLoading = false;
-
+   // _isLoading = true;
+    _ledgerList = [];
+    selectedGlCode="";
+    _customer = null;
   }
 
   Future<List<OutletDataModel>> getDataList(String ledgerName) async {
     // getCompanyDetail = await GetAllPref.companyDetail();
+    getLoading = true;
     OutletModel outletData = await OutletList.partyList(
       dbName: _companyDetail.dbName,
+      unitCode: await GetAllPref.unitCode(),
     );
     if (outletData.statusCode == 200) {
       await onSuccess(dataModel: outletData.data,ledgerName:ledgerName);
@@ -92,9 +102,11 @@ class LedgerState extends ChangeNotifier {
     notifyListeners();
   }
   getLedgerListFromDB(String ledgerName) async {
+
     await LedgerDatabase.instance.getLedgerCatagoryList(ledgerName).then((value) {
       getLedgerList = value;
     });
+    getLoading = false;
     notifyListeners();
   }
 

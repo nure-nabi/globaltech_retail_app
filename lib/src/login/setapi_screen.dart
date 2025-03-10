@@ -16,7 +16,7 @@ class SetAPISection extends StatefulWidget {
 }
 
 class _SetAPISectionState extends State<SetAPISection> {
-  final hintText = "https://api.globaltechsolution.com.np:443/api/";
+  final hintText = "http://kkmapi.omsird.com:802/api/";
  // final hintText = "http://retailabapi.globaltechsolution.com.np:802/api/";
 
   @override

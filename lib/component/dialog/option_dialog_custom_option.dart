@@ -1,4 +1,5 @@
 enum OptionDialogGroup {
+  daily,
   purchase,
   sales,
   stock,
@@ -23,6 +24,10 @@ enum OptionDialogSubGroup {
   order,
   invoice,
   returns,
+  daily,
+  month,
+  leaveReport,
+  event,
 }
 
 class OptionDialogCustomOption {

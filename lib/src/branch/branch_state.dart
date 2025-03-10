@@ -35,6 +35,7 @@ class BranchState extends ChangeNotifier {
   }
 
   init() async {
+    _unitCode = "";
     await checkConnection();
   }
 
@@ -45,8 +46,33 @@ class BranchState extends ChangeNotifier {
 
     _isLoading = false;
     _isPasswordHidden = true;
+    _selectBranch = false;
 
     baseUrl = await GetAllPref.apiUrl();
+  }
+
+  late String? _unitDesc = null;
+  String?  get unitDesc => _unitDesc;
+
+
+
+
+  set getUnitDesc(String? unitDesc) {
+    _unitDesc = unitDesc;
+    notifyListeners();
+  }
+
+  late bool _selectBranch = false;
+  bool get selectBranch => _selectBranch;
+
+  set isLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  set setSelectBranch(bool value) {
+    _selectBranch = value;
+    notifyListeners();
   }
 
   set getMyAPI(String value) {

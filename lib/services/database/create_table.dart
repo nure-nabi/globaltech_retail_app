@@ -85,6 +85,9 @@ class CreateTable {
                                                 ${DatabaseDetails.group1} TEXT,      
                                                 ${DatabaseDetails.group2} TEXT,      
                                                 ${DatabaseDetails.unit} TEXT,
+                                                ${DatabaseDetails.altUnit} TEXT,
+                                                ${DatabaseDetails.altQty} TEXT,
+                                                ${DatabaseDetails.hsCode} TEXT,
                                                 ${DatabaseDetails.buyRate} TEXT,
                                                 ${DatabaseDetails.salesRate} TEXT,
                                                 ${DatabaseDetails.mrp} TEXT,
@@ -105,7 +108,8 @@ class CreateTable {
     await db.execute(
         ''' CREATE TABLE if not exists ${DatabaseDetails.tempOrderProductTable} (  
                                                 ${DatabaseDetails.id} INTEGER PRIMARY KEY AUTOINCREMENT,     
-                                                ${DatabaseDetails.pCode} TEXT,     
+                                                ${DatabaseDetails.pCode} TEXT, 
+                                                ${DatabaseDetails.pShortName} TEXT,    
                                                 ${DatabaseDetails.pName} TEXT,     
                                                 ${DatabaseDetails.qty} TEXT,      
                                                 ${DatabaseDetails.rate} TEXT,
@@ -121,7 +125,12 @@ class CreateTable {
                                                 ${DatabaseDetails.pTerm3Rate} TEXT,
                                                 ${DatabaseDetails.pTerm3Amount} TEXT,
                                                 ${DatabaseDetails.sign3} TEXT,
-                                                ${DatabaseDetails.totalAmount} TEXT
+                                                ${DatabaseDetails.totalAmount} TEXT,
+                                                ${DatabaseDetails.unit} TEXT,
+                                                ${DatabaseDetails.altUnit} TEXT,
+                                                ${DatabaseDetails.altQty} TEXT,
+                                                ${DatabaseDetails.hsCode} TEXT,
+                                                 ${DatabaseDetails.factor} TEXT
                                           ) ''');
   }
   /// Order Product Info
@@ -163,7 +172,14 @@ class CreateTable {
                                                 ${DatabaseDetails.salesImage} TEXT,
                                                 ${DatabaseDetails.imagePath} TEXT,
                                                 ${DatabaseDetails.outletCode} TEXT,
-                                                ${DatabaseDetails.unit} TEXT
+                                                 ${DatabaseDetails.unit} TEXT,
+                                                ${DatabaseDetails.altUnit} TEXT,
+                                                ${DatabaseDetails.altQty} TEXT,
+                                                ${DatabaseDetails.hsCode} TEXT,
+                                                ${DatabaseDetails.factor} TEXT,
+                                                ${DatabaseDetails.userCode} TEXT,
+                                                ${DatabaseDetails.billNetAmt} TEXT,
+                                                ${DatabaseDetails.payAmount} TEXT
                                           ) ''');
   }
   /// Temp purchse Order Product Info
@@ -187,7 +203,8 @@ class CreateTable {
                                                 ${DatabaseDetails.pTerm3Rate} TEXT,
                                                 ${DatabaseDetails.pTerm3Amount} TEXT,
                                                 ${DatabaseDetails.sign3} TEXT,
-                                                ${DatabaseDetails.totalAmount} TEXT
+                                                ${DatabaseDetails.totalAmount} TEXT,
+                                                 ${DatabaseDetails.factor} TEXT
                                           ) ''');
   }
   /// Order Product Info
@@ -285,7 +302,8 @@ class CreateTable {
                                                 ${DatabaseDetails.glDesc} TEXT,
                                                 ${DatabaseDetails.glCatagory} TEXT,
                                                 ${DatabaseDetails.mobileNo} TEXT,
-                                                ${DatabaseDetails.address} TEXT
+                                                ${DatabaseDetails.address} TEXT,
+                                                ${DatabaseDetails.panNo} TEXT
                                                
                                               ) ''');
   }
@@ -338,6 +356,7 @@ class CreateTable {
         ${DatabaseDetails.dPDesc} TEXT,
         ${DatabaseDetails.dQty} TEXT,
         ${DatabaseDetails.dAltQty} TEXT,
+        ${DatabaseDetails.hPrintCopy} TEXT,
         ${DatabaseDetails.dLocalRate} TEXT,
         ${DatabaseDetails.dBasicAmt} TEXT,
         ${DatabaseDetails.dTermAMt} TEXT,
@@ -364,8 +383,35 @@ class CreateTable {
                                                
                                               ) ''');
   }
-
-
+  /// Order List Table
+  orderListTable() async {
+    await db.execute(
+        ''' CREATE TABLE if not exists ${DatabaseDetails.orderListTable} (
+                                                ${DatabaseDetails.orderId} INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                ${DatabaseDetails.id} TEXT,
+                                                ${DatabaseDetails.productCode} TEXT,
+                                                ${DatabaseDetails.productName} TEXT,
+                                                ${DatabaseDetails.quantity} TEXT,
+                                                ${DatabaseDetails.rate} TEXT,
+                                                ${DatabaseDetails.productDescription} TEXT,
+                                                ${DatabaseDetails.total} TEXT,
+                                                ${DatabaseDetails.images} TEXT
+                                                ) ''');
+  }
+  /// Order Post Table
+  orderPostTable() async {
+    await db.execute(
+        ''' CREATE TABLE if not exists ${DatabaseDetails.orderPostTable} (
+                                                ${DatabaseDetails.dbName} TEXT,
+                                                ${DatabaseDetails.glCode} TEXT,
+                                                ${DatabaseDetails.userCode} TEXT,
+                                                ${DatabaseDetails.pcode} TEXT,
+                                                ${DatabaseDetails.rate} TEXT,
+                                                ${DatabaseDetails.qty} TEXT,
+                                                ${DatabaseDetails.totalAmt} TEXT,
+                                                ${DatabaseDetails.comment} TEXT
+                                                ) ''');
+  }
 }
 
 

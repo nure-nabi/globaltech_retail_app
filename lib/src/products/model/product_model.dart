@@ -40,6 +40,9 @@ class ProductDataModel {
     required this.group1,
     required this.group2,
     required this.unit,
+    required this.altUnit,
+    required this.altQty,
+    required this.hsCode,
     required this.buyRate,
     required this.salesRate,
     required this.mrp,
@@ -61,6 +64,9 @@ class ProductDataModel {
   final String group1;
   final String group2;
   final String unit;
+  final String altUnit;
+  final String altQty;
+  final String hsCode;
   final String buyRate;
   final String salesRate;
   final String mrp;
@@ -83,6 +89,9 @@ class ProductDataModel {
       group1: json["Group1"] ?? "",
       group2: json["Group2"] ?? "",
       unit: json["Unit"] ?? "",
+      altUnit: json["AltUnit"] ?? "",
+      altQty: json["AltQty"] == null ? "0.0" : "${json["AltQty"]}",
+      hsCode: json["HsCode"] ?? "",
       buyRate: json["BuyRate"] == null ? "0.0" : "${json["BuyRate"]}",
       salesRate: json["SalesRate"] == null ? "0.0" : "${json["SalesRate"]}",
       mrp: json["MRP"] == null ? "0.0" : "${json["MRP"]}",
@@ -91,7 +100,8 @@ class ProductDataModel {
           ? "0.0"
           : "${json["Discount Percentage"]}",
       imageName: json["Image Name"] ?? "",
-      pImage: json["PImage"] ?? AssetsList.errorBase64Image,
+    // pImage: json["PImage"] ?? ""?? AssetsList.errorBase64Image,
+     pImage:  AssetsList.errorBase64Image,
       imageFolderName: json["Image Folder Name"] ?? "",
       offerDiscount:
       json["Offer Discount"] == null ? "0.0" : "${json["Offer Discount"]}",
@@ -109,6 +119,9 @@ class ProductDataModel {
     "Group1": group1,
     "Group2": group2,
     "Unit": unit,
+    "AltUnit": altUnit,
+    "AltQty": altQty,
+    "HsCode": hsCode,
     "BuyRate": buyRate,
     "SalesRate": salesRate,
     "MRP": mrp,

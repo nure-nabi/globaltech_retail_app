@@ -85,7 +85,13 @@ class CustomerState extends ChangeNotifier {
 
   Future<void> networkSuccess() async {
     isLoading = true;
-    await getCustomerDataFromAPI();
+    await getCustomerListFromDB();
+    if(_filterCustomerList.isNotEmpty){
+      await getCustomerListFromDB();
+    }else{
+      await getCustomerDataFromAPI();
+    }
+
     isLoading = false;
   }
 
@@ -118,10 +124,11 @@ class CustomerState extends ChangeNotifier {
       CustomerModel model = await CustomerApi.apiCall(
         databaseName: _companyDetail.dbName,
         category: 'Customer',
+        unitcode: await GetAllPref.unitCode(),
       );
 
       if (model.statusCode == 200) {
-        getDataList = model.data;
+      //  getDataList = model.data;
         await onSuccess(dataModel: model.data);
       }
     } catch (e) {

@@ -17,8 +17,11 @@ import 'package:retail_app/themes/themes.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import '../../services/router/router_name.dart';
+import '../../utils/location_permission.dart';
 import '../branch/branch_state.dart';
+import '../ledger_report_party/ledger_report_party.dart';
 import '../purchase_report/model/purchase_report_model.dart';
+import '../vendor_report_ledger/vendor_report_ledger.dart';
 import 'components/drawer.dart';
 import 'components/grid_section.dart';
 import 'model/customer_vendor_total_amount_model.dart';
@@ -40,11 +43,12 @@ class _IndexScreenState extends State<IndexScreen> {
     super.initState();
     // Initialize states
     Provider.of<IndexState>(context, listen: false).getContext = context;
-    Provider.of<PurchaseReportState>(context, listen: false).getContext =
-        context;
+    Provider.of<PurchaseReportState>(context, listen: false).getContext = context;
     Provider.of<SalesReportState>(context, listen: false).getContext = context;
-    Provider.of<SalesReportState>(context, listen: false).getSaleTotalFromDB();
+   // Provider.of<SalesReportState>(context, listen: false).getSaleTotalFromDB();
     Provider.of<BranchState>(context, listen: false).getContext = context;
+    Provider.of<CustomerState>(context, listen: false).getContext = context;
+    Provider.of<VendorReportLedgerState>(context, listen: false).getContext = context;
 
     showUnitCode();
     showDateExpiryCompany();
@@ -54,6 +58,7 @@ class _IndexScreenState extends State<IndexScreen> {
         _getPrinterStatus();
       }
     });
+   // gg();
   }
 
   /// must binding ur printer at first init in app
@@ -77,7 +82,6 @@ class _IndexScreenState extends State<IndexScreen> {
 
   showDateExpiryCompany() async {
 
-
     DateTime now = DateTime.now();
     DateFormat formatter = DateFormat('MM/dd/yyyy');
     String formattedDate = formatter.format(now);
@@ -89,21 +93,21 @@ class _IndexScreenState extends State<IndexScreen> {
      difference = date2.difference(date1);
   }
 
-
+  gg()async{
+    Fluttertoast.showToast(msg:  await GetAllPref.latitude());
+  }
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
-    final state = context.watch<BranchState>();
+
     final stateAuth =Provider.of<IndexState>(context, listen: false);
     return PopScope(
       canPop: false,
       onPopInvoked: (value) {
         // return PopSys;
       },
-      child: Consumer4<IndexState, PurchaseReportState, SalesReportState,
-          BranchState>(
-        builder: (context, indexState, purchaseState, saleState, branchState,
+      child: Consumer6<IndexState, PurchaseReportState, SalesReportState,
+          BranchState,CustomerState,VendorReportLedgerState>(
+        builder: (context, indexState, purchaseState, saleState, branchState,customerState,vendorReportLedgerState,
             child) {
           return Scaffold(
             appBar: AppBar(
@@ -221,293 +225,399 @@ class _IndexScreenState extends State<IndexScreen> {
                   padding: const EdgeInsets.only(left: 14, right: 14),
                   child: Row(
                     children: [
+                      // Expanded(
+                      //     child: FutureBuilder<List<SalesDataModel>>(
+                      //   future: saleState.getSalesFromAPI(),
+                      //   builder: (BuildContext context, snapshot) {
+                      //     if (snapshot.hasError) {
+                      //       return Center(
+                      //           child: Text('Error: ${snapshot.error}'));
+                      //     } else if (snapshot.hasData) {
+                      //       List<SalesDataModel> salesList = snapshot.data!;
+                      //       double amtTotalSale = 0;
+                      //       for (int i = 0; i < salesList.length; i++) {
+                      //         amtTotalSale += salesList[i].netAmount;
+                      //       }
+                      //       return InkWell(
+                      //         onTap: () {
+                      //           Navigator.pushNamed(context, salesReportPath,
+                      //               arguments: {"Customer"});
+                      //         },
+                      //         child: Card(
+                      //           elevation: 4,
+                      //           // Set elevation for the card
+                      //           shape: RoundedRectangleBorder(
+                      //             borderRadius: BorderRadius.circular(
+                      //                 10), // Set border radius for the card
+                      //           ),
+                      //           child: Padding(
+                      //             padding: const EdgeInsets.all(12.0),
+                      //             child: Row(
+                      //               children: [
+                      //                 // Image.asset("assets/images/sales.png",height: 30,width: 30,),
+                      //                 Text(
+                      //                     "Sales: ${amtTotalSale.toStringAsFixed(2)}",
+                      //                     maxLines: 1,
+                      //                     overflow: TextOverflow.ellipsis,
+                      //                     style: cardTextStyleSalePurchase),
+                      //               ],
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       );
+                      //     }
+                      //     return Shimmer.fromColors(
+                      //       baseColor: Colors.black.withOpacity(0.10),
+                      //       highlightColor: Colors.white.withOpacity(0.6),
+                      //       period: const Duration(seconds: 2),
+                      //       child: Container(
+                      //         margin: const EdgeInsets.only(right: 3),
+                      //         decoration: BoxDecoration(
+                      //             borderRadius: BorderRadius.circular(10),
+                      //             color: Colors.grey.withOpacity(0.9)),
+                      //         //   elevation: 4,
+                      //         // Set elevation for the card
+                      //         // shape: RoundedRectangleBorder(
+                      //         //   borderRadius: BorderRadius.circular(10),
+                      //         //  // color: Colors.grey.withOpacity(0.9)
+                      //         //   // Set border radius for the card
+                      //         // ),
+                      //         child: Padding(
+                      //           padding: const EdgeInsets.all(12.0),
+                      //           child: Row(
+                      //             children: [
+                      //               Text("",
+                      //                   maxLines: 1,
+                      //                   overflow: TextOverflow.ellipsis,
+                      //                   style: cardTextStyleSalePurchase),
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // )),
+                      // //const SizedBox(width: 3,),
+                      // Expanded(
+                      //     child: FutureBuilder<List<PurchaseDataModel>>(
+                      //   future: purchaseState.getPurchaseAmountFromAPI(),
+                      //   builder: (BuildContext context, snapshot) {
+                      //     if (snapshot.hasError) {
+                      //       return Center(
+                      //           child: Text('Error: ${snapshot.error}'));
+                      //     } else if (snapshot.hasData) {
+                      //       List<PurchaseDataModel> purchaseList =
+                      //           snapshot.data!;
+                      //       double amtTotalPurchase = 0;
+                      //       for (int i = 0; i < purchaseList.length; i++) {
+                      //         amtTotalPurchase += purchaseList[i].netAmt;
+                      //       }
+                      //       return InkWell(
+                      //         onTap: () {
+                      //           Navigator.pushNamed(context, purchaseReportPath,
+                      //               arguments: {"Customer/Vendor"});
+                      //         },
+                      //         child: Card(
+                      //           elevation: 4,
+                      //           shape: RoundedRectangleBorder(
+                      //             borderRadius: BorderRadius.circular(10),
+                      //           ),
+                      //           child: Padding(
+                      //             padding: const EdgeInsets.all(12.0),
+                      //             child: Text(
+                      //                 "Purchase: ${amtTotalPurchase.toStringAsFixed(2)}",
+                      //                 maxLines: 1,
+                      //                 overflow: TextOverflow.ellipsis,
+                      //                 style: cardTextStyleSalePurchase),
+                      //           ),
+                      //         ),
+                      //       );
+                      //     }
+                      //     return Shimmer.fromColors(
+                      //       baseColor: Colors.black.withOpacity(0.10),
+                      //       highlightColor: Colors.white.withOpacity(0.6),
+                      //       period: const Duration(seconds: 2),
+                      //       child: Container(
+                      //         margin: const EdgeInsets.only(left: 5),
+                      //         decoration: BoxDecoration(
+                      //             borderRadius: BorderRadius.circular(10),
+                      //             color: Colors.grey.withOpacity(0.9)),
+                      //         //   elevation: 4,
+                      //         // Set elevation for the card
+                      //         // shape: RoundedRectangleBorder(
+                      //         //   borderRadius: BorderRadius.circular(10),
+                      //         //  // color: Colors.grey.withOpacity(0.9)
+                      //         //   // Set border radius for the card
+                      //         // ),
+                      //         child: Padding(
+                      //           padding: const EdgeInsets.all(12.0),
+                      //           child: Row(
+                      //             children: [
+                      //               Text("",
+                      //                   maxLines: 1,
+                      //                   overflow: TextOverflow.ellipsis,
+                      //                   style: cardTextStyleSalePurchase),
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ))
                       Expanded(
-                          child: FutureBuilder<List<SalesDataModel>>(
-                        future: saleState.getSalesFromAPI(),
-                        builder: (BuildContext context, snapshot) {
-                          if (snapshot.hasError) {
-                            return Center(
-                                child: Text('Error: ${snapshot.error}'));
-                          } else if (snapshot.hasData) {
-                            List<SalesDataModel> salesList = snapshot.data!;
-                            double amtTotalSale = 0;
-                            for (int i = 0; i < salesList.length; i++) {
-                              amtTotalSale += salesList[i].netAmount;
-                            }
-                            return InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, salesReportPath,
-                                    arguments: {"Customer"});
-                              },
-                              child: Card(
-                                elevation: 4,
-                                // Set elevation for the card
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      10), // Set border radius for the card
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Row(
-                                    children: [
-                                      // Image.asset("assets/images/sales.png",height: 30,width: 30,),
-                                      Text(
-                                          "Sales: ${amtTotalSale.toStringAsFixed(2)}",
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: cardTextStyleSalePurchase),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                          return Shimmer.fromColors(
-                            baseColor: Colors.black.withOpacity(0.10),
-                            highlightColor: Colors.white.withOpacity(0.6),
-                            period: const Duration(seconds: 2),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 3),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey.withOpacity(0.9)),
-                              //   elevation: 4,
-                              // Set elevation for the card
-                              // shape: RoundedRectangleBorder(
-                              //   borderRadius: BorderRadius.circular(10),
-                              //  // color: Colors.grey.withOpacity(0.9)
-                              //   // Set border radius for the card
-                              // ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Row(
-                                  children: [
-                                    Text("",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: cardTextStyleSalePurchase),
-                                  ],
-                                ),
-                              ),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, salesReportPath,
+                                arguments: {"Customer"});
+                          },
+                          child: Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          );
-                        },
-                      )),
-                      //const SizedBox(width: 3,),
-                      Expanded(
-                          child: FutureBuilder<List<PurchaseDataModel>>(
-                        future: purchaseState.getPurchaseAmountFromAPI(),
-                        builder: (BuildContext context, snapshot) {
-                          if (snapshot.hasError) {
-                            return Center(
-                                child: Text('Error: ${snapshot.error}'));
-                          } else if (snapshot.hasData) {
-                            List<PurchaseDataModel> purchaseList =
-                                snapshot.data!;
-                            double amtTotalPurchase = 0;
-                            for (int i = 0; i < purchaseList.length; i++) {
-                              amtTotalPurchase += purchaseList[i].netAmt;
-                            }
-                            return InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, purchaseReportPath,
-                                    arguments: {"Customer/Vendor"});
-                              },
-                              child: Card(
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Text(
-                                      "Purchase: ${amtTotalPurchase.toStringAsFixed(2)}",
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                      "Sales: ${saleState.totalAmount.toStringAsFixed(2)}",
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: cardTextStyleSalePurchase),
-                                ),
-                              ),
-                            );
-                          }
-                          return Shimmer.fromColors(
-                            baseColor: Colors.black.withOpacity(0.10),
-                            highlightColor: Colors.white.withOpacity(0.6),
-                            period: const Duration(seconds: 2),
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 5),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey.withOpacity(0.9)),
-                              //   elevation: 4,
-                              // Set elevation for the card
-                              // shape: RoundedRectangleBorder(
-                              //   borderRadius: BorderRadius.circular(10),
-                              //  // color: Colors.grey.withOpacity(0.9)
-                              //   // Set border radius for the card
-                              // ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Row(
-                                  children: [
-                                    Text("",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: cardTextStyleSalePurchase),
-                                  ],
-                                ),
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ))
+                          ),
+                        ),
+                      ),
+                      //const SizedBox(width: 3,),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, purchaseReportPath,
+                                arguments: {"Customer/Vendor"});
+                          },
+                          child: Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text(
+                                  "Purchase: ${purchaseState.totalAmount.toStringAsFixed(2)}",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: cardTextStyleSalePurchase),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(
                   height: 5,
                 ),
-                FutureBuilder<List<CustomerVendorAmountDataModel>>(
-                    future: indexState.getCustomerVendorAmountFromAPI(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.hasData) {
-                        List<CustomerVendorAmountDataModel> CustomerList =
-                            snapshot.data!;
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 14, right: 14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                      child: InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, ledgerReportPath);
-                                    },
-                                    child: Card(
-                                      elevation: 4,
-                                      // Set elevation for the card
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10), // Set border radius for the card
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Text(
-                                            "Customer: ${CustomerList.length == 0 ? "0.0" : CustomerList[2].amount}",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: cardTextStyleSalePurchase),
-                                      ),
-                                    ),
-                                  )),
-                                  Expanded(
-                                      child: InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, vendorReportLedger);
-                                    },
-                                    child: Card(
-                                      elevation: 4,
-                                      // Set elevation for the card
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            10), // Set border radius for the card
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Text(
-                                            "Vendor: ${CustomerList.length == 0 ? "0.0" : CustomerList[3].amount}",
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: cardTextStyleSalePurchase),
-                                      ),
-                                    ),
-                                  ))
-                                ],
-                              )
-                            ],
-                          ),
-                        );
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 14, right: 14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Shimmer.fromColors(
-                                  baseColor: Colors.black.withOpacity(0.10),
-                                  highlightColor: Colors.white.withOpacity(0.6),
-                                  period: const Duration(seconds: 2),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.grey.withOpacity(0.9)),
-                                    //   elevation: 4,
-                                    // Set elevation for the card
-                                    // shape: RoundedRectangleBorder(
-                                    //   borderRadius: BorderRadius.circular(10),
-                                    //  // color: Colors.grey.withOpacity(0.9)
-                                    //   // Set border radius for the card
-                                    // ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Row(
-                                        children: [
-                                          Text("",
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: cardTextStyleSalePurchase),
-                                        ],
-                                      ),
-                                    ),
+                // FutureBuilder<List<CustomerVendorAmountDataModel>>(
+                //     future: indexState.getCustomerVendorAmountFromAPI(),
+                //     builder: (context, snapshot) {
+                //       if (snapshot.hasError) {
+                //         return Center(child: Text('Error: ${snapshot.error}'));
+                //       } else if (snapshot.hasData) {
+                //         List<CustomerVendorAmountDataModel> CustomerList =
+                //             snapshot.data!;
+                //         return Padding(
+                //           padding: const EdgeInsets.only(left: 14, right: 14),
+                //           child: Column(
+                //             crossAxisAlignment: CrossAxisAlignment.start,
+                //             children: [
+                //               Row(
+                //                 children: [
+                //                   Expanded(
+                //                       child: InkWell(
+                //                     onTap: () {
+                //                       Navigator.pushNamed(
+                //                           context, ledgerReportPath);
+                //                     },
+                //                     child: Card(
+                //                       elevation: 4,
+                //                       // Set elevation for the card
+                //                       shape: RoundedRectangleBorder(
+                //                         borderRadius: BorderRadius.circular(
+                //                             10), // Set border radius for the card
+                //                       ),
+                //                       child: Padding(
+                //                         padding: const EdgeInsets.all(12.0),
+                //                         child: Text(
+                //                             "Customer: ${CustomerList.length == 0 ? "0.0" : CustomerList[2].amount}",
+                //                             maxLines: 1,
+                //                             overflow: TextOverflow.ellipsis,
+                //                             style: cardTextStyleSalePurchase),
+                //                       ),
+                //                     ),
+                //                   )),
+                //                   Expanded(
+                //                       child: InkWell(
+                //                     onTap: () {
+                //                       Navigator.pushNamed(
+                //                           context, vendorReportLedger);
+                //                     },
+                //                     child: Card(
+                //                       elevation: 4,
+                //                       // Set elevation for the card
+                //                       shape: RoundedRectangleBorder(
+                //                         borderRadius: BorderRadius.circular(
+                //                             10), // Set border radius for the card
+                //                       ),
+                //                       child: Padding(
+                //                         padding: const EdgeInsets.all(12.0),
+                //                         child: Text(
+                //                             "Vendor: ${CustomerList.length == 0 ? "0.0" : CustomerList[3].amount}",
+                //                             maxLines: 1,
+                //                             overflow: TextOverflow.ellipsis,
+                //                             style: cardTextStyleSalePurchase),
+                //                       ),
+                //                     ),
+                //                   ))
+                //                 ],
+                //               )
+                //             ],
+                //           ),
+                //         );
+                //       }
+                //       return Padding(
+                //         padding: const EdgeInsets.only(left: 14, right: 14),
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             Row(
+                //               children: [
+                //                 Expanded(
+                //                     child: Shimmer.fromColors(
+                //                   baseColor: Colors.black.withOpacity(0.10),
+                //                   highlightColor: Colors.white.withOpacity(0.6),
+                //                   period: const Duration(seconds: 2),
+                //                   child: Container(
+                //                     decoration: BoxDecoration(
+                //                         borderRadius: BorderRadius.circular(10),
+                //                         color: Colors.grey.withOpacity(0.9)),
+                //                     //   elevation: 4,
+                //                     // Set elevation for the card
+                //                     // shape: RoundedRectangleBorder(
+                //                     //   borderRadius: BorderRadius.circular(10),
+                //                     //  // color: Colors.grey.withOpacity(0.9)
+                //                     //   // Set border radius for the card
+                //                     // ),
+                //                     child: Padding(
+                //                       padding: const EdgeInsets.all(12.0),
+                //                       child: Row(
+                //                         children: [
+                //                           Text("",
+                //                               maxLines: 1,
+                //                               overflow: TextOverflow.ellipsis,
+                //                               style: cardTextStyleSalePurchase),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 )),
+                //                 SizedBox(
+                //                   width: 8,
+                //                 ),
+                //                 Expanded(
+                //                     child: Shimmer.fromColors(
+                //                   baseColor: Colors.black.withOpacity(0.10),
+                //                   highlightColor: Colors.white.withOpacity(0.6),
+                //                   period: const Duration(seconds: 2),
+                //                   child: Container(
+                //                     decoration: BoxDecoration(
+                //                         borderRadius: BorderRadius.circular(10),
+                //                         color: Colors.grey.withOpacity(0.9)),
+                //                     //   elevation: 4,
+                //                     // Set elevation for the card
+                //                     // shape: RoundedRectangleBorder(
+                //                     //   borderRadius: BorderRadius.circular(10),
+                //                     //  // color: Colors.grey.withOpacity(0.9)
+                //                     //   // Set border radius for the card
+                //                     // ),
+                //                     child: Padding(
+                //                       padding: const EdgeInsets.all(12.0),
+                //                       child: Row(
+                //                         children: [
+                //                           Text("",
+                //                               maxLines: 1,
+                //                               overflow: TextOverflow.ellipsis,
+                //                               style: cardTextStyleSalePurchase),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ))
+                //               ],
+                //             )
+                //           ],
+                //         ),
+                //       );
+                //     }),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14, right: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, ledgerReportPath);
+                                },
+                                child: Card(
+                                  elevation: 4,
+                                  // Set elevation for the card
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Set border radius for the card
                                   ),
-                                )),
-                                SizedBox(
-                                  width: 8,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text(
+                                        "Customer: ${customerState.totalCustomerAmount.toStringAsFixed(2)}",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: cardTextStyleSalePurchase),
+                                  ),
                                 ),
-                                Expanded(
-                                    child: Shimmer.fromColors(
-                                  baseColor: Colors.black.withOpacity(0.10),
-                                  highlightColor: Colors.white.withOpacity(0.6),
-                                  period: const Duration(seconds: 2),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.grey.withOpacity(0.9)),
-                                    //   elevation: 4,
-                                    // Set elevation for the card
-                                    // shape: RoundedRectangleBorder(
-                                    //   borderRadius: BorderRadius.circular(10),
-                                    //  // color: Colors.grey.withOpacity(0.9)
-                                    //   // Set border radius for the card
-                                    // ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Row(
-                                        children: [
-                                          Text("",
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: cardTextStyleSalePurchase),
-                                        ],
-                                      ),
-                                    ),
+                              )),
+                          Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, vendorReportLedger);
+                                },
+                                child: Card(
+                                  elevation: 4,
+                                  // Set elevation for the card
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // Set border radius for the card
                                   ),
-                                ))
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    }),
-
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text(
+                                        "Vendor: ${vendorReportLedgerState.totalVendorAmount.toStringAsFixed(2)}",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: cardTextStyleSalePurchase),
+                                  ),
+                                ),
+                              ))
+                        ],
+                      )
+                    ],
+                  ),
+                ),
                 const SizedBox(
                   height: 5,
                 ),

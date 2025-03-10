@@ -122,7 +122,15 @@ class PdfInvoiceProductSales {
           salesImage: element.salesImage,
           imagePath: element.imagePath,
           outletCode: element.outletCode,
-          unit: element.unit));
+          unit: element.unit,
+         altUnit: element.altUnit,
+          altQty: element.altQty,
+         hsCode: element.hsCode,
+         factor: element.factor,
+        payAmount: element.payAmount,
+          billNetAmt: element.billNetAmt,
+          userCode: element.userCode
+      ));
     }
 
    // double dis = 0.0;

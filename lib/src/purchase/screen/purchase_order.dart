@@ -348,46 +348,180 @@ class _PurchaseOrderList extends State<PurchaseOrderList> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Expanded(
-                                    flex: 1,
-                                    child: CancleButton(
-                                      buttonName: "NO",
-                                      onClick: () {
-                                        state.setIsChecked = false;
+                                    child: ElevatedButton(
+                                      onPressed: () {
                                         Navigator.pop(context);
                                       },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFC53030),
+                                        foregroundColor: const Color(0xFFFFFFFF),
+                                        padding: const EdgeInsets.symmetric(vertical: 0),
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                      ),
+                                      child: const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'No',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: SaveButton(
-                                      buttonName: "Save",
-                                      onClick: () async {
-                                        state.PrintOrNot = "";
-                                        state.setIsChecked = false;
-                                        await state.onFinalOrderSaveToDB()
-                                            .whenComplete(() async {
-                                          await state.productOrderAPICall(context);
-                                        });
-                                        //  Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
-                                      },
-                                    ),
-                                  ),
+                                  // Expanded(
+                                  //   flex: 1,
+                                  //   child: CancleButton(
+                                  //     buttonName: "NO",
+                                  //     onClick: () {
+                                  //       state.setIsChecked = false;
+                                  //       Navigator.pop(context);
+                                  //     },
+                                  //   ),
+                                  // ),
+                                  // Expanded(
+                                  //   flex: 2,
+                                  //   child: SaveButton(
+                                  //     buttonName: "Save",
+                                  //     onClick: () async {
+                                  //       state.PrintOrNot = "";
+                                  //       state.setIsChecked = false;
+                                  //       await state.onFinalOrderSaveToDB()
+                                  //           .whenComplete(() async {
+                                  //         await state.productOrderAPICall(context);
+                                  //       });
+                                  //       //  Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+                                  //     },
+                                  //   ),
+                                  // ),
                                   horizantalSpace(10.0),
-                                  Expanded(
-                                    flex: 2,
-                                    child: SaveButton(
-                                      buttonName: "Save & Print",
-                                      onClick: () async {
-                                        state.setIsChecked = false;
-                                        state.PrintOrNot = "print";
-                                        await state.onFinalOrderSaveToDB()
-                                            .whenComplete(() async {
-                                          await state.productOrderAPICall(context);
-                                        });
-                                        //  Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
-                                      },
-                                    ),
-                                  ),
+                                 Consumer<PurchaseOrderState>(builder: (BuildContext context, state, Widget? child) {
+                                   return  Expanded(
+                                     child: ElevatedButton(
+                                       onPressed:state.dataInserted == true ? null : () async {
+                                         state.setDataInserted = true;
+                                         setState(() {
+
+                                         });
+                                         state.PrintOrNot = "";
+                                         state.setIsChecked = false;
+                                         await state.onFinalOrderSaveToDB()
+                                             .whenComplete(() async {
+
+                                           await state.productOrderAPICall(context);
+
+                                         });
+                                       },
+                                       style: ElevatedButton.styleFrom(
+                                         backgroundColor:  Colors.green,
+                                         foregroundColor: Colors.white,
+                                         padding: const EdgeInsets.symmetric(vertical: 2),
+                                         elevation: 0,
+                                         shape: RoundedRectangleBorder(
+                                           borderRadius: BorderRadius.circular(5),
+                                         ),
+                                       ),
+                                       child: const Row(
+                                         mainAxisAlignment: MainAxisAlignment.center,
+                                         children: [
+                                           Text(
+                                             'Save',
+                                             style: TextStyle(
+                                               fontWeight: FontWeight.bold,
+                                               fontSize: 14,
+                                             ),
+                                           ),
+                                         ],
+                                       ),
+                                     ),
+                                   );
+                                 },),
+                                  horizantalSpace(10.0),
+                                  //SAVE & PRINT
+                                  // Expanded(
+                                  //   flex: 2,
+                                  //   child: SaveButton(
+                                  //     stateQR :state,
+                                  //     buttonName: "Save Print",
+                                  //     onClick: () async {
+                                  //       state.setIsChecked = false;
+                                  //       state.PrintOrNot = "print";
+                                  //       await state.onFinalOrderSaveToDB()
+                                  //           .whenComplete(() async {
+                                  //         await state.productOrderAPICall(context);
+                                  //       });
+                                  //       //  Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+                                  //     },
+                                  //   ),
+                                  // ),
+
+                                  Consumer<PurchaseOrderState>(builder: (BuildContext context, state, Widget? child) {
+                                    return Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: state.dataInserted == true ? null : () async {
+                                          state.setIsChecked = false;
+                                          state.setDataInserted = true;
+                                          state.PrintOrNot = "print";
+                                          state.setDataInserted = true;
+                                          setState(() {
+
+                                          });
+                                          await state.onFinalOrderSaveToDB()
+                                              .whenComplete(() async {
+                                            await state.productOrderAPICall(context);
+                                          });
+                                          // await stateQR.onFinalOrderSaveToDB()
+                                          //     .whenComplete(() async {
+                                          //   stateQR.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                                          //   await stateQR.productOrderAPICall(context);
+                                          // });
+
+                                          // stateQR.setIsChecked = false;
+                                          // stateQR.PrintOrNot = "print";
+                                          // await stateQR.onFinalOrderSaveToDB()
+                                          //     .whenComplete(() async {
+                                          //   await stateQR.productOrderAPICall(context);
+                                          // });
+
+                                          // await stateQR.onFinalOrderSaveToDB().whenComplete(() async {
+                                          //   await stateQR.productOrderAPICall(context);
+                                          // });
+                                          // await stateQR.getAllTempProductOrderList();
+                                          // Navigator.pushNamedAndRemoveUntil(
+                                          //   context,
+                                          //   indexPath,
+                                          //       (route) => false,
+                                          // );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:  Colors.green,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                        ),
+                                        child:  const Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Save Print',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },)
                                 ],
                               ),
                             ),

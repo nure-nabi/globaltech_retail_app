@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:nepali_utils/nepali_utils.dart';
 
 import 'custom_log.dart';
@@ -10,6 +11,28 @@ class MyDate {
 
   static formatDate(String date) {
     return date.toString().substring(0, 10);
+  }
+
+  static Future<String> showDateTime()async{
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd hh:mm:ss a').format(now);
+    return formattedDate;
+  }
+  static Future<String> showDateTime2()async{
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    return formattedDate;
+  }
+  //NepaliDateTime nowDate = NepaliDateTime.now();
+  static Future<String> showDateTimeNepali()async{
+    NepaliDateTime nowDate = NepaliDateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd hh:mm:ss a').format(nowDate);
+    return formattedDate;
+  }
+  static Future<String> showDateTimeNepali2()async{
+    NepaliDateTime nowDate = NepaliDateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(nowDate);
+    return formattedDate;
   }
 
   static int nepaliDaysCount(

@@ -34,8 +34,16 @@ class DatabaseHelper {
   Future<void> onDropDatabase() async {
     Database? db = await instance.database;
     // await db!.delete(DatabaseDetails.clientListTable);
-    await db!.delete(DatabaseDetails.ledgerCreateTable);
-    await db.delete(DatabaseDetails.productCreateTable);
+
+
+    await db!.delete(DatabaseDetails.tempOrderProductTable);
+    await db.delete(DatabaseDetails.orderProductTable);
+    await db.delete(DatabaseDetails.salesBillTermTable);
+    await db.delete(DatabaseDetails.purchaseBillTermTable);
+    await db.delete(DatabaseDetails.purchaseOrderProductTable);
+    await db.delete(DatabaseDetails.tempPurchaseOrderProductTable);
+    await db.delete(DatabaseDetails.accountGroupListTable);
+
   }
 
   Future<void> onCreate(Database db, int version) async {
@@ -58,5 +66,6 @@ class DatabaseHelper {
     await CreateTable(db).salesBillReportListTable();
     await CreateTable(db).accountGroupListTable();
     await CreateTable(db).vendorBillReportTable();
+    await CreateTable(db).orderListTable();
   }
 }

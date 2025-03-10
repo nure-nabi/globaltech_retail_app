@@ -41,6 +41,7 @@ class SalesBillReportDataModel {
     required this.dpDesc,
     required this.dQty,
     required this.dAltQty,
+    required this.hPrintCopy,
     required this.unitCode,
     required this.altUnitCode,
     required this.address,
@@ -67,6 +68,7 @@ class SalesBillReportDataModel {
   final String dpDesc;
   final String dQty;
   final String dAltQty;
+  final String hPrintCopy;
   final String unitCode;
   final String altUnitCode;
   final String address;
@@ -99,8 +101,8 @@ class SalesBillReportDataModel {
           : double.parse(json['DQty'].toString()).toStringAsFixed(2),
       //dAltQty: json["DAltQty"] ?? "0.00",
       dAltQty: json["DAltQty"] == null
-          ? "0.00"
-          : double.parse(json['DAltQty'].toString()).toStringAsFixed(2),
+          ? "0.00" : double.parse(json['DAltQty'].toString()).toStringAsFixed(2),
+      hPrintCopy: json["HPrintCopy"] == null ? "0" : json['HPrintCopy'].toString(),
       unitCode: json["UnitCode"] ?? "",
       altUnitCode: json["AltUnitCode"] ?? "",
       address: json["Address"] ?? "",
@@ -141,6 +143,7 @@ class SalesBillReportDataModel {
     "DPDesc": dpDesc,
     "DQty": dQty,
     "DAltQty": dAltQty,
+    "HPrintCopy": hPrintCopy,
     "UnitCode": unitCode,
     "AltUnitCode": altUnitCode,
     "Address": address,

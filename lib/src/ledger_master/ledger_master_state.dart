@@ -25,7 +25,14 @@ class LedgerMasterState extends ChangeNotifier {
     navigator = Navigator.of(_context);
     init();
   }
+  late bool _mappingInsert = false;
 
+  bool get mappingInsert => _mappingInsert;
+
+  set setMappingInsert(bool value) {
+    _mappingInsert = value;
+    notifyListeners();
+  }
   late bool _isLoading = false;
 
   bool get isLoading => _isLoading;
@@ -264,6 +271,7 @@ class LedgerMasterState extends ChangeNotifier {
             ledgerMasterModel: ledgerMasterDetails);
         if(modelData.status == true){
           ShowToast.successToast(msg: modelData.message);
+          setMappingInsert = true;
           navigator.pop();
         }else{
           ShowToast.successToast(msg: modelData.message);

@@ -34,7 +34,7 @@ class CustomAlertWidget extends StatelessWidget {
               ),
             ),
             padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,

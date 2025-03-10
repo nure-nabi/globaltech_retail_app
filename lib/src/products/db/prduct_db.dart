@@ -36,16 +36,39 @@ class ProductDatabase {
     });
   }
 
+  Future<List<ProductDataModel>> getProductUnit() async {
+    String myQuery =
+    ''' SELECT DISTINCT ${DatabaseDetails.unit} FROM ${DatabaseDetails.productCreateTable} ''';
+    db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> mapData = await db!.rawQuery(myQuery);
+    return List.generate(mapData.length, (i) {
+      return ProductDataModel.fromJson(mapData[i]);
+    });
+  }
+
   Future<List<ProductDataModel>> getProductList(
       {required String groupName}) async {
     db = await DatabaseHelper.instance.database;
 
-    String myQuery = '''  SELECT * From  ${DatabaseDetails.productCreateTable} Where ${DatabaseDetails.grpName} = "$groupName" ''';
+    String myQuery = '''  SELECT * From  ${DatabaseDetails.productCreateTable} Where ${DatabaseDetails.grpName} ="$groupName" ''';
     final List<Map<String, dynamic>> mapData = await db!.rawQuery(myQuery);
 
     CustomLog.successLog(value: "MY Query => $myQuery");
     CustomLog.successLog(value: "MapData => $mapData");
 
+    return List.generate(mapData.length, (i) {
+      return ProductDataModel.fromJson(mapData[i]);
+    });
+  }
+
+  Future<List<ProductDataModel>> getQRProduct({
+    required String qrCode,
+  }) async {
+    String myQuery =
+    '''  SELECT * FROM ${DatabaseDetails.productCreateTable} WHERE ${DatabaseDetails.pShortName} = "$qrCode" ''';
+    db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> mapData = await db!.rawQuery(myQuery);
+    CustomLog.errorLog(value: "MapData product      => $mapData");
     return List.generate(mapData.length, (i) {
       return ProductDataModel.fromJson(mapData[i]);
     });

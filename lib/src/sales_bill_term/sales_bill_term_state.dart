@@ -99,7 +99,7 @@ class SalesTermState extends ChangeNotifier {
     if (salesTermData.statusCode == 200) {
       await onSuccess(dataModel: salesTermData.data);
     } else {
-      ShowToast.errorToast(msg: "Faild to get data");
+     // ShowToast.errorToast(msg: "Faild to get data");
     }
 
     notifyListeners();
@@ -138,7 +138,7 @@ class SalesTermState extends ChangeNotifier {
     notifyListeners();
   }
 
-  late SalesBillTermDataModel _selectedGroup = SalesBillTermDataModel.fromJson({});
+  late final SalesBillTermDataModel _selectedGroup = SalesBillTermDataModel.fromJson({});
 
   //SalesBillTermDataModel get selectedGroup => _selectedGroup;
 

@@ -19,6 +19,7 @@ class PDCPdfInvoiceApi {
     required String receivedAmount,
     required String remarks,
     required String receivedBy,
+    required String branchName,
   }) async {
     final pdf = Document();
 

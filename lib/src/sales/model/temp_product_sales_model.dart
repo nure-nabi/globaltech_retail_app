@@ -4,6 +4,7 @@ class TempProductOrderModel {
   TempProductOrderModel({
      this.id,
     required this.pCode,
+    required this.pShortName,
     required this.pName,
     required this.rate,
     required this.quantity,
@@ -15,14 +16,16 @@ class TempProductOrderModel {
     required this.pTerm2Rate,
     required this.pTerm2Amount,
     required this.sign2,
-
     required this.pTerm3Code,
     required this.pTerm3Rate,
     required this.pTerm3Amount,
     required this.sign3,
-
     required this.totalAmount,
-
+    required this.unit,
+    required this.altUnit,
+    required this.altQty,
+    required this.hsCode,
+    required this.factor,
 
 
 
@@ -30,6 +33,7 @@ class TempProductOrderModel {
 
   final int? id;
   final String pCode;
+  final String pShortName;
   final String pName;
   final String rate;
   final String quantity;
@@ -48,7 +52,11 @@ class TempProductOrderModel {
   final String sign3;
 
   final String totalAmount;
-
+  final String unit;
+  final String altUnit;
+  final String altQty;
+  final String hsCode;
+  final String factor;
 
 
 
@@ -56,6 +64,7 @@ class TempProductOrderModel {
     return TempProductOrderModel(
       id: json["Id"] ?? 0,
       pCode: json["PCode"] ?? "",
+      pShortName: json["PShortName"] ?? "",
       pName: json["PName"] ?? "",
       quantity: json["Qty"] ?? "",
       pTerm1Code: json["PTerm1Code"] ?? "",
@@ -73,7 +82,11 @@ class TempProductOrderModel {
       sign3: json["Sign3"] ?? "",
       rate: json["Rate"] ?? "",
       totalAmount: json["TotalAmt"] ?? "",
-
+      unit: json["Unit"] ?? "",
+      altUnit: json["AltUnit"] ?? "",
+      altQty: json["AltQty"] == null ? "0.0" : "${json["AltQty"]}",
+      hsCode: json["HsCode"] ?? "",
+      factor: json["Factor"] == null ? "0.0" : "${json["Factor"]}",
     );
   }
 
@@ -81,6 +94,7 @@ class TempProductOrderModel {
   Map<String, dynamic> toJson() => {
     "Id": id,
     "PCode": pCode,
+    "PShortName": pShortName,
     "PName": pName,
     "Qty": quantity,
     "Rate": rate,
@@ -98,6 +112,11 @@ class TempProductOrderModel {
     "PTerm3Amount": pTerm3Amount,
     "Sign3": sign3,
     "TotalAmt": totalAmount,
+    "Unit": unit,
+    "AltUnit": altUnit,
+    "AltQty": altQty,
+    "HsCode": hsCode,
+    "Factor": factor,
   };
   /// For PDF
   String getIndex(int index) {

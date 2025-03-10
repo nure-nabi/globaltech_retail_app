@@ -34,6 +34,13 @@ class _CustomerScreenState extends State<CustomerScreen> {
       appBar: AppBar(
         title:  Text('Customer',style: cardTextStyleHeader,),
         backgroundColor: primaryColor,
+        actions: [
+          IconButton(
+              onPressed: (){
+
+              },
+              icon: Icon(Icons.refresh))
+        ],
       ),
       body: Consumer<CustomerState>(
         builder: (context, customerState, _) {

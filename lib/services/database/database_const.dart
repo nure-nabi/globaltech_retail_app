@@ -45,6 +45,23 @@ class DatabaseDetails {
   static const String total = "Total";
   static const String netTotalAmount = "netTotalAmount";
 
+  static String productCode = "ProductCode";
+  static String orderId = "OrderId";
+  static String quantity = "Quantity";
+
+  //Post Order Format Model
+  static String orderPostTable = "OrderPostTable";
+
+  //Temp Order List Table
+  static String orderListTable = "OrderListTable";
+  static String pcode = "Pcode";
+  static String productName = "ProductName";
+  static String qty = "Qty";
+  static String rate = "Rate";
+  static String productDescription = "ProductDescription";
+  static String totalAmt = "TotalAmt";
+  static String images = "Images";
+
 
   static String productCreateTable = "ProductCreateTable";
   static String id = "Id";
@@ -56,6 +73,14 @@ class DatabaseDetails {
   static String group1 = "Group1";
   static String group2 = "Group2";
   static String unit = "Unit";
+  static String altUnit = "AltUnit";
+  static String altQty = "AltQty";
+  static String hsCode = "HsCode";
+  static String factor = "Factor";
+  static String payAmount = "PayAmount";
+
+  static String billNetAmt = "BillNetAmt";
+
   static String buyRate = "BuyRate";
   static String mrp = "MRP";
   static String tradeRate = "TradeRate";
@@ -68,6 +93,10 @@ class DatabaseDetails {
   static String stockQty = "StockQty";
 
   //
+
+  static const String qRDatabaseTable = "QRDatabaseTable";
+  static const String destinatary = "destinatary";
+  static const String isDynamic = "dynamic";
   static String orderProductTable = "OrderProductInfo";
   static String purchaseOrderProductTable = "PurchaseOrderProductInfo";
   static String tempOrderProductTable = "TempOrderProductInfo";
@@ -78,8 +107,7 @@ class DatabaseDetails {
   static String comment = "Comment";
   static String glCode = "GlCode";
   static String pName = "PName";
-  static String qty = "Qty";
-  static String rate = "Rate";
+
   static String totalAmount = "TotalAmt";
   static String sign1 = "Sign1";
   static String sign2 = "Sign2";
@@ -89,7 +117,6 @@ class DatabaseDetails {
   static String bSign3 = "BSign3";
 
   static String itemCode = "itemCode";
-  static String totalAmt = "totalAmt";
   static String netTotalAmt = "netTotalAmt";
   static String exciseAmount = "exciseAmount";
   static String discountAmount = "discountAmount";
@@ -180,6 +207,7 @@ class DatabaseDetails {
   static String hMobileNo = "HMobileNo";
   static String hAgent = "HAgent";
   static String dSno = "DSno";
+  static String hPrintCopy = "HPrintCopy";
   static String dPDesc = "DPDesc";
   static String dQty = "DQty";
   static String dAltQty = "DAltQty";
@@ -201,15 +229,6 @@ class DatabaseDetails {
   static String grpShortName = "GrpShortName";
   static String grpSchedule = "GrpSchedule";
   static String primaryGrp = "PrimaryGrp";
-
-
-
-
-
-
-
-
-
 
 
 

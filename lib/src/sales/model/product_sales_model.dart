@@ -44,6 +44,13 @@ class ProductOrderModel {
     required this.imagePath,
     required this.outletCode,
     required this.unit,
+    required this.altUnit,
+    required this.altQty,
+    required this.hsCode,
+    required this.factor,
+    required this.payAmount,
+    required this.billNetAmt,
+    required this.userCode,
 
 
 
@@ -95,7 +102,13 @@ class ProductOrderModel {
   final String imagePath;
   final String outletCode;
   final String unit;
-
+  final String altUnit;
+  final String altQty;
+  final String hsCode;
+  final String factor;
+  final String payAmount;
+  final String billNetAmt;
+  final String userCode;
 
 
   factory ProductOrderModel.fromJson(Map<String, dynamic> json) {
@@ -104,7 +117,7 @@ class ProductOrderModel {
       pName: json["PName"] ?? "",
       qty: json["Qty"] ?? "",
       rate: json["Rate"] ?? "",
-      totalAmt: json["totalAmt"] ?? "",
+      totalAmt: json["TotalAmt"] ?? "",
       netTotalAmt: json["netTotalAmt"] ?? "",
       pTerm1Code: json["PTerm1Code"] ?? "",
       pTerm1Rate: json["PTerm1Rate"] ?? "",
@@ -139,6 +152,13 @@ class ProductOrderModel {
       imagePath: json["ImagePath"] ?? "",
       outletCode: json["OutletCode"] ?? "",
       unit: json["Unit"] ?? "",
+      altUnit: json["AltUnit"] ?? "",
+      altQty: json["AltQty"] == null ? "" : "${json["AltQty"]}",
+      hsCode: json["HsCode"] ?? "",
+      factor: json["Factor"] == null ? "" : "${json["Factor"]}",
+      payAmount: json["PayAmount"] == null ? "" : "${json["PayAmount"]}",
+      userCode: json["UserCode"] ?? "",
+      billNetAmt: json["BillNetAmt"] == null ? "" : "${json["BillNetAmt"]}",
 
 
       // static String bTerm1 =  "BTerm1";
@@ -153,7 +173,7 @@ class ProductOrderModel {
     "PName": pName,
     "Qty": qty,
     "Rate": rate,
-    "totalAmt": totalAmt,
+    "TotalAmt": totalAmt,
     "netTotalAmt": netTotalAmt,
     "PTerm1Code": pTerm1Code,
     "PTerm1Rate": pTerm1Rate,
@@ -186,6 +206,13 @@ class ProductOrderModel {
     "ImagePath": imagePath,
     "OutletCode": outletCode,
     "Unit": unit,
+    "AltUnit": altUnit,
+    "AltQty": altQty,
+    "HsCode": hsCode,
+    "Factor": factor,
+    "PayAmount": payAmount,
+    "UserCode": userCode,
+    "BillNetAmt": billNetAmt,
 
   };
 

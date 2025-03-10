@@ -1,0 +1,1104 @@
+import 'dart:convert';
+
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
+import 'package:retail_app/src/products/model/product_model.dart';
+import 'package:retail_app/src/sales/components/sales_order_list.dart';
+import 'package:retail_app/src/sales/sales_state.dart';
+
+import '../../constants/text_style.dart';
+import '../../themes/themes.dart';
+import '../../widgets/imageviewer/memory_image_viewer.dart';
+import '../../widgets/widgets.dart';
+import '../products/components/product_list_screen.dart';
+import '../qr_scanner/qr_list_product.dart';
+import '../sales_bill_term/model/sales_bill_term_model.dart';
+import '../sales_bill_term/sales_bill_term_state.dart';
+
+class ProductQrOrderScreen extends StatefulWidget {
+ final ProductOrderState productOrderState;
+ final ProductDataModel product;
+ final String code;
+  const ProductQrOrderScreen({super.key,required this.productOrderState,required this.product,required this.code});
+
+  @override
+  State<ProductQrOrderScreen> createState() => _ProductQrOrderScreenState();
+}
+
+class _ProductQrOrderScreenState extends State<ProductQrOrderScreen> {
+  List<TextEditingController> _controllers = [] ;
+  List<TextEditingController> _controllersAmount = [] ;
+  double value = 0.00;
+  double altCountQty=0.0;
+  @override
+  void initState() {
+    super.initState();
+   //  Provider.of<ProductOrderState>(context, listen: false).getContext = context;
+     Provider.of<SalesTermState>(context, listen: false).getContext = context;
+     Provider.of<ProductOrderState>(context, listen: false).getAllTempProductOrderList();
+     Provider.of<SalesTermState>(context, listen: false).termSelected("Product");
+  }
+
+  // Future alertDialog( List<SalesBillTermDataModel> list, SalesTermState state2) {
+  //   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  //   String _textValue = '';
+  //   List<TextEditingController> _controller = [];
+  //   return  showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       final state = context.watch<ProductOrderState>();
+  //       return AlertDialog(
+  //         title: Text('Product Term'),
+  //         content: Form(
+  //           key: _formKey,
+  //           child: Container(
+  //             height: 200, // Adjust height as needed
+  //             width: double.maxFinite,
+  //             child: Expanded(
+  //               child: ListView.builder(
+  //                 itemCount: list.length,
+  //                   itemBuilder: (context, index){
+  //                     return Container(
+  //                       alignment: Alignment.center,
+  //                       child: Row(
+  //                         children: [
+  //                           Expanded(child: Container(
+  //                             child: Text(list[index].pTDesc,style: TextStyle(fontWeight: FontWeight.w500),),
+  //                           )),
+  //                           Expanded(child: Container (
+  //                             child: TextFormField(
+  //
+  //                               maxLength: 2,
+  //                               //controller: state.discountRate,
+  //                               onTap: () {
+  //                               //  state.discountRate.text = "dsfg";
+  //                               //  state.getDiscountAmt = "";
+  //
+  //                               },
+  //
+  //                               onChanged: (value) {
+  //                               //  state.orderFormKey.currentState!
+  //                               //      .validate();
+  //                                // value = double.parse(state.calculateTotalAmount());
+  //
+  //                               //  _textValue.add(value);
+  //                                 state.getDiscountRate = _textValue[1];
+  //                                 //state.getDiscountAmount = _textValue[1];
+  //
+  //
+  //
+  //                             //    Fluttertoast.showToast(msg: _textValue[0].toString());
+  //                                // _textValue = value;
+  //                               //  state.calculate();
+  //
+  //                             //    state.calculateBillTerm();
+  //                                 setState(() {
+  //
+  //                                 });
+  //                               },
+  //                               keyboardType: TextInputType.number,
+  //                               decoration: InputDecoration(
+  //                                 filled: true,
+  //                                 counter: const Offstage(),
+  //                                 isDense: true,
+  //                                 hintText: "",
+  //                                 labelStyle: const TextStyle(
+  //                                   fontWeight: FontWeight.bold,
+  //                                   fontSize: 14.0,
+  //                                 ),
+  //                                 contentPadding:
+  //                                 const EdgeInsets.all(10.0),
+  //                                 focusedBorder: OutlineInputBorder(
+  //                                   borderRadius:
+  //                                   BorderRadius.circular(5.0),
+  //                                   borderSide: BorderSide(
+  //                                     color: primaryColor,
+  //                                   ),
+  //                                 ),
+  //                                 enabledBorder: OutlineInputBorder(
+  //                                   borderRadius:
+  //                                   BorderRadius.circular(5.0),
+  //                                   borderSide: BorderSide(
+  //                                     color: Colors.grey.shade300,
+  //                                   ),
+  //                                 ),
+  //                                 border: OutlineInputBorder(
+  //                                   borderRadius:
+  //                                   BorderRadius.circular(5.0),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           )),
+  //                           SizedBox(width: 5,),
+  //
+  //                         ],
+  //                       ),
+  //
+  //                     );
+  //                   }
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               // Navigator.pushReplacement(
+  //               //   context,
+  //               //   MaterialPageRoute(builder: (context) => ProductListScreen()),
+  //               // );
+  //
+  //
+  //             },
+  //             child: Text('Close'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  //
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    final state2 = context.watch<SalesTermState>();
+    final state = context.watch<ProductOrderState>();
+
+    final stateSalesTerm = context.watch<SalesTermState>();
+    for(int i=0; i<stateSalesTerm.termList.length; i++){
+      _controllers.add(TextEditingController());
+      _controllersAmount.add(TextEditingController());
+    }
+
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+
+      CustomAlertWidget(
+      title: widget.product.pDesc,
+        child: Form(
+          key: state.orderFormKey,
+          child: Container(
+            padding: const EdgeInsets.only(left: 10,right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                verticalSpace(5.0),
+
+                // RowDataWidget(
+                //   valueFlex: 2,
+                //   title: "CodDe",
+                //   titleBold: true,
+                //   valueBold: true,
+                //   value: widget.code.isNotEmpty
+                //       ?  widget.code
+                //       :  widget.product.pCode,
+                // ),
+                // RowDataWidget(
+                //   valueFlex: 2,
+                //   title: "Group",
+                //   titleBold: true,
+                //   valueBold: true,
+                //   value:  widget.product.groupName,
+                // ),
+                // RowDataWidget(
+                //   valueFlex: 2,
+                //   title: "Buy Rate",
+                //   titleBold: true,
+                //   valueBold: true,
+                //   value:  widget.product.buyRate,
+                // ),
+
+                if(double.parse( widget.product.altQty) > 0)
+                  RowDataWidget(
+                    valueFlex: 2,
+                    title: "Unit Code",
+                    titleBold: true,
+                    valueBold: true,
+                    value: '1.00  ${ widget.product.altUnit} ${ widget.product.altQty}  ${ widget.product.unit}',
+                  ),
+                if(double.parse( widget.product.altQty) > 0)
+                Divider(color: hintColor),
+                if(double.parse( widget.product.altQty) > 0)
+                // alt quantity
+                Container(
+                  margin: const EdgeInsets.all(0),
+                  child: Row(children: [
+                     Expanded(
+                      flex: 1,
+                      child: Text(
+                        "Alt Qty\n(${widget.product.altUnit})",
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                    ),
+                    const Expanded(
+
+                      child: Text(' : ',
+                          textAlign: TextAlign.center),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: state.altQuantity,
+                        onTap: () async {
+
+                          state.lastEditedField = "altQty";
+                          state.altQuantity.text = "";
+                          state.quantity.text = "0.00";
+                          state.altCountAltQty = 0.0;
+                          altCountQty = 0.0;
+                          state.calculate();
+
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty ||
+                              state.altQuantity.text == "0.00") {
+                            return "";
+                          } else {
+                            return null;
+                          }
+                        },
+                        onChanged: (text) async {
+                          if(text==""){
+                            state.altCountAltQty = 0.0;
+                            altCountQty = 0.0;
+                            state.quantity.text = "0.0";
+                            setState(() {});
+                          }else{
+                            altCountQty = double.parse(state.quantity.text);
+                          }
+
+                          state.lastEditedField = "altQty";
+                          state.orderFormKey.currentState!.validate();
+                          state.calculate();
+                          state.altCountAltQty = double.parse(text);
+
+                          setState(() {});
+
+
+                          // state.calculate();
+                          // state.calculateProductQty();
+                          // setState(() {});
+                        },
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,3}')),
+                        ],
+                        decoration: InputDecoration(
+                          filled: true,
+                          counter: const Offstage(),
+                          isDense: true,
+                          hintText: "",
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                          contentPadding:
+                          const EdgeInsets.all(10.0),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 5,),
+                    Expanded(
+                        flex: 2,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              onTap: ()async{
+                                if(state.altCountAltQty>0) {
+                                  state.altCountAltQty--;
+                                  state.altQuantity.text = state.altCountAltQty.toString();
+                                  state.lastEditedField = "altQty";
+                                  state.orderFormKey.currentState!.validate();
+                                  state.calculate();
+                                  altCountQty =  double.parse(state.quantity.text);
+                                  setState(() {});
+                                }
+                              },
+                              child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.all(Radius.circular(50))
+                                  ),
+                                  child: Icon(EvaIcons.minus,size: 20,)),
+                            ),
+                            SizedBox(width: 10,),
+                            // Text('${state.altCountAltQty.toStringAsFixed(1)}'),
+                            // SizedBox(width: 5,),
+                            InkWell(
+                              onTap: ()async{
+                                state.altCountAltQty++;
+                                state.altQuantity.text = state.altCountAltQty.toString();
+                                state.lastEditedField = "altQty";
+                                state.orderFormKey.currentState!.validate();
+                                state.calculate();
+                                if(state.altCountAltQty==0){
+                                  altCountQty =  double.parse(state.productDetail.altQty);
+                                }else{
+                                  altCountQty =  double.parse(state.quantity.text);
+                                }
+
+                                setState(() {});
+                              },
+                              child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.all(Radius.circular(50))
+                                  ),
+                                  child: Icon(EvaIcons.plus,size: 20,)),
+                            )
+                          ],
+                        ))
+                  ]),
+                ),
+
+                //quantity
+                Container(
+                  margin: const EdgeInsets.all(0),
+                  child: Row(children: [
+                     Expanded(
+                      flex: 1,
+                      child: Text(
+                        "Qty\n(${widget.product.unit})",
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                    ),
+                    const Expanded(
+
+                      child: Text(' : ',
+                          textAlign: TextAlign.center),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: state.quantity,
+                        onTap: () async {
+                          state.lastEditedField = "quantity";
+                          state.quantity.text = "";
+                          state.altQuantity.text = "0.00";
+                          state.altCountAltQty = 0.0;
+                          altCountQty = 0.0;
+                          state.calculate();
+
+
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty ||
+                              state.quantity.text == "0.00") {
+                            return "";
+                          } else {
+                            return null;
+                          }
+                        },
+                        onChanged: (text) async {
+                          if(text==""){
+                            state.altCountAltQty = 0.0;
+                            altCountQty = 0.0;
+                            setState(() {});
+                          }else{
+
+                          }
+                          state.lastEditedField = "quantity";
+                          state.orderFormKey.currentState!.validate();
+                          altCountQty = double.parse(text);
+                          state.calculate();
+                          setState(() {});
+
+                          // state.calculate();
+                          // state.calculateProductQty();
+                          // setState(() {});
+                        },
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,3}')),
+                        ],
+                        decoration: InputDecoration(
+                          filled: true,
+                          counter: const Offstage(),
+                          isDense: true,
+                          hintText: "",
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                          contentPadding:
+                          const EdgeInsets.all(10.0),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 2,
+                        child:
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(width: 5,),
+                            InkWell(
+                              onTap: ()async{
+                                if(altCountQty>0) {
+                                  altCountQty--;
+                                  state.quantity.text = altCountQty.toString();
+                                  state.lastEditedField = "quantity";
+                                  state.orderFormKey.currentState!.validate();
+                                  state.calculate();
+                                  setState(() {});
+                                }
+                              },
+                              child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.all(Radius.circular(50))
+                                  ),
+                                  child: Icon(EvaIcons.minus,size: 20,)),
+                            ),
+                            SizedBox(width: 10,),
+                            // Text('${altCountQty.toString()}'),
+                            // SizedBox(width: 5,),
+                            InkWell(
+                              onTap: ()async{
+                                altCountQty++;
+                                state.lastEditedField = "quantity";
+                                state.quantity.text = altCountQty.toString();
+                                state.orderFormKey.currentState!.validate();
+                                state.calculate();
+                                if(altCountQty==0){
+                                  altCountQty =  double.parse(state.productDetail.altQty);
+                                }else{
+                                  altCountQty =  double.parse(state.quantity.text);
+                                }
+                                setState(() {});
+                              },
+                              child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.all(Radius.circular(50))
+                                  ),
+                                  child: Icon(EvaIcons.plus,size: 20,)),
+                            )
+                          ],
+                        ))
+                  ]),
+                ),
+
+                Container(
+                  margin: const EdgeInsets.all(0),
+                  child: Row(children: [
+                    const Expanded(
+                      flex: 1,
+                      child: Text(
+                        "Sales Rate",
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                    ),
+                    const Expanded(
+                        child: Text(' : ',
+                            textAlign: TextAlign.center)),
+                    Expanded(
+                      flex: 5,
+                      child: TextFormField(
+                        controller: state.salesRate,
+                        onTap: () {
+                          state.salesRate.text = "";
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "";
+                          } else {
+                            return null;
+                          }
+                        },
+                        onChanged: (text) {
+                          state.orderFormKey.currentState!
+                              .validate();
+
+                          state.calculate();
+                          state.calculateProductQty();
+                          setState(() {});
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          filled: true,
+                          counter: const Offstage(),
+                          isDense: true,
+                          hintText: "",
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0,
+                          ),
+                          contentPadding:
+                          const EdgeInsets.all(10.0),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: primaryColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius:
+                            BorderRadius.circular(5.0),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+                // Row(children: [
+                //   const Expanded(
+                //       flex: 2,
+                //       child: Text(
+                //         "Amount",
+                //         style: TextStyle(
+                //           fontSize: 14.0,
+                //         ),
+                //       )),
+                //   const Expanded(
+                //       child: Text(' : ',
+                //           textAlign: TextAlign.center)),
+                //   Expanded(
+                //       flex: 5,
+                //       child: Text(
+                //         state.totalSalesPrice.toStringAsFixed(2),
+                //         style: const TextStyle(
+                //           fontSize: 15.0,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       )),
+                // ]),
+
+                SizedBox(height: 5,),
+                stateSalesTerm.termList.isNotEmpty ?
+                SizedBox(
+                  height: 120, // Adjust height as needed
+                  width: double.maxFinite,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                            itemCount: stateSalesTerm.termList.length,
+                            itemBuilder: (context, index){
+                              // _controllers[0].text = "";
+                              // _controllers[1].text = "";
+                              // _controllersAmount[0].text = "";
+                              //  _controllersAmount[1].text = "";
+
+                              return Container(
+                                alignment: Alignment.center,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        flex:2,
+                                        child: Container(
+                                          child: Text(stateSalesTerm.termList[index].pTDesc,style: TextStyle(fontSize: 14.0),),
+                                        )),
+
+                                    Expanded(
+                                        flex:1,
+                                        child: Container (
+                                          child: TextFormField(
+                                            maxLength: 2,
+                                            controller: _controllers[index],
+                                            onTap: () {
+
+                                            },
+
+                                            onChanged: (value) {
+                                              state.orderFormKey.currentState!
+                                                  .validate();
+
+                                              if(index == 0)
+                                              {
+                                                if(stateSalesTerm.termList[index].sign == "-"){
+                                                  double netTotalAmount = 0.00;
+                                                  String disValue = value;
+                                                  netTotalAmount = state.totalProductPrice;
+                                                  if(value == ""){
+                                                    disValue ="0";
+                                                  }
+                                                  double disAmt = (netTotalAmount * double.parse(disValue) /100);
+                                                  double totalAmt = netTotalAmount - disAmt;
+                                                  double netAmt =  netTotalAmount - totalAmt;
+                                                  _controllersAmount[0].text = netAmt.toStringAsFixed(2);
+                                                  state.getPTerm1Rate = double.parse(disValue);
+                                                  if(state.PTerm1Rate == 0.0) {
+                                                    state.getPTerm1Amount =  double.parse(_controllersAmount[0].text);
+                                                  }else{
+                                                    state.getPTerm1Amount = netAmt;
+                                                  }
+                                                  state.getPTerm1Code = stateSalesTerm.termList[index].pTCode;
+                                                  state.getSign1 = stateSalesTerm.termList[index].sign;
+                                                }else  if(stateSalesTerm.termList[index].sign == "+"){
+                                                  double netTotalAmount = 0.00;
+                                                  String disValue = value;
+                                                  netTotalAmount = state.totalProductPrice;
+                                                  if(value == ""){
+                                                    disValue ="0";
+                                                  }
+                                                  double disAmt = (netTotalAmount * double.parse(disValue) /100);
+                                                  double totalAmt = netTotalAmount - disAmt;
+                                                  double netAmt =  netTotalAmount - totalAmt;
+                                                  _controllersAmount[0].text = netAmt.toStringAsFixed(2);
+                                                  state.getPTerm1Rate = double.parse(disValue);
+                                                  state.getPTerm1Amount = netAmt;
+                                                  state.getPTerm1Code = stateSalesTerm.termList[index].pTCode;
+                                                  state.getSign1 = stateSalesTerm.termList[index].sign;
+                                                }
+
+
+
+                                              } else if(index == 1){
+                                                //   state.calculate();
+
+                                                if(stateSalesTerm.termList[index].sign == "-"){
+                                                  double netTotalAmount = 0.00;
+                                                  String disValue = value;
+                                                  netTotalAmount = state.totalProductPrice;
+                                                  if(value == ""){
+                                                    disValue ="0";
+                                                  }
+                                                  double disAmt = (netTotalAmount * double.parse(disValue) /100);
+                                                  double totalAmt = netTotalAmount - disAmt;
+                                                  double netAmt =  netTotalAmount - totalAmt;
+                                                  _controllersAmount[1].text = netAmt.toStringAsFixed(2);
+                                                  state.getPTerm2Rate = double.parse(disValue);
+                                                  if(state.PTerm2Rate == 0.0) {
+                                                    state.getPTerm2Amount =  double.parse(_controllersAmount[1].text);
+                                                  }else{
+                                                    state.getPTerm2Amount = netAmt;
+                                                  }
+                                                  state.getPTerm2Code = stateSalesTerm.termList[index].pTCode;
+                                                  state.getSign2 = stateSalesTerm.termList[index].sign;
+                                                }else  if(stateSalesTerm.termList[index].sign == "+"){
+                                                  double netTotalAmount = 0.00;
+                                                  String disValue = value;
+                                                  netTotalAmount = state.totalProductPrice;
+                                                  if(value == ""){
+                                                    disValue ="0";
+                                                  }
+                                                  double disAmt = (netTotalAmount * double.parse(disValue) /100);
+                                                  double totalAmt = netTotalAmount - disAmt;
+                                                  double netAmt =  netTotalAmount - totalAmt;
+                                                  _controllersAmount[1].text = netAmt.toStringAsFixed(2);
+                                                  state.getPTerm2Rate = double.parse(disValue);
+                                                  state.getPTerm2Amount = netAmt;
+                                                  state.getPTerm2Code = stateSalesTerm.termList[index].pTCode;
+                                                  state.getSign2 = stateSalesTerm.termList[index].sign;
+                                                }
+
+
+                                              } else if(index == 2){
+
+                                                if(stateSalesTerm.termList[index].sign == "-"){
+                                                  double netTotalAmount = 0.00;
+                                                  String disValue = value;
+                                                  netTotalAmount = state.totalProductPrice;
+                                                  if(value == ""){
+                                                    disValue ="0";
+                                                  }
+                                                  double disAmt = (netTotalAmount * double.parse(disValue) /100);
+                                                  double totalAmt = netTotalAmount - disAmt;
+                                                  double netAmt =  netTotalAmount - totalAmt;
+                                                  _controllersAmount[2].text = netAmt.toStringAsFixed(2);
+                                                  state.getPTerm3Rate = double.parse(disValue);
+                                                  if(state.PTerm3Rate == 0.0) {
+                                                    state.getPTerm3Amount =  double.parse(_controllersAmount[2].text);
+                                                  }else{
+                                                    state.getPTerm3Amount = netAmt;
+                                                  }
+                                                  state.getPTerm3Code = stateSalesTerm.termList[index].pTCode;
+                                                  state.getSign3 = stateSalesTerm.termList[index].sign;
+                                                } else  if(stateSalesTerm.termList[index].sign == "+"){
+                                                  double netTotalAmount = 0.00;
+                                                  String disValue = value;
+                                                  netTotalAmount = state.totalProductPrice;
+                                                  if(value == ""){
+                                                    disValue ="0";
+                                                  }
+                                                  double disAmt = (netTotalAmount * double.parse(disValue) /100);
+                                                  double totalAmt = netTotalAmount - disAmt;
+                                                  double netAmt =  netTotalAmount - totalAmt;
+                                                  _controllersAmount[2].text = netAmt.toStringAsFixed(2);
+                                                  state.getPTerm3Rate = double.parse(disValue);
+                                                  state.getPTerm3Amount = netAmt;
+                                                  state.getPTerm3Code = stateSalesTerm.termList[index].pTCode;
+                                                  state.getSign3 = stateSalesTerm.termList[index].sign;
+                                                }
+
+
+                                              }
+                                              state.calculate();
+                                              setState(() {
+
+                                              });
+                                            },
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              counter: const Offstage(),
+                                              isDense: true,
+                                              hintText: "",
+                                              labelStyle: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14.0,
+                                              ),
+                                              contentPadding:
+                                              const EdgeInsets.all(10.0),
+
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(5.0),
+                                                borderSide: BorderSide(
+                                                  color: primaryColor,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(5.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(5.0),
+                                              ),
+                                            ),
+                                          ),
+                                        )),
+                                    SizedBox(width: 10,),
+                                    Expanded(
+                                        flex:2,
+                                        child: Container (
+                                          child: TextFormField(
+
+                                            controller: _controllersAmount[index],
+                                            onTap: () {},
+
+                                            validator: (value) {},
+
+                                            onChanged: (value) {
+                                              state.orderFormKey.currentState!.validate();
+
+                                              if(index == 0) {
+                                                if(value == ""){
+                                                  value ="0";
+                                                }
+                                                state.getPTerm1Amount = double.parse(value);
+
+                                                // state.getPTerm1Rate = 0.00;
+                                              }else if(index == 1){
+                                                state.getPTerm2Amount = double.parse(value);
+                                                if(value == ""){
+                                                  value ="0";
+                                                }
+                                              }else {
+                                                state.getPTerm2Amount = double.parse(value);
+                                                if(value == ""){
+                                                  value ="0";
+                                                }
+                                              }
+                                              state.calculate();
+                                              setState(() {
+
+                                              });
+                                            },
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              counter: const Offstage(),
+                                              isDense: true,
+                                              hintText: "",
+                                              labelStyle: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14.0,
+                                              ),
+                                              contentPadding:
+                                              const EdgeInsets.all(10.0),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(5.0),
+                                                borderSide: BorderSide(
+                                                  color: primaryColor,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(5.0),
+                                                borderSide: BorderSide(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                BorderRadius.circular(5.0),
+                                              ),
+                                            ),
+                                          ),
+                                        )),
+                                    // SizedBox(width: 3,),
+
+                                  ],
+                                ),
+
+                              );
+
+
+                            }
+                        ),
+                      ),
+                    ],
+                  ),
+                ):SizedBox(),
+                const SizedBox(
+                  height: 0,
+                ),
+                Row(children: [
+                  const Expanded(
+                      flex: 2,
+                      child: Text(
+                        "Total Amount",
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
+                  const Expanded(
+                      child: Text(' : ',
+                          textAlign: TextAlign.center)),
+                  Expanded(
+                      flex: 2,
+                      child: Text(
+                        state.totalPrice.toStringAsFixed(2),
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
+                ]),
+
+                Divider(
+                  thickness: 1,
+                  color: Colors.grey.shade200,
+                  height: 10.0,
+                ),
+
+                Container(
+                  padding: EdgeInsets.only(bottom: 2),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 10.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: CancleButton(
+                          buttonName: "CANCEL",
+                          onClick: () {
+                            state.getPTerm1Rate = 0.00;
+                            state.getPTerm1Amount = 0.00;
+                            state.getPTerm2Rate = 0.00;
+                            state.getPTerm2Amount = 0.00;
+                            state.getPTerm3Rate = 0.00;
+                            state.getPTerm3Amount = 0.00;
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                      horizantalSpace(10.0),
+                      Expanded(
+                        child: SaveButton(
+                          buttonName: "CONFIRM",
+                          onClick: () async {
+
+                            if(state.quantity.text.isEmpty){
+                              state.quantity.text = "0.00";
+                            }
+                            if(double.parse(state.quantity.text) > 0 && double.parse(state.salesRate.text) > 0) {
+                              await widget.productOrderState.saveTempProductScanSata(product:widget.product);
+                              setState(() {});
+                              Navigator.pop(context);
+                            }else{
+                              Fluttertoast.showToast(msg: "Please enter quantity!");
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+        ],
+      ),
+    );
+  }
+
+
+}
+
+class OrderProductShowList extends StatefulWidget {
+  final String titleText, detailsText;
+  final TextStyle? titleStyle, detailStyle;
+
+  const OrderProductShowList({
+    super.key,
+    required this.titleText,
+    required this.detailsText,
+    this.titleStyle,
+    this.detailStyle,
+  });
+
+  @override
+  State<OrderProductShowList> createState() => _OrderProductShowListState();
+}
+
+class _OrderProductShowListState extends State<OrderProductShowList> {
+  @override
+  Widget build(BuildContext context) {
+    TextStyle textStyle = const TextStyle(
+      fontSize: 14.0,
+      fontWeight: FontWeight.bold,
+    );
+    return widget.detailsText.isEmpty
+        ? verticalSpace(0)
+        : Container(
+            margin: const EdgeInsets.all(3.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text(widget.titleText, style: cardTextStyleProductHeader),
+                ),
+                Expanded(
+                  child: Text(":", style: widget.titleStyle ?? textStyle),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    widget.detailsText.toString(),
+                    style: cardTextStyleProductHeader,
+                  ),
+                ),
+              ],
+            ),
+          );
+
+
+  }
+
+
+
+}
+class RowDataWidget extends StatelessWidget {
+  final String title, value;
+  final bool? titleBold, valueBold /*,  showChild */;
+  final int? valueFlex;
+  // final Widget? child;
+  final TextAlign? valueAlign;
+
+  const RowDataWidget({
+    super.key,
+    required this.title,
+    required this.value,
+    this.titleBold = false,
+    this.valueBold = false,
+    this.valueFlex,
+    this.valueAlign,
+
+    // this.child,
+    // this.showChild = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: Row(children: [
+        Expanded(
+            child: Text(
+              title,
+              style: cardTextStyleProductHeader,
+            )),
+        const Expanded(child: Text(' : ', textAlign: TextAlign.center)),
+        // if (showChild == true)
+        Expanded(
+          flex: valueFlex ?? 1,
+          child: Text(
+            value,
+            textAlign: valueAlign ?? TextAlign.start,
+            style: cardTextStyleSalePurchase,
+          ),
+        ),
+        // if (showChild == false)
+        //   Expanded(flex: valueFlex ?? 1, child: child ?? horizantalSpace(0.0)),
+      ]),
+    );
+  }
+}

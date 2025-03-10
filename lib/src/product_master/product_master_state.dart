@@ -44,6 +44,7 @@ class ProductMaterState extends ChangeNotifier {
     CheckNetwork.check().then((network) async {
       getCompanyDetail = await GetAllPref.companyDetail();
 
+      await  getDataList();
       if (network) {
         //  await networkSuccess();
       } else {
@@ -231,6 +232,8 @@ class ProductMaterState extends ChangeNotifier {
   set setProductGroup(List<ProductDataModel> value){
     _productGroupDropDown = value;
   }
+
+
 
   Future<List<ProductDataModel>> getDataUnitList() async {
     ProductModel unitData = await UnitList.unitList(

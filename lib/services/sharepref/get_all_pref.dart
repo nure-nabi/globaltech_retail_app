@@ -69,6 +69,14 @@ class GetAllPref {
     );
   }
 
+  static customerpanno() async {
+    return await SharedPref.getData(
+      key: PrefText.panno,
+      dValue: "-",
+      type: "String",
+    );
+  }
+
   static customerAddress() async {
     return await SharedPref.getData(
       key: PrefText.customerAddress,
@@ -76,6 +84,31 @@ class GetAllPref {
       type: "String",
     );
   }
+
+  static getQRData() async {
+    return await SharedPref.getData(
+      key: PrefText.qrData,
+      dValue: "-",
+      type: "String",
+    );
+  }
+
+  static latitude() async {
+    return await SharedPref.getData(
+      key: PrefText.latitude,
+      dValue: "-",
+      type: "String",
+    );
+  }
+
+  static longitude() async {
+    return await SharedPref.getData(
+      key: PrefText.longitude,
+      dValue: "-",
+      type: "String",
+    );
+  }
+
 
   static salePurchaseMap() async {
     return await SharedPref.getData(
@@ -103,7 +136,15 @@ class GetAllPref {
   static unitCode() async {
     return await SharedPref.getData(
       key: PrefText.unitCode,
-      dValue: "-",
+      dValue: "",
+      type: "String",
+    );
+  }
+
+  static getBranch() async {
+    return await SharedPref.getData(
+      key: PrefText.branch,
+      dValue: "",
       type: "String",
     );
   }

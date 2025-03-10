@@ -37,10 +37,11 @@ Widget _fromDatePicker(ReportProvider reportProvider, BuildContext context) {
         child: Row(
           children: [
             Icon(Icons.calendar_month),
-            SizedBox(width: 5,),
+            SizedBox(width: 1,),
             Text(
               reportProvider.fromDateEng.toString().substring(0, 10),
               style: TextStyle(
+                fontSize: 13,
                 color: reportProvider.chosenDate.toString() == AccountingPeriod.custome_date.toString() ? Colors.black : Colors.grey,
               ),
             ),
@@ -102,10 +103,11 @@ Widget _toDatePicker(ReportProvider reportProvider, BuildContext context) {
         child: Row(
           children: [
             Icon(Icons.calendar_month),
-            SizedBox(width: 5,),
+            SizedBox(width: 1,),
             Text(
               reportProvider.toDateEng.toString().substring(0, 10),
               style: TextStyle(
+                fontSize: 13,
                 color: reportProvider.chosenDate.toString() == AccountingPeriod.custome_date.toString() ? Colors.black : Colors.grey,
               ),
             ),
@@ -159,7 +161,7 @@ class DateSelectionContainer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('Select'),
-            const Text('  '),
+            const Text(''),
             DropdownButtonHideUnderline(
               child: DropdownButton2(
                 isExpanded: true,
@@ -186,7 +188,7 @@ class DateSelectionContainer extends StatelessWidget {
                 },
                 buttonStyleData: ButtonStyleData(
                   height: 35,
-                  width: 200,
+                  width: 150,
                   padding: const EdgeInsets.only(left: 14, right: 14),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
@@ -204,7 +206,7 @@ class DateSelectionContainer extends StatelessWidget {
                 ),
                 dropdownStyleData: DropdownStyleData(
                   maxHeight: 300,
-                  width: 200,
+                  width: 150,
                   padding: EdgeInsets.zero,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
@@ -226,22 +228,24 @@ class DateSelectionContainer extends StatelessWidget {
           children: [
             SizedBox(height: 10,),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-
-
-                Column(
-                  children: [
-                    const Text('From'),
-                    _fromDatePicker(reportProvider, context),
-                  ],
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Text('From'),
+                      _fromDatePicker(reportProvider, context),
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    const Text('To'),
-                    _toDatePicker(reportProvider, context),
-                  ],
+                Expanded(
+                  child: Column(
+                    children: [
+                      const Text('To'),
+                      _toDatePicker(reportProvider, context),
+                    ],
+                  ),
                 ),
 
               ],

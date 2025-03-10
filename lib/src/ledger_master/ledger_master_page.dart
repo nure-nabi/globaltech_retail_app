@@ -1,26 +1,29 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:retail_app/constants/text_style.dart';
-import 'package:retail_app/src/ledger_master/ledger_master_state.dart';
-import 'package:retail_app/themes/colors.dart';
-import 'package:retail_app/utils/show_toast.dart';
-import 'package:retail_app/widgets/custom_button.dart';
 
-class LedgerMasterScreen extends StatefulWidget {
-  const LedgerMasterScreen({super.key});
+import '../../constants/text_style.dart';
+import '../../utils/show_toast.dart';
+import '../../widgets/custom_button.dart';
+import 'ledger_master.dart';
+
+class LedgerMasterPage extends StatefulWidget {
+  const LedgerMasterPage({super.key});
 
   @override
-  State<LedgerMasterScreen> createState() => _LedgerMasterScreenState();
+  State<LedgerMasterPage> createState() => _LedgerMasterPageState();
 }
 
-class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
+class _LedgerMasterPageState extends State<LedgerMasterPage> {
   FocusNode nodeOne = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isSubmittedLedgerName = false;
+  bool isSubmittedPhone = false;
+  bool isSubmittedAddress = false;
   bool isSubmittedLedgerType = false;
   bool isSubmittedAcountGroup = false;
   final List<String> items = [
@@ -30,9 +33,7 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
     'Bank Book',
     'Other',
   ];
-
   final TextEditingController textEditingController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -44,7 +45,6 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
     super.didChangeDependencies();
     Provider.of<LedgerMasterState>(context, listen: false).clear();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,10 +90,10 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           ),
                           errorBorder: state.outletName.text.isEmpty
                               ? OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 1),
-                                )
+                            borderRadius: BorderRadius.circular(14.0),
+                            borderSide: const BorderSide(
+                                color: Colors.red, width: 1),
+                          )
                               : null,
                         ),
                         onChanged: (value) {
@@ -109,8 +109,7 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                         },
                       ),
                     ),
-                    if (isSubmittedLedgerName == true &&
-                        state.outletName.text.isEmpty)
+                    if (isSubmittedLedgerName == true && state.outletName.text.isEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Container(
@@ -134,36 +133,36 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                             style: cardTextWriteTitle,
                           ),
                           items: items.map((item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8.0),
-                                        width: MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(12.0)),
-                                          color: Colors.grey[200],
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.grey.withOpacity(0.5),
-                                              spreadRadius: 2,
-                                              blurRadius: 5,
-                                              offset: const Offset(
-                                                  0, 3), // changes position of shadow
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(item, style: cardTextStyleDropDownHeader,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                            value: item,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                padding: const EdgeInsets.all(8.0),
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(12.0)),
+                                  color: Colors.grey[200],
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(
+                                          0, 3), // changes position of shadow
                                     ),
-                                  ))
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(item, style: cardTextStyleDropDownHeader,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ))
                               .toList(),
                           // Custom display of the selected item
                           selectedItemBuilder: (BuildContext context) {
@@ -236,17 +235,17 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                             searchMatchFn: (item, searchValue) {
                               String itemValue = item.value.toString();
                               String lowercaseItemValue =
-                                  itemValue.toLowerCase();
+                              itemValue.toLowerCase();
                               String uppercaseItemValue =
-                                  itemValue.toUpperCase();
+                              itemValue.toUpperCase();
 
                               String lowercaseSearchValue =
-                                  searchValue.toLowerCase();
+                              searchValue.toLowerCase();
                               String uppercaseSearchValue =
-                                  searchValue.toUpperCase();
+                              searchValue.toUpperCase();
 
                               return lowercaseItemValue
-                                      .contains(lowercaseSearchValue) ||
+                                  .contains(lowercaseSearchValue) ||
                                   uppercaseItemValue
                                       .contains(uppercaseSearchValue) ||
                                   itemValue.contains(searchValue);
@@ -286,42 +285,42 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           style: cardTextWriteTitle,
                         ),
                         items: state.accountGroupList.map<DropdownMenuItem<String>>(
-                            (party) {
-                          return DropdownMenuItem<String>(
-                            value: party.grpDesc.toString(),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(12.0)),
-                                  color: Colors.grey[200],
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: const Offset(
-                                          0, 3), // changes position of shadow
+                                (party) {
+                              return DropdownMenuItem<String>(
+                                value: party.grpDesc.toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(12.0)),
+                                      color: Colors.grey[200],
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(
+                                              0, 3), // changes position of shadow
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      party.grpDesc.toString(),
-                                      style: cardTextStyleDropDownHeader,
-                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          party.grpDesc.toString(),
+                                          style: cardTextStyleDropDownHeader,
+                                        ),
 
-                                  ],
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                              );
+                            }).toList(),
 
                         // Custom display of the selected item
                         selectedItemBuilder: (BuildContext context) {
@@ -335,14 +334,14 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                             state.getAccountGroup = value.toString();
                             isSubmittedAcountGroup = false;
 
-                          //  state.getStatus = true;
-                         //  await SetAllPref.customerName(value: value.toString());
+                            //  state.getStatus = true;
+                            //  await SetAllPref.customerName(value: value.toString());
                             int index = state.accountGroupList.indexWhere(
-                                (party) => party.grpDesc.toString() == value);
+                                    (party) => party.grpDesc.toString() == value);
                             if (index != -1) {
                               String selectedGlCode = state.accountGroupList[index].grpCode;
                               state.selectedAccountGrpCode = selectedGlCode;
-                             // await SetAllPref.outLetCode(value: selectedGlCode);
+                              // await SetAllPref.outLetCode(value: selectedGlCode);
                               // Fluttertoast.showToast(msg: selectedGlCode);
                             } else {}
                           });
@@ -408,12 +407,12 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                             String uppercaseItemValue = itemValue.toUpperCase();
 
                             String lowercaseSearchValue =
-                                searchValue.toLowerCase();
+                            searchValue.toLowerCase();
                             String uppercaseSearchValue =
-                                searchValue.toUpperCase();
+                            searchValue.toUpperCase();
 
                             return lowercaseItemValue
-                                    .contains(lowercaseSearchValue) ||
+                                .contains(lowercaseSearchValue) ||
                                 uppercaseItemValue
                                     .contains(uppercaseSearchValue) ||
                                 itemValue.contains(searchValue);
@@ -427,17 +426,7 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                         },
                       ),
                     ),
-                    if (isSubmittedAcountGroup == true && state.accountGroup == null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Container(
-                          alignment: Alignment.topLeft,
-                          child: const Text(
-                            'Please select account list ',
-                            style: TextStyle(color: Colors.red, fontSize: 12.0),
-                          ),
-                        ),
-                      ),
+
                     const SizedBox(
                       height: 8.0,
                     ),
@@ -467,10 +456,10 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           ),
                           errorBorder: state.address.text.isEmpty
                               ? OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14.0),
-                                  borderSide:
-                                      BorderSide(color: Colors.red, width: 1),
-                                )
+                            borderRadius: BorderRadius.circular(14.0),
+                            borderSide:
+                            const BorderSide(color: Colors.red, width: 1),
+                          )
                               : null,
                         ),
                         validator: (value) {
@@ -481,6 +470,17 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                         },
                       ),
                     ),
+                    if (isSubmittedAddress == true && state.address.text.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Container(
+                          alignment: Alignment.topLeft,
+                          child: const Text(
+                            'Please enter address',
+                            style: TextStyle(color: Colors.red, fontSize: 12.0),
+                          ),
+                        ),
+                      ),
                     const SizedBox(
                       height: 8.0,
                     ),
@@ -498,7 +498,7 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           // Limit to 10 characters
                         ],
                         decoration: InputDecoration(
-                          hintText: "Phone ",
+                          hintText: "Phone *",
                           filled: true,
                           fillColor: Colors.white,
                           enabledBorder: OutlineInputBorder(
@@ -512,26 +512,38 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           ),
                           errorBorder: state.phone.text.isEmpty
                               ? OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 1),
-                                )
+                            borderRadius: BorderRadius.circular(14.0),
+                            borderSide: const BorderSide(
+                                color: Colors.red, width: 1),
+                          )
                               : null,
                         ),
                         // validator: (value) {
                         //   if (value!.isEmpty) {
-                        //     return 'Please enter customer name';
+                        //     return 'Please enter phone number';
                         //   } else if (value.length != 10) {
                         //     return 'Phone number must be 10 digits';
-                        //   } else if (!RegExp(r'^98').hasMatch(value)) {
-                        //     return 'Phone number must start with 98';
                         //   }
+                          // else if (!RegExp(r'^98').hasMatch(value)) {
+                          //   return 'Phone number must start with 98';
+                          // }
                         //   return null;
                         // },
                       ),
                     ),
+                    if (isSubmittedPhone == true && state.phone.text.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Container(
+                          alignment: Alignment.topLeft,
+                          child: const Text(
+                            'Please enter phone number',
+                            style: TextStyle(color: Colors.red, fontSize: 12.0),
+                          ),
+                        ),
+                      ),
                     const SizedBox(
-                      height: 8.0,
+                      height: 8,
                     ),
                     SizedBox(
                       height: 50,
@@ -560,10 +572,10 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           ),
                           errorBorder: state.panNo.text.isEmpty
                               ? OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 1),
-                                )
+                            borderRadius: BorderRadius.circular(14.0),
+                            borderSide: const BorderSide(
+                                color: Colors.red, width: 1),
+                          )
                               : null,
                         ),
                         validator: (value) {
@@ -605,18 +617,26 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                           ),
                           errorBorder: state.email.text.isEmpty
                               ? OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 1),
-                                )
+                            borderRadius: BorderRadius.circular(14.0),
+                            borderSide: const BorderSide(
+                                color: Colors.red, width: 1),
+                          )
                               : null,
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return null;
-                          } else if (!EmailValidator.validate(value)) {
-                            return 'Please enter a valid email';
+                          // if (value == null || value.isEmpty) {
+                          //   return null;
+                          // } else if (!EmailValidator.validate(value)) {
+                          //   return 'Please enter a valid email';
+                          // }
+                          // return null;
+
+                          if (value != null && value.isNotEmpty) {
+                            if (!EmailValidator.validate(value)) {
+                              return 'Please enter a valid email';
+                            }
                           }
+                          // Return null if the value is either empty or valid
                           return null;
                         },
                       ),
@@ -647,12 +667,10 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                             borderSide: const BorderSide(
                                 color: Colors.orange, width: 1),
                           ),
-                          errorBorder: state.email.text.isEmpty
-                              ? OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14.0),
-                                  borderSide: const BorderSide(
-                                      color: Colors.red, width: 1),
-                                )
+                          errorBorder: state.email.text.isEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(14.0),
+                            borderSide: const BorderSide(
+                                color: Colors.red, width: 1),
+                          )
                               : null,
                         ),
                       ),
@@ -660,37 +678,80 @@ class _LedgerMasterScreenState extends State<LedgerMasterScreen> {
                     const SizedBox(
                       height: 16.0,
                     ),
-                    SizedBox(
-                      height: 50, // Set the height as per your requirement
-                      child: SaveButton(
-                        buttonName: "CREATE LEDGER",
-                        onClick: () async {
-                          if (state.outletName.text.isNotEmpty &&
-                              state.selectedGrpCode != null && state.accountGroup != null) {
-                            await state.sendPostRequest();
-                            state.outletName.text = "";
-                            state.selectedGrpCode = null;
-                            state.getAccountGroup = null;
-                            state.address.text = "";
-                            state.panNo.text = "";
-                            state.phone.text = "";
-                            state.email.text = "";
-                            state.contactPerson.text = "";
-                            setState(() {});
-                          } else {
-                            setState(() {
-                              isSubmittedLedgerName = true;
-                              isSubmittedLedgerType = true;
-                              isSubmittedAcountGroup = true;
-                            });
-                            FocusScope.of(context).requestFocus(nodeOne);
-                            ShowToast.errorToast(
-                              msg: "Please enter required field",
-                            );
-                          }
-                        },
-                      ),
-                    ),
+
+                   Consumer<LedgerMasterState>(builder: (BuildContext context, state, Widget? child) {
+                     return  Container(
+                       padding: const EdgeInsets.only(bottom: 50,top: 5),
+                       width: MediaQuery.of(context).size.width,
+                       height: 100,
+                       // height: 50, // Set the height as per your requirement
+                       child: ElevatedButton(
+                         onPressed: state.mappingInsert == true ? null :() async {
+                             if (state.outletName.text.isNotEmpty && state.phone.text.isNotEmpty && state.address.text.isNotEmpty && state.selectedGrpCode != null) {
+                               await state.sendPostRequest();
+                               state.outletName.text = "";
+                               state.selectedGrpCode = null;
+                               state.getAccountGroup = null;
+                               state.address.text = "";
+                               state.panNo.text = "";
+                               state.phone.text = "";
+                               state.email.text = "";
+                               state.contactPerson.text = "";
+
+                               setState(() {});
+
+                             } else {
+                               setState(() {
+                                 isSubmittedLedgerName = true;
+                                 isSubmittedLedgerType = true;
+                                 isSubmittedPhone = true;
+                                 isSubmittedAddress = true;
+                                 state.setMappingInsert = false;
+                               });
+                               FocusScope.of(context).requestFocus(nodeOne);
+                               ShowToast.errorToast(
+                                 msg: "Please enter required field",
+                               );
+                             }
+                       }, child: Text("Create Ledger"),
+
+
+                       ),
+                       // child: SaveButton(
+                       //   buttonName: "Create Ledger",
+                       //   state: state,
+                       //   padding: 15.0,
+                       //   onClick: () async {
+                       //     if (state.outletName.text.isNotEmpty && state.phone.text.isNotEmpty && state.address.text.isNotEmpty && state.selectedGrpCode != null) {
+                       //       await state.sendPostRequest();
+                       //       state.outletName.text = "";
+                       //       state.selectedGrpCode = null;
+                       //       state.getAccountGroup = null;
+                       //       state.address.text = "";
+                       //       state.panNo.text = "";
+                       //       state.phone.text = "";
+                       //       state.email.text = "";
+                       //       state.contactPerson.text = "";
+                       //
+                       //       setState(() {});
+                       //
+                       //     } else {
+                       //       setState(() {
+                       //         isSubmittedLedgerName = true;
+                       //         isSubmittedLedgerType = true;
+                       //         isSubmittedPhone = true;
+                       //         isSubmittedAddress = true;
+                       //         state.setMappingInsert = false;
+                       //       });
+                       //       FocusScope.of(context).requestFocus(nodeOne);
+                       //       ShowToast.errorToast(
+                       //         msg: "Please enter required field",
+                       //       );
+                       //     }
+                       //   },
+                       // ),
+                     );
+                   },)
                   ],
                 ),
               ),

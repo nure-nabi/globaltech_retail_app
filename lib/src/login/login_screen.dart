@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 centerTitle: true,
                 title: Text(
                   AppDetails.appName,
-                  style: cardTextStyleHeader,
+                  style: cardTextStyleHeaderLogin,
                 ),
               ),
 
@@ -158,13 +158,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         maxLengthEnforcement: MaxLengthEnforcement.enforced,
                                         textInputAction: TextInputAction.done,
                                         decoration: InputDecoration(
-                                          suffixIcon: (state.isPasswordHidden)
-                                              ? GestureDetector(
+                                          suffixIcon: (state.isPasswordHidden) ? GestureDetector(
                                             onTap: () {
                                               state.showHidePassword = false;
                                             },
-                                            child: const Icon(Icons.visibility,color: Colors.orange,),
-                                          )
+                                            child: const Icon(Icons.visibility,color: Colors.orange,),)
                                               : GestureDetector(
                                             onTap: () {
                                               state.showHidePassword = true;

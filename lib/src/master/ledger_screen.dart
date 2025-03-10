@@ -28,7 +28,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ledger Master'),
+        title: const Text('Ledger Masghter'),
       ),
       body: Consumer<MaterState>(
         builder: (context, state, child) {
@@ -288,7 +288,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
                   SizedBox(
                     height: 50, // Set the height as per your requirement
                     child: SaveButton(
-                      buttonName: "CREATE LEDGER",
+                      buttonName: "CREATE sdgdfgdsfg",
                       onClick: () async {
                         if(state.customerName.text.isNotEmpty &&  state.customerCode.text.isNotEmpty)
                         {

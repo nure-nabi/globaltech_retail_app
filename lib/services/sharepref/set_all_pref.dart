@@ -67,6 +67,13 @@ class SetAllPref {
       type: "String",
     );
   }
+  static customerPanno({required String value}) async {
+    await SharedPref.setData(
+      key: PrefText.panno,
+      dValue: value,
+      type: "String",
+    );
+  }
   static salePurchaseMap({required String value}) async {
     await SharedPref.setData(
       key: PrefText.salePurchaseMap,
@@ -82,9 +89,37 @@ class SetAllPref {
       type: "String",
     );
   }
+  static setBranch({required String value}) async {
+    await SharedPref.setData(
+      key: PrefText.branch,
+      dValue: value,
+      type: "String",
+    );
+  }
+  static latitude({required String value}) async {
+    await SharedPref.setData(
+      key: PrefText.latitude,
+      dValue: value,
+      type: "String",
+    );
+  }
+  static longitude({required String value}) async {
+    await SharedPref.setData(
+      key: PrefText.longitude,
+      dValue: value,
+      type: "String",
+    );
+  }
   static setVoucherNo({required String value}) async {
     await SharedPref.setData(
       key: PrefText.voucherNo,
+      dValue: value,
+      type: "String",
+    );
+  }
+  static setQRData({required String value}) async {
+    await SharedPref.setData(
+      key: PrefText.qrData,
       dValue: value,
       type: "String",
     );

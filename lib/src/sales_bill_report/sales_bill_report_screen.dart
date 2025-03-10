@@ -54,246 +54,242 @@ class _SalesBillReportScreenState extends State<SalesBillReportScreen> {
       ),
       body: Consumer<SalesBillReportState>(
         builder: (context, salesBillReportState, _) {
-          if (salesBillReportState.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: salesBillReportState.dataList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      Color bgColor = index.isEven ? Colors.white : Colors.grey[200]!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: salesBillReportState.dataList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    Color bgColor = index.isEven ? Colors.white : Colors.grey[200]!;
 
-                      DateTime dateTime = DateFormat("yyyy-MM-dd").parse(salesBillReportState.dataList[index].hDate);
-                      String formattedDate = DateFormat("dd-MM-yyyy").format(dateTime);
-                      i++;
+                    DateTime dateTime = DateFormat("yyyy-MM-dd").parse(salesBillReportState.dataList[index].hDate);
+                    String formattedDate = DateFormat("dd-MM-yyyy").format(dateTime);
+                    i++;
 
-                      if(salesBillReportState.dataList.length == (index)) {
-                     //   Fluttertoast.showToast(msg: index.toString());
-                      }
+                    if(salesBillReportState.dataList.length == (index)) {
+                      //   Fluttertoast.showToast(msg: index.toString());
+                    }
 
-                      //Fluttertoast.showToast(msg: salesBillReportState.dataList.length.toString());
+                    //Fluttertoast.showToast(msg: salesBillReportState.dataList.length.toString());
 
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(2.0, 5.0, 2.0, 0.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(6.0)),
-                           color: bgColor,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(
-                                    0, 4), // changes position of shadow
-                              ),
-                            ],
-                          ),
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(2.0, 5.0, 2.0, 0.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                          const BorderRadius.all(Radius.circular(6.0)),
+                          color: bgColor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(
+                                  0, 4), // changes position of shadow
+                            ),
+                          ],
+                        ),
                         //  height: 110.0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                               Visibility(
-                                 visible: index == 0 ? false : false,
-                                 child: Container(
-                                   color: Colors.black12,
-                                     alignment: Alignment.topLeft,
-                                   child: Column(
-                                       crossAxisAlignment:
-                                       CrossAxisAlignment.start,
-                                     children:[
-                                       Text(
-                                         'Voucher No: ${salesBillReportState.dataList[index].hvno.toString()}',
-                                         maxLines: 1,
-                                         style: const TextStyle(
-                                             fontSize: 16.0,
-                                             color: Colors.green, fontWeight: FontWeight.bold),
-                                       ),
-                                       const SizedBox(
-                                         height: 5.0,
-                                       ),
-                                       Text(
-                                         'Date:$formattedDate',
-                                         style: const TextStyle(
-                                             color: Colors.green, fontSize: 16.0,fontWeight: FontWeight.bold
-                                         ),
-                                       ),
-                                       const SizedBox(
-                                         height: 5.0,
-                                       ),
-                                       Text(
-                                         'Miti:${salesBillReportState.dataList[index].hMiti.toString()}',
-                                         style: const TextStyle(
-                                             color: Colors.green, fontSize: 16.0,fontWeight: FontWeight.bold
-                                         ),
-                                       ),
-                                       const SizedBox(
-                                         height: 5.0,
-                                       ),
-                                       Text(
-                                         'Customer: ${salesBillReportState.dataList[index].hGlDesc.toString()}',
-                                         style: const TextStyle(
-                                             color: Colors.green,fontSize: 16.0,fontWeight: FontWeight.bold
-                                         ),
-                                       ),
-
-                                       const SizedBox(
-                                         height: 5.0,
-                                       ),
-                                       Text(
-                                         'Mobile No: ${salesBillReportState.dataList[index].hMobileNo.toString()}',
-                                         style: const TextStyle(
-                                             color: Colors.green,fontSize: 16.0,fontWeight: FontWeight.bold
-                                         ),
-                                       ),
-                                     ]
-                                   )
-                                 ),
-                               ),
-                                SizedBox(height: 0,),
-                                Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Visibility(
+                                visible: index == 0 ? false : false,
+                                child: Container(
+                                    color: Colors.black12,
+                                    alignment: Alignment.topLeft,
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                         children:[
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Text(
-                                                    'Item: ${salesBillReportState.dataList[index].dpDesc.toString()}',
-                                                    maxLines: 1,
-                                                    style: cardTextStyleHeaderCompany,
-                                                  ),
-                                              ),
+                                          Text(
+                                            'Voucher No: ${salesBillReportState.dataList[index].hvno.toString()}',
+                                            maxLines: 1,
+                                            style: const TextStyle(
+                                                fontSize: 16.0,
+                                                color: Colors.green, fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(
+                                            height: 5.0,
+                                          ),
+                                          Text(
+                                            'Date:$formattedDate',
+                                            style: const TextStyle(
+                                                color: Colors.green, fontSize: 16.0,fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 5.0,
+                                          ),
+                                          Text(
+                                            'Miti:${salesBillReportState.dataList[index].hMiti.toString()}',
+                                            style: const TextStyle(
+                                                color: Colors.green, fontSize: 16.0,fontWeight: FontWeight.bold
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 5.0,
+                                          ),
+                                          Text(
+                                            'Customer: ${salesBillReportState.dataList[index].hGlDesc.toString()}',
+                                            style: const TextStyle(
+                                                color: Colors.green,fontSize: 16.0,fontWeight: FontWeight.bold
+                                            ),
+                                          ),
 
-
-                                            ],
+                                          const SizedBox(
+                                            height: 5.0,
                                           ),
-                                          Row(
-                                            children: [
-                                               Expanded(
-                                                child: Text(
-                                                  'Qty',
-                                                  maxLines: 1,
-                                                  style: cardTextStyleProductHeader,
-                                                ),
-                                              ),
-                                              Expanded(child: Text(":")),
-                                              Expanded(
-                                                flex:2,
-                                                child: Text(
-                                                  salesBillReportState.dataList[index].dQty.toString(),
-                                                  maxLines: 1,
-                                                  style: cardTextStyleSalePurchase,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                               Expanded(
-                                                child: Text(
-                                                  'Unit',
-                                                  maxLines: 1,
-                                                  style: cardTextStyleProductHeader,
-                                                ),
-                                              ),
-                                              Expanded(child: Text(":")),
-                                              Expanded(
-                                                flex:2,
-                                                child: Text(
-                                                  salesBillReportState.dataList[index].unitCode.toString(),
-                                                  maxLines: 1,
-                                                  style: cardTextStyleSalePurchase,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                               Expanded(
-                                                child: Text(
-                                                  'Rate',
-                                                  maxLines: 1,
-                                                  style: cardTextStyleProductHeader,
-                                                ),
-                                              ),
-                                              Expanded(child: Text(":")),
-                                              Expanded(
-                                                flex:2,
-                                                child: Text(
-                                                  salesBillReportState.dataList[index].dLocalRate.toString(),
-                                                  maxLines: 1,
-                                                  style: cardTextStyleSalePurchase,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                               Expanded(
-                                                child: Text(
-                                                  'Term Amt',
-                                                  maxLines: 1,
-                                                  style:cardTextStyleProductHeader,
-                                                ),
-                                              ),
-                                              Expanded(child: Text(":")),
-                                              Expanded(
-                                                flex:2,
-                                                child: Text(
-                                                  salesBillReportState.dataList[index].dTermAMt.toString(),
-                                                  maxLines: 1,
-                                                  style: cardTextStyleSalePurchase,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                               Expanded(
-                                                child: Text(
-                                                  'Amount',
-                                                  maxLines: 1,
-                                                  style: cardTextStyleProductHeader,
-                                                ),
-                                              ),
-                                              Expanded(child: Text(":")),
-                                              Expanded(
-                                                flex:2,
-                                                child: Text(
-                                                  salesBillReportState.dataList[index].dNetAmt.toString(),
-                                                  maxLines: 1,
-                                                  style: cardTextStyleSalePurchase,
-                                                ),
-                                              ),
-                                            ],
+                                          Text(
+                                            'Mobile No: ${salesBillReportState.dataList[index].hMobileNo.toString()}',
+                                            style: const TextStyle(
+                                                color: Colors.green,fontSize: 16.0,fontWeight: FontWeight.bold
+                                            ),
                                           ),
                                         ]
                                     )
                                 ),
+                              ),
+                              SizedBox(height: 0,),
+                              Container(
+                                  child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children:[
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Item: ${salesBillReportState.dataList[index].hPrintCopy.toString()} ${salesBillReportState.dataList[index].dpDesc.toString()}',
+                                                maxLines: 1,
+                                                style: cardTextStyleHeaderCompany,
+                                              ),
+                                            ),
 
 
-                              ],
-                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Qty',
+                                                maxLines: 1,
+                                                style: cardTextStyleProductHeader,
+                                              ),
+                                            ),
+                                            Expanded(child: Text(":")),
+                                            Expanded(
+                                              flex:2,
+                                              child: Text(
+                                                salesBillReportState.dataList[index].dQty.toString(),
+                                                maxLines: 1,
+                                                style: cardTextStyleSalePurchase,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Unit',
+                                                maxLines: 1,
+                                                style: cardTextStyleProductHeader,
+                                              ),
+                                            ),
+                                            Expanded(child: Text(":")),
+                                            Expanded(
+                                              flex:2,
+                                              child: Text(
+                                                salesBillReportState.dataList[index].unitCode.toString(),
+                                                maxLines: 1,
+                                                style: cardTextStyleSalePurchase,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Rate',
+                                                maxLines: 1,
+                                                style: cardTextStyleProductHeader,
+                                              ),
+                                            ),
+                                            Expanded(child: Text(":")),
+                                            Expanded(
+                                              flex:2,
+                                              child: Text(
+                                                salesBillReportState.dataList[index].dLocalRate.toString(),
+                                                maxLines: 1,
+                                                style: cardTextStyleSalePurchase,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Term Amt',
+                                                maxLines: 1,
+                                                style:cardTextStyleProductHeader,
+                                              ),
+                                            ),
+                                            Expanded(child: Text(":")),
+                                            Expanded(
+                                              flex:2,
+                                              child: Text(
+                                                salesBillReportState.dataList[index].dTermAMt.toString(),
+                                                maxLines: 1,
+                                                style: cardTextStyleSalePurchase,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Amount',
+                                                maxLines: 1,
+                                                style: cardTextStyleProductHeader,
+                                              ),
+                                            ),
+                                            Expanded(child: Text(":")),
+                                            Expanded(
+                                              flex:2,
+                                              child: Text(
+                                                salesBillReportState.dataList[index].dNetAmt.toString(),
+                                                maxLines: 1,
+                                                style: cardTextStyleSalePurchase,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ]
+                                  )
+                              ),
+
+
+                            ],
                           ),
                         ),
-                      );
+                      ),
+                    );
 
 
-                    },
-                  ),
+                  },
                 ),
-              ],
-            );
-          }
+              ),
+            ],
+          );
         },
       ),
       floatingActionButton: Stack(
@@ -315,7 +311,9 @@ class _SalesBillReportScreenState extends State<SalesBillReportScreen> {
                   SizedBox(width: 20,),
                   FloatingActionButton(
                     onPressed: () async{
-                   await state.printReceipt(value:state.dataList);
+
+                   await state.printReceipt(value:state.dataList,billNo:widget.billNo);
+                    state.init(billNo: widget.billNo);
                     },
                     backgroundColor: Colors.green,
                     child: const Icon(Icons.print),

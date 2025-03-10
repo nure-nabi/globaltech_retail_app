@@ -1,10 +1,8 @@
 
 
-
-
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:retail_app/src/login/model/login_model.dart';
 import 'package:retail_app/src/sales/api/sales_api.dart';
@@ -22,6 +20,7 @@ import '../../../model/model.dart';
 import '../../services/router/router_name.dart';
 import '../../services/services.dart';
 import '../../utils/utils.dart';
+import '../imagepicker/image_picker_state.dart';
 import '../pdf/sales_bill_pdf.dart';
 import '../print_bill/print_bill.dart';
 import '../products/products.dart';
@@ -37,8 +36,6 @@ class ProductOrderState extends ChangeNotifier {
 
   set getContext(BuildContext value) {
     _context = value;
-
-    ///
     init();
   }
 
@@ -60,20 +57,28 @@ class ProductOrderState extends ChangeNotifier {
     notifyListeners();
   }
 
+  double altCountAltQty =0.0;
+
   init() async {
 
-   // await clear2();
+   await getAllTempProductOrderList();
+   await getProductBillWiseOrderList();
+   await clear2();
     await checkConnection();
    // selectedGlCode = null;
     getCustomer = null;
+    altCountAltQty =0.0;
     // await getOutletInfoState();
   }
 
   checkConnection() async {
+
    // Fluttertoast.showToast(msg: "daba");
     CheckNetwork.check().then((network) async {
       getCompanyDetail = await GetAllPref.companyDetail();
-
+     // await getAllTempProductOrderList();
+     // await getProductBillWiseOrderList();
+     //  clear2();
       if (network) {
       //  await networkSuccess();
       } else {
@@ -98,6 +103,7 @@ clear2(){
     _vatAmount = TextEditingController(text: "0.00");
     _discountRate = TextEditingController(text: "0.00");
     _discountAmt = TextEditingController(text: "0.00");
+    _altQuantity = TextEditingController(text: "0.00");
 
     // Total Price = Total Amount of the single product (ie rate * quantity)
     _totalPrice = 0.0;
@@ -107,6 +113,9 @@ clear2(){
     getVatAmount=0.00;
     getDisAmountRate=0.00;
     getDisAmount=0.00;
+    _isImageAdd = false;
+    getTotalSalesPrice = 0.00;
+    getTotalPrice = 0.00;
   }
 
   late ProductDataModel _productDetail = ProductDataModel.fromJson({});
@@ -131,6 +140,11 @@ clear2(){
 
   TextEditingController get quantity => _quantity;
 
+  late TextEditingController _altQuantity = TextEditingController(text: "0");
+
+  TextEditingController get altQuantity => _altQuantity;
+
+
   late TextEditingController _salesRate = TextEditingController(text: "");
 
   TextEditingController get salesRate => _salesRate;
@@ -143,9 +157,15 @@ clear2(){
 
   late  TextEditingController _comment = TextEditingController(text: "");
   TextEditingController get  comment => _comment;
+  late  TextEditingController _tenderAmount = TextEditingController(text: "");
+  TextEditingController get  tenderAmount => _tenderAmount;
 
   set getComment(String value) {
     _comment.text = value;
+    notifyListeners();
+  }
+  set getTenderAmount(String value) {
+    _tenderAmount.text = value;
     notifyListeners();
   }
 
@@ -209,7 +229,6 @@ clear2(){
   double get totalSalesPrice => _totalSalesPrice;
   set getTotalSalesPrice(double value) {
     _totalSalesPrice = value;
-
     notifyListeners();
   }
   late double _netTotalPrice = 0.0;
@@ -227,6 +246,14 @@ clear2(){
     notifyListeners();
   }
 
+  String _scannerQrCode = "ScannerQrCode";
+  String get scannerQrCode =>_scannerQrCode;
+
+  set setScannerQrCode(String value){
+    _scannerQrCode = value;
+    notifyListeners();
+  }
+
   late double _discountAmount = 0.0;
   double get discountAmount => _discountAmount;
   set getDiscountAmount(double value) {
@@ -240,6 +267,14 @@ clear2(){
   set getvatAmountRate(double value) {
     _vatAmountRate = value;
     CustomLog.actionLog(value: "CUSTOM LOG => $_vatAmountRate");
+    notifyListeners();
+  }
+
+
+  late bool _dataInserted = false;
+  bool get dataInserted => _dataInserted;
+  set setDataInserted(bool value) {
+    _dataInserted = value;
     notifyListeners();
   }
 
@@ -552,6 +587,19 @@ clear2(){
     notifyListeners();
   }
 
+  late String _isCashOrCredit = "Credit";
+  String get isCashOrCredit => _isCashOrCredit;
+  set getIsCashOrCredit(String value) {
+    _isCashOrCredit = value;
+    notifyListeners();
+  }
+
+  late bool _isImageAdd = false;
+  bool get isImageAdd => _isImageAdd;
+  set getIsImageAdd(bool value) {
+    _isImageAdd = value;
+    notifyListeners();
+  }
   late double _PTerm2Amount = 0.0;
   double get PTerm2Amount => _PTerm2Amount;
   set getPTerm2Amount(double value) {
@@ -584,28 +632,104 @@ clear2(){
     notifyListeners();
   }
 
+  String lastEditedField = ""; // Track the last edited field
+  calculate1() async {
+    if (_quantity.text.isEmpty || _salesRate.text.isEmpty || _altQuantity.text.isEmpty) {
+      getTotalPrice = 0.00;
+      // = 0.00;
+//getTotalAlt = 0.00;
+     // getTotalPriceWithVat = 0.00;
+    } else {
+      if (double.parse(productDetail.altQty) > 0) {
+        try {
+          if (lastEditedField == "altQty" && _altQuantity.text != '0.00') {
+            double quantityFactor = double.parse(_altQuantity.text) * double.parse(productDetail.altQty);
+            debugPrint('AltQty to Quantity: $quantityFactor');
+            _quantity.text = quantityFactor.toStringAsFixed(1);
+          } else if (lastEditedField == "quantity" && _quantity.text != '0.00') {
+            double altQuantityFactor = double.parse(_quantity.text) / double.parse(productDetail.altQty);
+            debugPrint('Quantity to AltQty: $altQuantityFactor');
+            _altQuantity.text = altQuantityFactor.toStringAsFixed(1);
+          }
+        } catch (e) {
+          Fluttertoast.showToast(msg: 'Invalid number format');
+          return;
+        }
+      }
 
+      try {
+        double quantity = double.parse(_quantity.text);
+        double salesRate = double.parse(_salesRate.text);
+
+        double totalWithVat = (quantity * salesRate * 13) / 100;
+       // getTotalVat = totalWithVat;
+       // getTotalPriceWithVat = quantity * salesRate;
+        getTotalPrice = quantity * salesRate;
+      } catch (e) {
+        Fluttertoast.showToast(msg: 'Error in calculation');
+      }
+    }
+    notifyListeners();
+  }
 
 
   calculate() async {
-    if (_quantity.text.isEmpty || _salesRate.text.isEmpty) {
+    double  quantityFactor = 0.00;
+
+    if (_quantity.text.isEmpty || _salesRate.text.isEmpty || _altQuantity.text.isEmpty) {
       getTotalPrice = 0.00;
       getTotalSalesPrice = 0.00;
+      altCountAltQty=0.00;
+
     }
-
-    ///
     else {
-      getTotalPrice=0.00;
-      double tempTotal = double.parse(_quantity.text)*double.parse(_salesRate.text);
-      getTotalSalesPrice = tempTotal;
-      double vatAmount =(tempTotal * PTerm2Rate)/100;
-      double grand = tempTotal+vatAmount;
-      double discount = (grand*PTerm1Rate)/100;
-      double finalPrice = tempTotal +vatAmount - discount;
 
+      if (double.parse(productDetail.altQty) > 0) {
+
+        try {
+          if (lastEditedField == "altQty" && _altQuantity.text != '0.00') {
+             quantityFactor = double.parse(_altQuantity.text) * double.parse(productDetail.altQty);
+            debugPrint('AltQty to Quantity: $quantityFactor');
+            _quantity.text = quantityFactor.toStringAsFixed(1);
+          } else
+          if (lastEditedField == "quantity" && _quantity.text != '0.00') {
+
+            double altQuantityFactor = double.parse(_quantity.text) /
+                double.parse(productDetail.altQty);
+            debugPrint('Quantity to AltQty: $altQuantityFactor');
+            _altQuantity.text = altQuantityFactor.toStringAsFixed(1);
+
+            altCountAltQty = altQuantityFactor;
+          }
+        } catch (e) {
+          Fluttertoast.showToast(msg: 'Invalid number format');
+          return;
+        }
+      }else{
+
+      }
+
+
+      try {
+
+      getTotalPrice = 0.00;
+      double tempTotal = (double.parse(_quantity.text)) * double.parse(_salesRate.text);
+      getTotalSalesPrice = tempTotal;
+      double vatAmount = (tempTotal * PTerm2Rate) / 100;
+      double grand = tempTotal + vatAmount;
+      double discount = (grand * PTerm1Rate) / 100;
+      double finalPrice = tempTotal + vatAmount - discount;
 
       getTotalPrice = tempTotal  + vatAmount  - PTerm1Amount;
       getNetTotalPrice = tempTotal  + vatAmount  - PTerm1Amount;
+    }catch(e){
+
+      }
+      //alt quantity
+
+
+
+
     }
 
     ///
@@ -651,10 +775,68 @@ clear2(){
 
   saveTempProduct() async {
     //if (_orderFormKey.currentState!.validate()) {
-      final productState = Provider.of<ProductState>(context, listen: false);
+    final productState = Provider.of<ProductState>(context, listen: false);
+    TempProductOrderModel orderProduct = TempProductOrderModel(
+      pCode: _productDetail.pCode,
+      pShortName: _productDetail.pShortName,
+      pName: _productDetail.pDesc,
+      rate: _salesRate.text.trim().isNotEmpty ? _salesRate.text.trim() : "0.0",
+      quantity: _quantity.text.trim().isNotEmpty ? _quantity.text.trim() : "0.0",
+
+      pTerm1Code: PTerm1Code.toString(),
+      pTerm1Rate: PTerm1Rate.toString(),
+      pTerm1Amount: PTerm1Amount.toString(),
+      sign1: sign1.toString(),
+
+      pTerm2Code: PTerm2Code.toString(),
+      pTerm2Rate: PTerm2Rate.toString(),
+      pTerm2Amount: PTerm2Amount.toString(),
+      sign2: sign2.toString(),
+
+      pTerm3Code: PTerm3Code.toString(),
+      pTerm3Rate: PTerm3Rate.toString(),
+      pTerm3Amount: PTerm3Amount.toString(),
+      sign3: sign3.toString(),
+
+      totalAmount: _totalPrice.toStringAsFixed(2),
+      unit: _productDetail.unit,
+      altUnit: _productDetail.altUnit,
+      altQty: _productDetail.altQty,
+      hsCode: _productDetail.hsCode,
+      factor: _altQuantity.text.trim(),
+    );
+
+    await TempProductOrderDatabase.instance.insertData(orderProduct);
+    getPTerm1Amount = 0.0;
+    getPTerm2Amount = 0.0;
+    getPTerm3Amount = 0.0;
+
+    getBTerm1Amount = 0.0;
+    getBTerm2Amount = 0.0;
+    getBTerm3Amount = 0.0;
+    getTotalSalesPrice = 0.0;
+    productState.getProductListFromDB(
+        groupName: productState.selectedGroup.groupName);
+    await getAllTempProductOrderList();
+    // navigator.push(context, PageTransition(type: PageTransitionType.rightToLeft,
+    //   child: const OrderListSection(),),);
+    navigator.pop();
+    notifyListeners();
+    //  }
+  }
+
+  saveTempProductScanSata({required ProductDataModel product}) async {
+
+    // ${DatabaseDetails.unit} TEXT,
+    // ${DatabaseDetails.altUnit} TEXT,
+    // ${DatabaseDetails.altQty} TEXT,
+    // ${DatabaseDetails.hsCode} TEXT,
+    //if (_orderFormKey.currentState!.validate()) {
+     // final productState = Provider.of<ProductState>(context, listen: false);
       TempProductOrderModel orderProduct = TempProductOrderModel(
-        pCode: _productDetail.pCode,
-        pName: _productDetail.pDesc,
+        pCode: product.pCode,
+        pShortName: product.pShortName,
+        pName: product.pDesc,
         rate: _salesRate.text.trim(),
         quantity: _quantity.text.trim(),
 
@@ -674,6 +856,12 @@ clear2(){
         sign3: sign3.toString(),
 
         totalAmount: _totalPrice.toStringAsFixed(2),
+        unit: product.unit,
+        altUnit: product.altUnit,
+        altQty: product.altQty,
+        hsCode: product.hsCode,
+        factor: _altQuantity.text.trim() == "" ? "0.0" : _altQuantity.text.trim(),
+
 
       );
 
@@ -686,9 +874,12 @@ clear2(){
       getBTerm2Amount = 0.0;
       getBTerm3Amount = 0.0;
       getTotalSalesPrice = 0.0;
-      productState.getProductListFromDB(
-          groupName: productState.selectedGroup.groupName);
-      navigator.pop();
+      // productState.getProductListFromDB(
+      //     groupName: productState.selectedGroup.groupName);
+
+      setScannerQrCode = "ScannerQrCode";
+    //  navigator.pop();
+      getAllTempProductOrderList();
       notifyListeners();
   //  }
   }
@@ -727,8 +918,27 @@ clear2(){
     await ProductOrderDatabase.instance.getAllProductAndBillWiseList().then((value) {
       getAllProductBillWiseOrderList = value;
     });
-
     notifyListeners();
+  }
+
+
+  List<TempProductOrderModel> _checkListExits = [];
+  List<TempProductOrderModel> get checkListExits => _checkListExits;
+
+  set setCheckListExits(List<TempProductOrderModel> value){
+    _checkListExits = value;
+    notifyListeners();
+  }
+  Future<List<TempProductOrderModel>>checkValue(String code)async{
+    _checkListExits=[];
+    await TempProductOrderDatabase.instance.getProductAlready(pcode:code).then((value){
+      if(value.isNotEmpty){
+        setCheckListExits = value;
+
+      }
+    });
+    notifyListeners();
+    return checkListExits;
   }
 
   updateTempOrderProductDetail({
@@ -754,16 +964,18 @@ clear2(){
     notifyListeners();
   }
   dublicateProduct({required String productID}) async {
-    await TempProductOrderDatabase.instance
-        .dublicateExit(productID);
+    await TempProductOrderDatabase.instance.dublicateExit(productID);
     await getAllTempProductOrderList();
+    notifyListeners();
+  }
 
+  changeUi(){
     notifyListeners();
   }
 
 
-
   Future productOrderAPICall(BuildContext ctx) async {
+   // getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
     CustomLog.warningLog(value: "\n\n\n\n");
     CustomLog.warningLog(value: "SASDASDASDASD");
     CustomLog.warningLog(value: "\n\n\n\n");
@@ -776,11 +988,22 @@ clear2(){
       if (modelData.status == true) {
         await SetAllPref.setVoucherNo(value: modelData.message);
         await ProductOrderDatabase.instance.deleteData();
+        await TempProductOrderDatabase.instance.deleteData();
         await productOrderComplete(ctx, true, "Sales successfully !!!");
+        setDataInserted = false;
         Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
-
+        _isImageAdd = false;
+        if(PrintOrNot == "pdf") {
+          onPrint(name: "name");
+        } else if(PrintOrNot == "print") {
+          //MasterList/UpdateSalesBillPrintCopy?dbname=&Vno=
+          printReceipt(value: allProductBillWiseOrderList);
+        }else{
+          await TempProductOrderDatabase.instance.deleteData();
+        }
 
       } else {
+
         await ProductOrderDatabase.instance.deleteData();
         await TempProductOrderDatabase.instance.deleteData();
         await productOrderComplete(ctx, false, "Something wrong");
@@ -823,6 +1046,27 @@ clear2(){
   //  showVatDiscAmount();
     showVatDiscAmountBill();
     return _totalBalance.toStringAsFixed(2);
+  }
+
+  late double _balanceAmount = 0.00;
+
+  double get balanceAmount => _balanceAmount;
+
+  set getBalanceAmount(double value) {
+    _balanceAmount = value;
+    notifyListeners();
+  }
+
+  calculateCash(double totalAmount,double enterAmount){
+    getBalanceAmount = totalAmount - enterAmount;
+    if(enterAmount == 0.0){
+      getBalanceAmount = 0.0;
+    }
+    if(enterAmount > totalAmount){
+      tenderAmount.text = "";
+      getBalanceAmount = 0.0;
+    }
+    notifyListeners();
   }
 
   calculateBillTerm()  {
@@ -960,25 +1204,28 @@ clear2(){
         sign1: element.sign1,
         sign2: element.sign2,
         sign3: element.sign3,
+        altUnit: element.altUnit,
+        altQty: element.altQty,
+        hsCode: element.hsCode,
+        factor: element.factor,
+        payAmount: tenderAmount.text.isNotEmpty ? tenderAmount.text : "0.0",
+          billNetAmt: element.totalAmount,
+          userCode: await GetAllPref.userName()
       );
+      // "BillNetAmt": "5250.00",
+      // "UserCode": "ABCD",
       await ProductOrderDatabase.instance.insertData(finalOrder);
       await getProductBillWiseOrderList();
     }
 
-    if(PrintOrNot == "pdf") {
-      onPrint(name: "name");
-    } else if(PrintOrNot == "print") {
-      printReceipt(value: allProductBillWiseOrderList);
-    }else{
-      await TempProductOrderDatabase.instance.deleteData();
-    //  await ProductOrderDatabase.instance.deleteData();
-    }
+
   }
 
   Future<List<OutletDataModel>> getDataList() async {
    // getCompanyDetail = await GetAllPref.companyDetail();
     OutletModel outletData = await OutletList.partyList(
       dbName: _companyDetail.dbName,
+      unitCode: await GetAllPref.unitCode(),
     );
     if (outletData.statusCode == 200) {
     //  getcustomerList = outletData.data;
@@ -1012,16 +1259,43 @@ clear2(){
     notifyListeners();
   }
 
+  late String _myContainImage = "";
+  String get myContainImage => _myContainImage;
+  set getBillImage(String value) {
+    _myContainImage = "";
+    _myContainImage = value;
+    notifyListeners();
+  }
+
+
   getFormatPOSTDATA() async {
+   // getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
     return await ProductOrderDatabase.instance.getPostDataASFormatNeeded(
       dbName: _companyDetail.dbName,
       unitCode: await GetAllPref.unitCode(),
-      salesImage: imageData,
+      salesImage: "",
       imagePath: await GetAllPref.baseImageURL(),
       companyInitial: await GetAllPref.companyInitial(),
     );
   }
 
+  late List<ProductOrderModel> _qrProductList = [];
+
+  List<ProductOrderModel> get qrProductList => _qrProductList;
+
+  set getQrProductList(List<ProductOrderModel> value) {
+    _qrProductList = value;
+    notifyListeners();
+  }
+
+  getQRProductListFromDB({code}) async {
+    String qrCode = await GetAllPref.getQRData();
+    await ProductOrderDatabase.instance.getQRProduct(qrCode:code).then((value) {
+      getQrProductList = value;
+    });
+
+    notifyListeners();
+  }
 
 
 
@@ -1082,6 +1356,7 @@ clear2(){
   }
 
   Future<void> printReceipt({required List<ProductOrderModel> value}) async {
+    //
     await SunmiPrinter.initPrinter();
     await SunmiPrinter.startTransactionPrint(true);
     /// COMPANY NAME
@@ -1099,17 +1374,22 @@ clear2(){
     }
     /// BILL TITLE
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    // if (_companyDetail.vatNo.isNotEmpty) {
-    // await SunmiPrinter.printText('INVOICE');
-    // } else {
     await SunmiPrinter.printText('SALES INVOICE');
-    // }
+    await SunmiPrinter.setCustomFontSize(20);
+    await SunmiPrinter.printText('${await GetAllPref.unitCode()}');
     await SunmiPrinter.setCustomFontSize(19);
-    await SunmiPrinter.printText('Invoice No : ${await GetAllPref.getVoucher()}');
+    await SunmiPrinter.printText('Bill No : ${await GetAllPref.getVoucher()}');
+        await SunmiPrinter.setCustomFontSize(19);
+    await SunmiPrinter.printText('Date    : ${await MyDate.showDateTime2()}(${await MyDate.showDateTimeNepali2()})');
+    // await SunmiPrinter.setCustomFontSize(19);
+    // await SunmiPrinter.printText('Miti : ${await MyDate.showDateTimeNepali()}');
     await SunmiPrinter.setCustomFontSize(19);
-    await SunmiPrinter.printText('Name : ${await GetAllPref.customerName()}');
+    await SunmiPrinter.printText('Name    : ${await GetAllPref.customerName()}');
     await SunmiPrinter.setCustomFontSize(19);
     await SunmiPrinter.printText('Address : ${await GetAllPref.customerAddress()}');
+    await SunmiPrinter.setCustomFontSize(19);
+    await SunmiPrinter.printText('Pan No  : ${await GetAllPref.customerpanno()}');
+
     await SunmiPrinter.line();
     await SunmiPrinter.setCustomFontSize(19);
     await SunmiPrinter.printRow(cols: [
@@ -1119,7 +1399,7 @@ clear2(){
         align: SunmiPrintAlign.LEFT,
       ),
       ColumnMaker(
-        text: "Item",
+        text: "HSN Item",
         width: 15,
         align: SunmiPrintAlign.LEFT,
       ),
@@ -1141,10 +1421,12 @@ clear2(){
     ]);
     await SunmiPrinter.line();
     await SunmiPrinter.setCustomFontSize(19);
-    double grandTotal = 0.0;
+    double grandTotal = 0.00;
     int i = 0;
     for (var item in value) {
       i++;
+
+
       await SunmiPrinter.setFontSize(SunmiFontSize.SM);
       await SunmiPrinter.printRow(cols: [
         ColumnMaker(
@@ -1152,13 +1434,25 @@ clear2(){
           width: 4,
           align: SunmiPrintAlign.LEFT,
         ),
+        if(item.altUnit.isNotEmpty)...[
         ColumnMaker(
-          text: item.pName,
+          text: '${adjustStringLength(item.pName)}${item.hsCode} ${item.altUnit == "" ? "" : " ${item.altUnit}"}',
+        //  text: '                HSN${item.hsCode} ${item.altUnit == "" ? "" : " ${item.altUnit}"}',
+         // text: '${item.pName}    HSN ${item.altUnit} ${item.factor}',
           width: 15,
           align: SunmiPrintAlign.LEFT,
         ),
+        ]else...[
+          ColumnMaker(
+            text: '${adjustStringLength(item.pName)}',
+            //  text: '                HSN${item.hsCode} ${item.altUnit == "" ? "" : " ${item.altUnit}"}',
+            // text: '${item.pName}    HSN ${item.altUnit} ${item.factor}',
+            width: 15,
+            align: SunmiPrintAlign.LEFT,
+          ),
+        ],
         ColumnMaker(
-          text: item.qty,
+          text:item.factor != "0.00" ? '${item.qty.replaceAll('.0', '')}  ${item.factor}' :item.qty.replaceAll('.0', ''),
           width: 5,
           align: SunmiPrintAlign.CENTER,
         ),
@@ -1179,19 +1473,30 @@ clear2(){
 
     await SunmiPrinter.line();
     await SunmiPrinter.setCustomFontSize(19);
-       await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Grand Total:",
-        width: 20,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-        text: grandTotal.toStringAsFixed(2),
-        width: 10,
-        align: SunmiPrintAlign.RIGHT,
-      ),
-    ]);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.RIGHT);
+    await SunmiPrinter.printText("Grand Total: ${grandTotal.toStringAsFixed(2)}");
+    // await SunmiPrinter.setAlignment(SunmiPrintAlign.RIGHT);
+    // await SunmiPrinter.printText(grandTotal.toStringAsFixed(2));
+    //    await SunmiPrinter.printRow(cols: [
+    //   ColumnMaker(
+    //     text: "Grand Total:",
+    //     width: 20,
+    //     align: SunmiPrintAlign.LEFT,
+    //   ),
+    //      ColumnMaker(
+    //        text: "",
+    //        width: 10,
+    //        align: SunmiPrintAlign.LEFT,
+    //      ),
+    //   ColumnMaker(
+    //     text: grandTotal.toStringAsFixed(2),
+    //     width: 10,
+    //     align: SunmiPrintAlign.RIGHT,
+    //   ),
+    // ]);
     await SunmiPrinter.line();
+    await SunmiPrinter.setCustomFontSize(18);
+    await SunmiPrinter.printText('Print Date & Time : ${await MyDate.showDateTime()}');
     await SunmiPrinter.printText('Prepared by : ${ await GetAllPref.userName()}');
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText("Thank you");
@@ -1199,5 +1504,13 @@ clear2(){
      await SunmiPrinter.submitTransactionPrint();
      await SunmiPrinter.lineWrap(3);
     await SunmiPrinter.exitTransactionPrint(true);
+  }
+
+  String adjustStringLength(String input) {
+    if (input.length < 15) {
+      return input.padRight(15, ' '); // Pad with spaces if it's shorter than 15
+    } else {
+      return input.substring(0, 15); // Truncate if it's longer than 15
+    }
   }
 }

@@ -49,7 +49,31 @@ class ProductOrderDatabase {
     });
   }
 
+  Future<List<ProductOrderModel>> getProductAlready(
+      {required String pcode}) async {
+    db = await DatabaseHelper.instance.database;
 
+    final List<Map<String, dynamic>> mapData = await db!.rawQuery('''SELECT * FROM ${DatabaseDetails.orderProductTable} WHERE id =${pcode} ''');
+
+    CustomLog.successLog(value: "MapData => $mapData");
+
+    return List.generate(mapData.length, (i) {
+      return ProductOrderModel.fromJson(mapData[i]);
+    });
+  }
+
+  Future<List<ProductOrderModel>> getQRProduct({
+    required String qrCode,
+  }) async {
+    String myQuery =
+    '''  SELECT * FROM ${DatabaseDetails.orderProductTable} WHERE ${DatabaseDetails.itemCode} = "$qrCode" ''';
+    db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> mapData = await db!.rawQuery(myQuery);
+    CustomLog.errorLog(value: "MapData => $mapData");
+    return List.generate(mapData.length, (i) {
+      return ProductOrderModel.fromJson(mapData[i]);
+    });
+  }
 
     Future<List<OrderPostModel>> getPostDataASFormatNeeded({
     required String dbName,
@@ -64,6 +88,7 @@ class ProductOrderDatabase {
                         "OutletCode":"' || OutletCode || '",
                         "Unit":"' || Unit || '",
                         "BTerm1":"' || BTerm1 || '",
+                        "PayAmount":"' || PayAmount || '",
                         "BTerm1Rate":"' || BTerm1Rate || '",
                         "BTerm1Amount":"' || BTerm1Amount || '",
                         "BTerm2":"' || BTerm2 || '",
@@ -72,12 +97,15 @@ class ProductOrderDatabase {
                         "BTerm3":"' || BTerm3 || '",
                         "BTerm3Rate":"' || BTerm3Rate || '",
                         "BTerm3Amount":"' || BTerm3Amount || '",
+                        "BillNetAmt":"' || BillNetAmt || '",
+                        "UserCode":"' || UserCode || '",
                         "ItemDetails":' || ItemDetails ||
              '}') || ']' AS OrderDetails
       FROM   
     (SELECT ${DatabaseDetails.outletCode} AS OutletCode,
      ${DatabaseDetails.unit} AS Unit,
      ${DatabaseDetails.bTerm1} AS BTerm1,
+     ${DatabaseDetails.payAmount} AS PayAmount,
      ${DatabaseDetails.bTerm1Rate} AS BTerm1Rate,
      ${DatabaseDetails.bTerm1Amount} AS BTerm1Amount,
      ${DatabaseDetails.bTerm2} AS BTerm2,
@@ -86,6 +114,9 @@ class ProductOrderDatabase {
      ${DatabaseDetails.bTerm3} AS BTerm3,
      ${DatabaseDetails.bTerm3Rate} AS BTerm3Rate,
      ${DatabaseDetails.bTerm3Amount} AS BTerm3Amount,
+     SUM(BillNetAmt) AS BillNetAmt,
+     ${DatabaseDetails.userCode} AS UserCode,
+     
               '[' || GROUP_CONCAT('{
                              "itemCode":"'|| itemCode ||'",
                              "qty":"' || Qty || '",
@@ -117,11 +148,7 @@ class ProductOrderDatabase {
 
     return List.generate(mapData.length, (i) {
       CustomLog.successLog(value: "MapData1 => ${mapData[0]}");
-
-    //  Fluttertoast.showToast(msg: mapData[0].toString());
-
       debugPrint( mapData[0].toString());
-
       return OrderPostModel.fromJson({
         "DbName": dbName,
         "SalesImage": salesImage,

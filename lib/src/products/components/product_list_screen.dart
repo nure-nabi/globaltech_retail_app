@@ -19,8 +19,9 @@ import '../../../themes/themes.dart';
 import '../../../widgets/widgets.dart';
 import '../../purchase/dialog/purchase_alert_dialog.dart';
 import '../../purchase/screen/purchase_order.dart';
+import '../../qr_scanner/qr_list_product.dart';
 import '../model/product_model.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class CounterModel extends ValueNotifier<int> {
   CounterModel(super.value);
 
@@ -115,13 +116,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         Navigator.pop(context);
                       }
                   ),
-                  SaveButton(
-                      buttonName: "Yes",
-                      onClick: () async {
-                        Navigator.pop(context);
-                        await showAlert(context, index);
-                      }
-                  )
+                 Expanded(child:  SaveButton(
+                     buttonName: "Yes",
+                     onClick: () async {
+                       Navigator.pop(context);
+                       await showAlert(context, index);
+                     }
+                 ))
                 ],
               )
             ],
@@ -148,7 +149,28 @@ class _ProductListScreenState extends State<ProductListScreen> {
       _controllersAmount.add(TextEditingController());
     }
     return Scaffold(
-      appBar: AppBar(title: Text(state.selectedGroup.groupName,style: cardTextStyleHeader,)),
+      appBar: AppBar(title: Text(state.selectedGroup.groupName,style: cardTextStyleHeader,),
+        actions:  [
+          InkWell(
+              onTap: (){
+                //  Navigator.pushNamed(context, qrSectionPath);
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>QrProductListSection(scan: 'ScannerQrCode',)));
+              },
+              child:Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      child: AnimatedBorder(),
+                    )
+                    // Text("Scan",style: TextStyle(fontWeight: FontWeight.bold),),
+                    // SizedBox(width: 5,),
+                    // const Icon(Icons.qr_code_2_sharp),
+                  ],
+                ),
+              ),)
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
 
@@ -248,23 +270,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                   : isEmpty
                                       ? await showAlert(context, index)
                                       : ShowAlert(context).alert(
-                                          child: notValid(context,productModel.pDesc,index),
-                                        );
+                                child: notValid(context,productModel.pDesc,index),);
                             },
                             child: Row(
                               children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 10.0,
-                                    ),
-                                    child: Image.memory(
-                                      base64Decode(productModel.pImage),
-                                      height: 80.0,
-                                      width: 80.0,
-                                    ),
-                                  ),
-                                ),
+                                // Flexible(
+                                //   child: Padding(
+                                //     padding: const EdgeInsets.only(
+                                //       right: 10.0,
+                                //     ),
+                                //     child: Image.memory(
+                                //       base64Decode(productModel.pImage),
+                                //       height: 80.0,
+                                //       width: 80.0,
+                                //     ),
+                                //   ),
+                                // ),
                                 Expanded(
                                   flex: 3,
                                   child: Column(
@@ -743,4 +764,80 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ],
     );
   }
+}
+
+class AnimatedBorder extends StatefulWidget {
+  const AnimatedBorder({super.key});
+
+  @override
+  _AnimatedBorderState createState() => _AnimatedBorderState();
+}
+
+class _AnimatedBorderState extends State<AnimatedBorder>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      child: CustomPaint(
+        painter: BorderPainter(animation: _controller),
+        child:  InkWell(
+          onTap: (){
+            //  Navigator.pushNamed(context, qrSectionPath);
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const QrProductListSection(scan: 'ScannerQrCode',)));
+          },
+          child:const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                Text("Scan",style: TextStyle(fontWeight: FontWeight.bold),),
+                SizedBox(width: 5,),
+                Icon(Icons.qr_code_2_sharp),
+              ],
+            ),
+          ),),
+      ),
+    );
+  }
+}
+
+class BorderPainter extends CustomPainter {
+  final Animation<double> animation;
+
+  BorderPainter({required this.animation}) : super(repaint: animation);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final startAngle = animation.value * 2 * 3.14159; // Full circle animation
+    const sweepAngle = 3.14159 / 5; // Quarter-circle border
+
+    // Draw the arc border clockwise
+    canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

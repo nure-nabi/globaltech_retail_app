@@ -133,6 +133,7 @@ class VendorReportLedgerState extends ChangeNotifier {
       CustomerModel model = await VendorReportLedgerApi.apiCall(
         databaseName: _companyDetail.dbName,
         category: 'Vendor',
+        unitcode: await GetAllPref.unitCode(),
       );
 
       if (model.statusCode == 200) {
