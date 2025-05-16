@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dotted_line/dotted_line.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,15 @@ class _OrderListSectionState extends State<OrderListSection> {
   double vatAmount = 0.0;
 
   bool flag = false;
+
+  final List<String> saleTypeList = [
+    'Cash',
+    'Credit',
+    'Card',
+    'Fonepay',
+  ];
+  String? selectedValue ="";
+
 
   File ? _selectedImage;
   File ? _selectedImage2;
@@ -248,36 +258,188 @@ class _OrderListSectionState extends State<OrderListSection> {
                             SizedBox(height: 5,),
                             Text('Bill Amount: ${state.calculateTotalAmount()}',style: labelTextStyle),
 
+                            SizedBox(height: 10,),
+                            //drop
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                              child: DropdownButtonFormField2<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  // Add Horizontal padding using menuItemStyleData.padding so it matches
+                                  // the menu padding when button's width is not specified.
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  // Add more decoration..
+                                ),
+                                hint: const Text(
+                                  'Choose Cash/Credit',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                items: saleTypeList
+                                    .map((item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ))
+                                    .toList(),
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Please select gender.';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+
+                                  if(value.toString() == "Cash"){
+                                    setState((){});
+                                    state.getIsCashOrCredit = "Cash";
+                                    state.paymentMode = "Cash";
+                                    state.tenderAmount.text = '${state.calculateTotalAmount()}';
+                                  }else if(value.toString() == "Credit"){
+                                    setState((){});
+                                    state.getIsCashOrCredit = "Credit";
+                                    state.paymentMode = "Credit";
+                                    state.tenderAmount.text ="0.0";
+                                  }
+                                  state.paymentType = value.toString();
+                                 // Fluttertoast.showToast(msg: state.paymentType);
+                                },
+                                onSaved: (value) {
+                                  state.paymentType = value.toString();
+                                 // Fluttertoast.showToast(msg: state.paymentType);
+                                  // selectedValue = value.toString();
+                                },
+                                buttonStyleData: const ButtonStyleData(
+                                  padding: EdgeInsets.only(right: 8),
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black45,
+                                  ),
+                                  iconSize: 24,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                              ),
+                            ),
+                            //drop payment mode
+                            SizedBox(height: 10,),
+                            state.salePaymentModeList.isNotEmpty ?
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                              child: DropdownButtonFormField2<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  // Add Horizontal padding using menuItemStyleData.padding so it matches
+                                  // the menu padding when button's width is not specified.
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  // Add more decoration..
+                                ),
+                                hint: const Text(
+                                  'Choose Online Payment',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                items: state.salePaymentModeList
+                                    .map((item) => DropdownMenuItem<String>(
+                                  value: item.paymentMode,
+                                  child: Text(
+                                    item.paymentMode!,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ))
+                                    .toList(),
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Please select gender.';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+
+                                  state.paymentType = value.toString();
+                                  state.getSalePaymentModeCode = value.toString();
+                                  // Fluttertoast.showToast(msg: state.paymentType);
+                                },
+                                onSaved: (value) {
+                                  state.paymentType = value.toString();
+                                  state.getSalePaymentModeCode = value.toString();
+                                  // Fluttertoast.showToast(msg: state.paymentType);
+                                  // selectedValue = value.toString();
+                                },
+                                buttonStyleData: const ButtonStyleData(
+                                  padding: EdgeInsets.only(right: 8),
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black45,
+                                  ),
+                                  iconSize: 24,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                              ),
+                            ) : SizedBox(),
+                            SizedBox(height: 10,),
+
                             Row(
                               children: [
-                                Text(state.isCashOrCredit,style: productTitleTextStyle,),
-                                Switch(
-                                  activeColor: Colors.white,
-                                  value: flag,
-                                  activeTrackColor: primaryColor,
-                                  inactiveThumbColor: Colors.white,
-                                  inactiveTrackColor: Colors.grey.shade300,
-                                  onChanged: (value) async {
-                                    if(value == true){
-                                      flag = true;
-                                      setState((){});
-                                      state.getIsCashOrCredit = "Cash";
-                                      state.tenderAmount.text = '${state.calculateTotalAmount()}';
-                                    }else if(value == false){
-                                      flag = false;
-                                      setState((){});
-                                      state.getIsCashOrCredit = "Credit";
-                                      state.tenderAmount.text ="0.0";
-                                    }
-                                   // Fluttertoast.showToast(msg: state.isCashOrCredit);
-                                   // setState((){});
-                                    },
-                                ),
-                                SizedBox(width: 10,),
+                               // Text(state.isCashOrCredit,style: productTitleTextStyle,),
+                                // Switch(
+                                //   activeColor: Colors.white,
+                                //   value: flag,
+                                //   activeTrackColor: primaryColor,
+                                //   inactiveThumbColor: Colors.white,
+                                //   inactiveTrackColor: Colors.grey.shade300,
+                                //   onChanged: (value) async {
+                                //     if(value == true){
+                                //       flag = true;
+                                //       setState((){});
+                                //       state.getIsCashOrCredit = "Cash";
+                                //       state.paymentMode = "Cash";
+                                //       state.tenderAmount.text = '${state.calculateTotalAmount()}';
+                                //
+                                //     }else if(value == false){
+                                //       flag = false;
+                                //       setState((){});
+                                //       state.getIsCashOrCredit = "Credit";
+                                //       state.paymentMode = "Credit";
+                                //       state.tenderAmount.text ="0.0";
+                                //
+                                //     }
+                                //    // Fluttertoast.showToast(msg: state.isCashOrCredit);
+                                //    // setState((){});
+                                //     },
+                                // ),
+                                // SizedBox(width: 10,),
                                   Consumer<ProductOrderState>(builder: (BuildContext context, productOrderState, Widget? child) {
                                     if (productOrderState.tenderAmount.text != "") {
                                       return Text('Balance: ${productOrderState
-                                          .balanceAmount}',style: labelTextStyle);
+                                          .balanceAmount.toStringAsFixed(2)}',style: labelTextStyle);
                                     } else {
                                       return Text('Balance: 0.0',style: labelTextStyle);
                                     }
@@ -486,8 +648,9 @@ class _OrderListSectionState extends State<OrderListSection> {
                                     flex: 1,
                                     child: ElevatedButton(
                                       onPressed: (){
-                                        state.setIsChecked = false;
-                                        Navigator.pop(context);
+                                       // state.setIsChecked = false;
+                                        //Navigator.pop(context);
+                                        state.printNative();
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFFC53030),
@@ -501,17 +664,8 @@ class _OrderListSectionState extends State<OrderListSection> {
                                       child: Text("No"),
                                     ),
                                   ),
-                                  // Expanded(
-                                  //   flex: 1,
-                                  //   child: CancleButton(
-                                  //     buttonName: "NO",
-                                  //     onClick: () {
-                                  //       state.setIsChecked = false;
-                                  //       Navigator.pop(context);
-                                  //     },
-                                  //   ),
-                                  // ),
-                                  horizantalSpace(10.0),
+
+                                  horizantalSpace(5.0),
                                  Consumer<ProductOrderState>(builder: (BuildContext context, state, Widget? child) {
 
 
@@ -521,8 +675,10 @@ class _OrderListSectionState extends State<OrderListSection> {
                                          onPressed: state.dataInserted == true ? null : () async {
                                            state.setIsChecked = false;
                                            state.PrintOrNot = "pdf";
-                                           if(state.isCashOrCredit == "Cash") {
-                                             if(state.tenderAmount.text.isNotEmpty && state.tenderAmount.text != null){
+                                          // if(state.isCashOrCredit == "Cash") {
+                                           if(state.paymentType == "Cash") {
+                                             if(state.tenderAmount.text.isNotEmpty && state.tenderAmount.text != null && state.paymentType.isNotEmpty){
+
                                                if (double.parse(state.tenderAmount.text) == double.parse(state.calculateTotalAmount()) ) {
                                                  state.setDataInserted = true;
                                                  setState(() {
@@ -555,6 +711,7 @@ class _OrderListSectionState extends State<OrderListSection> {
                                              }
 
                                            }else{
+
                                              state.setDataInserted = true;
                                              setState(() {
 
@@ -569,7 +726,7 @@ class _OrderListSectionState extends State<OrderListSection> {
                                            }
                                          },
                                          child: const Padding(
-                                           padding:  EdgeInsets.all(8),
+                                           padding:  EdgeInsets.all(4),
                                            child: Text("Save Pdf",
 
                                            ),
@@ -649,21 +806,22 @@ class _OrderListSectionState extends State<OrderListSection> {
                                   //     },
                                   //   ),
                                   // ),
-                                  horizantalSpace(10.0),
+                                  horizantalSpace(5.0),
                                   Expanded(
                                     flex: 2,
                                     child: ElevatedButton(
                                       onPressed: (){
-                                        if(state.comment.text.isNotEmpty) {
+                                        if(state.comment.text.isNotEmpty && state.paymentType.isNotEmpty) {
+
                                           ShowDialog(context: context).dialog(
                                             child: const OrderDetailsAlert(),
                                           );
                                           //   Navigator.pop(context);
                                         } else{
-                                          Fluttertoast.showToast(msg: "Please enter remarks");
+                                          Fluttertoast.showToast(msg: "Please enter remarks Or Payment type");
                                         }
                                         },
-                                      child: Text("Save Print"),
+                                      child: const Text("Save Print"),
                                     ),
                                   ),
                                 ],
@@ -1823,6 +1981,8 @@ class OrderDetailsAlert extends StatefulWidget {
 }
 
 class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
+
+
   @override
   Widget build(BuildContext context) {
      //final stateQR = context.read()<ProductOrderState>();
@@ -2001,6 +2161,8 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
               ),
             ),
           ),
+          SizedBox(height: 10,),
+
           const Align(
             alignment: Alignment.center,
             child: Text(
@@ -2012,6 +2174,7 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
               ),
             ),
           ),
+          //end drop
           Container(
             padding: const EdgeInsets.all(16.0),
             child: Row(

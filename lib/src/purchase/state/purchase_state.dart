@@ -769,7 +769,7 @@ class PurchaseOrderState extends ChangeNotifier {
       if (modelData.status == true) {
         await SetAllPref.setVoucherNo(value: modelData.message);
         await PurchaseProductOrderDatabase.instance.deleteData();
-        await productOrderComplete(ctx, true, "Sales successfully !!!");
+        await productOrderComplete(ctx, true, "Purchase successfully !!!");
         setDataInserted = false;
         Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
       } else {

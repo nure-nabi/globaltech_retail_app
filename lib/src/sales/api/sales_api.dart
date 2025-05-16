@@ -3,6 +3,7 @@ import 'package:retail_app/src/sales/model/outlet_model.dart';
 import '../../../model/model.dart';
 import '../../../services/services.dart';
 import '../../../utils/utils.dart';
+import '../model/sale_payment_mode.dart';
 
 class OrderProductAPI {
   static postOrder({required bodyData}) async {
@@ -37,8 +38,19 @@ class OutletList {
       //endPoint: "generalledger/LedgerList?dbname=$dbName",
       endPoint: "generalledger/LedgerList?dbname=$dbName&unitCode=$unitCode",
     );
-    //http://kkmapi.omsird.com:802/api/generalledger/LedgerList?dbname=kkmpl08101&unitCode=KAPAN
     CustomLog.successLog(value: "RESPONSE => $jsonData");
     return OutletModel.fromJson(jsonData);
   }
+
+}
+
+class SalePaymentMode {
+  static paymentMode({required  dbName}) async {
+    var jsonData = await APIProvider.getAPI(
+      endPoint: "MasterList/SalesPaymentMode?DbName=$dbName",
+    );
+    CustomLog.successLog(value: "SalePaymentResMode => $jsonData");
+    return SalePaymentResModel.fromJson(jsonData);
+  }
+
 }

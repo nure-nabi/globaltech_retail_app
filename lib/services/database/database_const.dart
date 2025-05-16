@@ -107,6 +107,7 @@ class DatabaseDetails {
   static String comment = "Comment";
   static String glCode = "GlCode";
   static String pName = "PName";
+  static String paymentMode = "CashGlCode";
 
   static String totalAmount = "TotalAmt";
   static String sign1 = "Sign1";

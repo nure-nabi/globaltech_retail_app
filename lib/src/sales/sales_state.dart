@@ -1,5 +1,7 @@
 
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
@@ -17,6 +19,7 @@ import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import '../../../model/model.dart';
+import '../../native_android/native_bridge.dart';
 import '../../services/router/router_name.dart';
 import '../../services/services.dart';
 import '../../utils/utils.dart';
@@ -25,6 +28,7 @@ import '../pdf/sales_bill_pdf.dart';
 import '../print_bill/print_bill.dart';
 import '../products/products.dart';
 import 'components/sales_alert_section.dart';
+import 'model/sale_payment_mode.dart';
 
 class ProductOrderState extends ChangeNotifier {
   ProductOrderState();
@@ -60,11 +64,13 @@ class ProductOrderState extends ChangeNotifier {
   double altCountAltQty =0.0;
 
   init() async {
-
+    await AppServiceBridge.initService();
+    await AppServiceBridge.bindService();
    await getAllTempProductOrderList();
    await getProductBillWiseOrderList();
    await clear2();
     await checkConnection();
+    await salesPaymentModeApiCall();
    // selectedGlCode = null;
     getCustomer = null;
     altCountAltQty =0.0;
@@ -194,6 +200,8 @@ clear2(){
   //   notifyListeners();
   // }imageData
 
+  late String paymentType = "";
+
   late bool _isChecked = false;
   bool get isChecked => _isChecked;
 
@@ -270,6 +278,13 @@ clear2(){
     notifyListeners();
   }
 
+  String _paymentMode = "Credit";
+  String get paymentMode => _paymentMode;
+
+  set paymentMode(String value){
+    _paymentMode = value;
+    notifyListeners();
+  }
 
   late bool _dataInserted = false;
   bool get dataInserted => _dataInserted;
@@ -973,8 +988,254 @@ clear2(){
     notifyListeners();
   }
 
+  Future<String> callPaymentNativeCode(String saleType) async {
+
+      getCompanyDetail = await GetAllPref.companyDetail();
+    String referenceId =  await AppServiceBridge.makeTransaction(
+        amount: totalBalance, // amount in smallest currency unit
+        transType: saleType,
+        remarks: companyDetail.companyName.toString(),
+      );
+      notifyListeners();
+      return referenceId;
+  }
+
+  printNative() async{
+    // Define column widths
+    const snWidth = 6;      // "SN.   "
+    const itemWidth = 18;   // "ITEM        "
+    const qtyWidth = 6;     // "QTY    "
+    const priceWidth = 12;  // "Price      "
+    const amountWidth = 17; // "  AMOUNT" (right-aligned)
+      final header = StringBuffer ();
+      final content = StringBuffer ();
+      final footer = StringBuffer ();
+      // Rows
+    header.writeln(
+        'Sn.'.padRight(snWidth) +
+            'Item'.padRight(14) +
+            'Alt Qty'.padRight(qtyWidth) +
+            'Qty'.padRight(qtyWidth) +
+            'Price'.padRight(11) +
+            'Amount'.padLeft(12)
+    );
+// Divider line (optional)
+
+    void addRow(int no, String item,String altQty, int qty, double price, double amount) {
+      content..writeln(
+          '$no'.padRight(4).substring(0,4) +
+              item.padRight(12).substring(0,12)+ // Truncate if too long
+              '$altQty'.padLeft(6).substring(0,6) +
+              '$qty'.padLeft(8).substring(0,8) +
+              '$price'.padLeft(9).substring(0,9)+
+              '$amount'.padLeft(16).substring(0,16)
+
+      );
+
+
+      // content
+      //   ..write('$no'.padRight(4))
+      //   ..write(item.padRight(8))
+      //   ..write(altQty.padLeft(6))
+      //   ..write('$qty'.padLeft(8))
+      //   ..write('$price'.padLeft(9))
+      //   ..write('$amount'.padLeft(16))
+      //   //..writeln("----------------------------------------------------------------------------");
+      //   ..writeln("");
+
+    }
+
+
+    addRow(1, 'Egg_Liquid22','Pkt', 332, 200, 444554.00);
+    addRow(1, 'Egg_Liquid22','Pkt', 332, 200, 444554.00);
+   // addRow(1, 'Egg_Liquid22','Pkt', 332, 200, 444554.00);
+  //  addRow(3, 'Egg -Small', 'Pkt',512, 150, 750.00); // "Wireless Keybo" → truncated
+    content.write('-' * 63);
+    // Footer: Align "Total" with the start of "AMOUNT" column
+    footer.writeln('235555.00');
+
+   String encodedText = base64Encode(utf8.encode(content.toString()));
+
+    CustomLog.successLog(value: "Base64   => $encodedText");
+
+    CustomLog.successLog(value: "String   => $content.toString()");
+
+   await AppServiceBridge.printNative(header: header, content:  content.toString(), footer: footer, companyName: "OMS|Retails", refrenceId: 'RefrenceNo: 12345678',paymentMode:"Fonepay");
+  }
+
+   String _salesPaymentModeCode = "";
+  String get salesPaymentModeCode => _salesPaymentModeCode;
+
+  List<SalePaymentModel> _salePaymentModeList = [];
+  List<SalePaymentModel> get salePaymentModeList => _salePaymentModeList;
+
+  set getSalesPaymentMode(List<SalePaymentModel> value){
+    _salePaymentModeList = value;
+    notifyListeners();
+  }
+
+  set getSalePaymentModeCode(String value){
+    _salesPaymentModeCode = value;
+    notifyListeners();
+  }
+
+  Future salesPaymentModeApiCall() async{
+    getCompanyDetail = await GetAllPref.companyDetail();
+     SalePaymentResModel salePaymentResMode = await SalePaymentMode.paymentMode(
+         dbName: _companyDetail.dbName);
+
+     if(salePaymentResMode.STATUS_CODE == 200){
+      // Fluttertoast.showToast(msg: 'ReferenceId : ${salePaymentResMode.MESSAGE}');
+       getSalesPaymentMode = salePaymentResMode.data;
+     }
+
+
+   }
 
   Future productOrderAPICall(BuildContext ctx) async {
+
+    if(PrintOrNot == "pdf") {
+      if(paymentType == "Card" || paymentType == "Fonepay"){
+        if(paymentType == "Card"){
+          paymentType = "Sale";
+        }
+        setDataInserted = false;
+
+        String referenceId = await   callPaymentNativeCode(paymentType);
+
+        Fluttertoast.showToast(msg: 'ReferenceId: ${referenceId.toString()}');
+
+       if(referenceId.isNotEmpty && referenceId != null){
+
+         try {
+           getLoading = true;
+           getCompanyDetail = await GetAllPref.companyDetail();
+           BasicModel modelData = await OrderProductAPI.postOrder(
+             bodyData: await getFormatPOSTDATA(),
+           );
+           if (modelData.status == true) {
+             await SetAllPref.setVoucherNo(value: modelData.message);
+             await ProductOrderDatabase.instance.deleteData();
+             await TempProductOrderDatabase.instance.deleteData();
+             await productOrderComplete(ctx, true, "Sales successfully !!!");
+             setDataInserted = false;
+             onPrint(name: "name",paymentMode: paymentMode);
+                Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+             _isImageAdd = false;
+           } else {
+             await ProductOrderDatabase.instance.deleteData();
+             await TempProductOrderDatabase.instance.deleteData();
+             await productOrderComplete(ctx, false, "Something wrong");
+             setImageData = "";
+             setIsChecked = false;
+           }
+         } catch (e) {
+           debugPrint('The error is the $e');
+         }
+         notifyListeners();
+
+       }
+      }else{
+
+        try {
+          getLoading = true;
+          getCompanyDetail = await GetAllPref.companyDetail();
+          BasicModel modelData = await OrderProductAPI.postOrder(
+            bodyData: await getFormatPOSTDATA(),
+          );
+          if (modelData.status == true) {
+            await SetAllPref.setVoucherNo(value: modelData.message);
+            await ProductOrderDatabase.instance.deleteData();
+            await TempProductOrderDatabase.instance.deleteData();
+            await productOrderComplete(ctx, true, "Sales successfully !!!");
+            setDataInserted = false;
+            onPrint(name: "name",paymentMode: paymentMode);
+               Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+            _isImageAdd = false;
+          } else {
+            await ProductOrderDatabase.instance.deleteData();
+            await TempProductOrderDatabase.instance.deleteData();
+            await productOrderComplete(ctx, false, "Something wrong");
+            setImageData = "";
+            setIsChecked = false;
+          }
+        } catch (e) {
+          debugPrint('The error is the $e');
+        }
+        notifyListeners();
+      }
+
+
+    } else if(PrintOrNot == "print") {
+      if(paymentType == "Card" || paymentType == "Fonepay"){
+        if(paymentType == "Card"){
+          paymentType = "Sale";
+        }
+
+        setDataInserted = false;
+        String referenceId = await   callPaymentNativeCode(paymentType);
+        if(referenceId.isNotEmpty && referenceId != null){
+          try {
+            getLoading = true;
+            getCompanyDetail = await GetAllPref.companyDetail();
+            BasicModel modelData = await OrderProductAPI.postOrder(
+              bodyData: await getFormatPOSTDATA(),
+            );
+            if (modelData.status == true) {
+              await SetAllPref.setVoucherNo(value: modelData.message);
+              await ProductOrderDatabase.instance.deleteData();
+              await TempProductOrderDatabase.instance.deleteData();
+              await productOrderComplete(ctx, true, "Sales successfully !!!");
+              setDataInserted = false;
+              printReceipt(value: allProductBillWiseOrderList);
+                 Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+              _isImageAdd = false;
+            } else {
+              await ProductOrderDatabase.instance.deleteData();
+              await TempProductOrderDatabase.instance.deleteData();
+              await productOrderComplete(ctx, false, "Something wrong");
+              setImageData = "";
+              setIsChecked = false;
+            }
+          } catch (e) {
+            debugPrint('The error is the $e');
+          }
+          notifyListeners();
+        }
+      }else{
+
+        try {
+          getLoading = true;
+          getCompanyDetail = await GetAllPref.companyDetail();
+          BasicModel modelData = await OrderProductAPI.postOrder(
+            bodyData: await getFormatPOSTDATA(),
+          );
+          if (modelData.status == true) {
+            await SetAllPref.setVoucherNo(value: modelData.message);
+            await ProductOrderDatabase.instance.deleteData();
+            await TempProductOrderDatabase.instance.deleteData();
+            await productOrderComplete(ctx, true, "Sales successfully !!!");
+            setDataInserted = false;
+            printReceipt(value: allProductBillWiseOrderList);
+               Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+            _isImageAdd = false;
+          } else {
+            await ProductOrderDatabase.instance.deleteData();
+            await TempProductOrderDatabase.instance.deleteData();
+            await productOrderComplete(ctx, false, "Something wrong");
+            setImageData = "";
+            setIsChecked = false;
+          }
+        } catch (e) {
+          debugPrint('The error is the $e');
+        }
+        notifyListeners();
+      }
+    }
+
+  }
+
+  Future productOrderAPICall2(BuildContext ctx) async {
    // getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
     CustomLog.warningLog(value: "\n\n\n\n");
     CustomLog.warningLog(value: "SASDASDASDASD");
@@ -991,12 +1252,26 @@ clear2(){
         await TempProductOrderDatabase.instance.deleteData();
         await productOrderComplete(ctx, true, "Sales successfully !!!");
         setDataInserted = false;
-        Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
+     //   Navigator.pushNamedAndRemoveUntil(context, indexPath, (route) => false);
         _isImageAdd = false;
         if(PrintOrNot == "pdf") {
-          onPrint(name: "name");
+          if(paymentType == "Card" || paymentType == "Fonepay"){
+            if(paymentType == "Card"){
+              paymentType = "Sale";
+            }
+            callPaymentNativeCode(paymentType);
+          }
+         onPrint(name: "name",paymentMode: paymentMode);
+
         } else if(PrintOrNot == "print") {
-          //MasterList/UpdateSalesBillPrintCopy?dbname=&Vno=
+          if(paymentType == "Card" || paymentType == "Fonepay"){
+            if(paymentType == "Card"){
+              paymentType = "Sale";
+            }
+          String referenceId = await   callPaymentNativeCode(paymentType);
+            Fluttertoast.showToast(msg: 'ReferenceId : ${referenceId}');
+          }
+
           printReceipt(value: allProductBillWiseOrderList);
         }else{
           await TempProductOrderDatabase.instance.deleteData();
@@ -1210,7 +1485,8 @@ clear2(){
         factor: element.factor,
         payAmount: tenderAmount.text.isNotEmpty ? tenderAmount.text : "0.0",
           billNetAmt: element.totalAmount,
-          userCode: await GetAllPref.userName()
+          userCode: await GetAllPref.userName(),
+          cashGlCode: salesPaymentModeCode ??""
       );
       // "BillNetAmt": "5250.00",
       // "UserCode": "ABCD",
@@ -1299,7 +1575,7 @@ clear2(){
 
 
 
-  onPrint({required String name}) async {
+  onPrint({required String name,paymentMode}) async {
     double quantity = 0;
     double rate = 0.00;
     double totalAMT = 0.00;
@@ -1343,6 +1619,7 @@ clear2(){
         sign2: sign2,
         sign3: sign3,
         voucherNo: await GetAllPref.getVoucher(),
+        paymentMode: paymentMode
       );
 
       ////  opening the pdf file

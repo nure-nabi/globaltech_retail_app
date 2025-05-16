@@ -96,10 +96,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     ),
                   ),
                   Text(
-                    "Do you continue",
+                    "Please Contact Head Office",
                     style: titleTextStyle.copyWith(
-                      color: Colors.green,
-                      fontSize: 20,
+                      color: Colors.black,
+                      fontSize: 18,
                       overflow: TextOverflow.ellipsis,
                       fontWeight: FontWeight.normal,
                     ),
@@ -110,17 +110,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CancleButton(
-                      buttonName: "No",
-                      onClick: () async {
-                        Navigator.pop(context);
-                      }
-                  ),
-                 Expanded(child:  SaveButton(
-                     buttonName: "Yes",
+                  // CancleButton(
+                  //     buttonName: "No",
+                  //     onClick: () async {
+                  //       Navigator.pop(context);
+                  //     }
+                  // ),
+                 Expanded(child:  CancleButton(
+                     buttonName: "Cancel",
                      onClick: () async {
                        Navigator.pop(context);
-                       await showAlert(context, index);
+                      // await showAlert(context, index);
                      }
                  ))
                 ],
@@ -249,7 +249,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     itemBuilder: (context, index) {
                       ProductDataModel productModel =
                           state.filterProductList[index];
-                      bool isEmpty = double.parse(productModel.stockQty) > 1;
+                      bool isAvailable = double.parse(productModel.stockQty) > 1;
 
                       return StatefulBuilder(
                         builder: (BuildContext context, setState) {
@@ -267,7 +267,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               debugPrint(productModel.stockQty);
                               await GetAllPref.salePurchaseMap() == "purchase"
                                   ? await showAlert(context, index)
-                                  : isEmpty
+                                  : isAvailable
                                       ? await showAlert(context, index)
                                       : ShowAlert(context).alert(
                                 child: notValid(context,productModel.pDesc,index),);
@@ -312,15 +312,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                             child: Container(
                                               decoration: ContainerDecoration
                                                   .decoration(
-                                                color: salePurchase == "purchase" ? Colors.white : isEmpty ? successColor : errorColor,
-                                                bColor: salePurchase == "purchase" ? Colors.white : isEmpty ? successColor : errorColor,
+                                                color: salePurchase == "purchase" ? Colors.white : isAvailable ? successColor : errorColor,
+                                                bColor: salePurchase == "purchase" ? Colors.white : isAvailable ? successColor : errorColor,
                                               ),
 
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(4.0),
                                                 child: Text(
-                                                  salePurchase == "purchase" ? "" : isEmpty
+                                                  salePurchase == "purchase" ? "" : isAvailable
                                                           ? "Available"
                                                           : "N/A",
                                                   textAlign: TextAlign.end,

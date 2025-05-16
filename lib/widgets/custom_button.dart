@@ -24,8 +24,8 @@ class SaveButton extends StatelessWidget {
     return Card(
       elevation: 5,
       color: primaryColor,
-      child: ElevatedButton(
-        onPressed: state!.mappingInsert == true ? null : () {
+      child: InkWell(
+        onTap:  () {
           onClick();
         },
         child: Padding(

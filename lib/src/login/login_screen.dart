@@ -257,6 +257,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         
                                               });
                                             }else {
+                                              // Navigator.pushReplacement(
+                                              //   context,
+                                              //   MaterialPageRoute(
+                                              //     builder: (context) => const CompanyListScreen(
+                                              //       automaticallyImplyLeading: false,
+                                              //     ),
+                                              //   ),
+                                              // );
                                               state.onLogin(context,rememberMe);
                                             }
                                           },
@@ -301,7 +309,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                             future: SharedPreferences.getInstance(),
                                             builder: (context, snapshot) {
                                               final prefs = snapshot.data;
-
 
                                               if (prefs != null && prefs.getBool('use_biometric') == true) {
                                                 return Padding(

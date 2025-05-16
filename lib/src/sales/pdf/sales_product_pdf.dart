@@ -54,6 +54,7 @@ class PdfInvoiceProductSales {
     required String sign3,
     required String voucherNo,
     required List<ProductOrderModel> productList,
+     String? paymentMode,
   }) async {
     final pdf = Document();
 
@@ -129,7 +130,8 @@ class PdfInvoiceProductSales {
          factor: element.factor,
         payAmount: element.payAmount,
           billNetAmt: element.billNetAmt,
-          userCode: element.userCode
+          userCode: element.userCode,
+          cashGlCode: element.cashGlCode
       ));
     }
 
@@ -320,6 +322,23 @@ class PdfInvoiceProductSales {
                        ])),
              ]
            ),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+
+                  RichText(
+                      text: TextSpan(
+                          text: 'Payment Mode : ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          children: [
+                            TextSpan(
+                                text:
+                                paymentMode,
+                                style: TextStyle(fontWeight: FontWeight.bold))
+                          ])),
+                ]
+            ),
 
             // if (address.isNotEmpty)
             //   dataValue(title: "Address:", value: address),

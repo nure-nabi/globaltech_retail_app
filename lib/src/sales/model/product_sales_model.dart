@@ -51,6 +51,7 @@ class ProductOrderModel {
     required this.payAmount,
     required this.billNetAmt,
     required this.userCode,
+    required this.cashGlCode,
 
 
 
@@ -109,6 +110,7 @@ class ProductOrderModel {
   final String payAmount;
   final String billNetAmt;
   final String userCode;
+  final String cashGlCode;
 
 
   factory ProductOrderModel.fromJson(Map<String, dynamic> json) {
@@ -159,6 +161,7 @@ class ProductOrderModel {
       payAmount: json["PayAmount"] == null ? "" : "${json["PayAmount"]}",
       userCode: json["UserCode"] ?? "",
       billNetAmt: json["BillNetAmt"] == null ? "" : "${json["BillNetAmt"]}",
+      cashGlCode: json["CashGlCode"] ?? "",
 
 
       // static String bTerm1 =  "BTerm1";
@@ -213,6 +216,7 @@ class ProductOrderModel {
     "PayAmount": payAmount,
     "UserCode": userCode,
     "BillNetAmt": billNetAmt,
+    "CashGlCode": cashGlCode,
 
   };
 

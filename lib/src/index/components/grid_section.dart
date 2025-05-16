@@ -9,6 +9,8 @@ import 'package:retail_app/src/index/components/scrolling.dart';
 import 'package:retail_app/themes/colors.dart';
 import 'package:retail_app/themes/fonts_style.dart';
 import '../../../constants/text_style.dart';
+import '../../../native_android/check_naive.dart';
+import '../../../native_android/native_bridge.dart';
 import '../../purchase/screen/vendor_screen.dart';
 
 class HomeGridSection extends StatelessWidget {
@@ -224,6 +226,7 @@ class HomeGridSection extends StatelessWidget {
         const SizedBox(
           height: 4.0,
         ),
+   //
         Row(
           children: [
             Expanded(
@@ -234,7 +237,7 @@ class HomeGridSection extends StatelessWidget {
                       10), // Set border radius for the card
                 ),
                 child: GridWidget(
-                  image: AssetsList.reportPurchase,
+                  image: AssetsList.dailyrepo,
                   name: "Daily",
                   name2: "Report",
                   onTap: () {
@@ -243,6 +246,7 @@ class HomeGridSection extends StatelessWidget {
                 ),
               ),
             ),
+
             Expanded(
               child: Card(
                 elevation: 1, // Set elevation for the card
@@ -251,7 +255,7 @@ class HomeGridSection extends StatelessWidget {
                       10), // Set border radius for the card
                 ),
                 child: GridWidget(
-                  image: AssetsList.reportPurchase,
+                  image: AssetsList.pdcrepo,
                   name: "Pdc",
                   name2: "Report",
                   onTap: () {
@@ -259,6 +263,9 @@ class HomeGridSection extends StatelessWidget {
                   },
                 ),
               ),
+            ),
+            Expanded(
+              child: SizedBox(),
             ),
           ],
         ),

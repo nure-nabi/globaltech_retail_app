@@ -47,6 +47,7 @@ class OrderDetail {
     required this.bTerm3Amount,
     required this.billNetAmt,
     required this.userCode,
+    required this.cashGlCode,
     required this.itemDetails,
   });
 
@@ -64,6 +65,7 @@ class OrderDetail {
   final String bTerm3Amount;
   final String billNetAmt;
   final String userCode;
+  final String cashGlCode;
   final List<OrderPostItemDetailModel> itemDetails;
 
 
@@ -85,6 +87,7 @@ class OrderDetail {
       bTerm3Amount: json["BTerm3Amount"] ?? "",
       billNetAmt: json["BillNetAmt"] ?? "",
       userCode: json["UserCode"] ?? "",
+      cashGlCode: json["CashGlCode"] ?? "",
       itemDetails: json["ItemDetails"] == null
           ? []
           : List<OrderPostItemDetailModel>.from(
@@ -107,6 +110,7 @@ class OrderDetail {
     "BTerm3Amount": bTerm3Amount,
     "BillNetAmt": billNetAmt,
     "UserCode": userCode,
+    "CashGlCode": cashGlCode,
     "ItemDetails": List<dynamic>.from(itemDetails.map((x) => x.toJson())),
   };
 }

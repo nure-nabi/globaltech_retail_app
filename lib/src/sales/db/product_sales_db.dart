@@ -99,6 +99,7 @@ class ProductOrderDatabase {
                         "BTerm3Amount":"' || BTerm3Amount || '",
                         "BillNetAmt":"' || BillNetAmt || '",
                         "UserCode":"' || UserCode || '",
+                        "CashGlCode":"' || CashGlCode || '",
                         "ItemDetails":' || ItemDetails ||
              '}') || ']' AS OrderDetails
       FROM   
@@ -116,6 +117,7 @@ class ProductOrderDatabase {
      ${DatabaseDetails.bTerm3Amount} AS BTerm3Amount,
      SUM(BillNetAmt) AS BillNetAmt,
      ${DatabaseDetails.userCode} AS UserCode,
+     ${DatabaseDetails.paymentMode} AS CashGlCode,
      
               '[' || GROUP_CONCAT('{
                              "itemCode":"'|| itemCode ||'",
@@ -145,9 +147,8 @@ class ProductOrderDatabase {
       return [];
     }
 
-
     return List.generate(mapData.length, (i) {
-      CustomLog.successLog(value: "MapData1 => ${mapData[0]}");
+      CustomLog.successLog(value: "MapData1 SALES ORDER => ${mapData[0]}");
       debugPrint( mapData[0].toString());
       return OrderPostModel.fromJson({
         "DbName": dbName,

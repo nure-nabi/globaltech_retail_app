@@ -179,7 +179,8 @@ class CreateTable {
                                                 ${DatabaseDetails.factor} TEXT,
                                                 ${DatabaseDetails.userCode} TEXT,
                                                 ${DatabaseDetails.billNetAmt} TEXT,
-                                                ${DatabaseDetails.payAmount} TEXT
+                                                ${DatabaseDetails.payAmount} TEXT,
+                                                ${DatabaseDetails.paymentMode} TEXT
                                           ) ''');
   }
   /// Temp purchse Order Product Info

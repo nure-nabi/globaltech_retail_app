@@ -111,6 +111,7 @@ class _IndexScreenState extends State<IndexScreen> {
             child) {
           return Scaffold(
             appBar: AppBar(
+              elevation: 0,
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

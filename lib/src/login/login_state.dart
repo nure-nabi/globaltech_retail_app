@@ -123,8 +123,8 @@ class LoginState extends ChangeNotifier {
       } else {
       //  Fluttertoast.showToast(msg: "msg2");
 
-      await  permissionHandler(isRemembeMre);
-       // await isOnline(isRemembeMre);
+     // await  permissionHandler(isRemembeMre);
+        await isOnline(isRemembeMre);
       }
     }
     notifyListeners();
@@ -187,11 +187,11 @@ class LoginState extends ChangeNotifier {
     await SetAllPref.userName(value: userNameController.text.trim());
     await SetAllPref.setPassword(value: passwordController.text.trim());
     await SetAllPref.isLogin(value: isRemembeMre);
-    final location = MyLocation();
-    final String latitude = await location.lat();
-    final String longitude = await location.long();
-    await SetAllPref.latitude(value: latitude);
-    await SetAllPref.longitude(value: longitude);
+    //final location = MyLocation();
+    // final String latitude = await location.lat();
+    // final String longitude = await location.long();
+    // await SetAllPref.latitude(value: latitude);
+    // await SetAllPref.longitude(value: longitude);
     await getCompanyFromDatabase();
 
     ///
