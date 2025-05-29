@@ -7,14 +7,51 @@ class AppServiceBridge {
   static const EventChannel _eventChannel = EventChannel('payment_events');
 
   static Future<void> initService() async {
-    await _channel.invokeMethod('initService');
+    try {
 
+      await _channel.invokeMethod('initService');
+      await _channel.invokeMethod('getPackage');
+      await _channel.invokeMethod('bindService');
+     // Fluttertoast.showToast(msg: "success initService");
+    } on PlatformException catch (e) {
+      Fluttertoast.showToast(msg: "Failed to initService: ${e.message}");
+      rethrow;
+    }
+  }
+
+  static Future<void> getPackage() async {
+    try {
+    //  Fluttertoast.showToast(msg: "getPackage");
+      await _channel.invokeMethod('getPackage');
+    } on PlatformException catch (e) {
+      Fluttertoast.showToast(msg: "Failed to getPackage: ${e.message}");
+      rethrow;
+    }
   }
 
   static Future<void> bindService() async {
-
-    await _channel.invokeMethod('bindService');
+    try {
+    //  Fluttertoast.showToast(msg: "bindService");
+      await _channel.invokeMethod('bindService');
+    } on PlatformException catch (e) {
+      Fluttertoast.showToast(msg: "Failed to bindService: ${e.message}");
+      rethrow;
+    }
   }
+    // static Future<void> initService() async {
+  //   Fluttertoast.showToast(msg: "initService");
+  //   await _channel.invokeMethod('initService');
+  // }
+  //
+  // static Future<void> getPackaqe() async {
+  //   Fluttertoast.showToast(msg: "getPackage");
+  //   await _channel.invokeMethod('getPackage');
+  // }
+  //
+  // static Future<void> bindService() async {
+  //   Fluttertoast.showToast(msg: "bindService");
+  //   await _channel.invokeMethod('bindService');
+  // }
 
   static Future<void> doLogon() async {
     await _channel.invokeMethod('doLogon');
@@ -24,9 +61,9 @@ class AppServiceBridge {
     await _channel.invokeMethod('settlement');
   }
   static Future<void> printNative({
-    required StringBuffer header,
-    required String content,
-    required StringBuffer footer,
+    required String header,
+    required StringBuffer content,
+    required String footer,
     required String companyName,
     required String refrenceId,
     required String paymentMode,
@@ -65,7 +102,7 @@ class AppServiceBridge {
     await _channel.invokeMethod('launchApp');
   }
 
-  static Future<String> makeTransaction({
+  static Future<Map<String, dynamic>> makeTransaction({
     required double amount,
     required String transType,
     String? remarks,
@@ -78,16 +115,14 @@ class AppServiceBridge {
         'remarks': remarks ?? '',
       });
 
-      String referenceId= "";
-      if (response is Map) {
-        referenceId = '${response['ReferenceId']}';
-        print('Message: ${response['message']}');
-        print('Result Code: ${response['ReferenceId']}');
-      //  Fluttertoast.showToast(msg: 'Result Code ${response['resultCode']}');
-        // Or if it's from onSuccess:
-        print('Success: ${response['success']}');
-      }
-      return referenceId;
+      // Print all keys from the response
+      print('Response keys makeTransaction : ${response.keys}');
+
+      // Print each key-value pair
+      response.forEach((key, value) {
+        print('$key: $value (${value.runtimeType})');
+      });
+      return Map<String, dynamic>.from(response);
     } on PlatformException catch (e) {
       Fluttertoast.showToast(msg: "${e.message}");
       throw Exception('Failed to make transaction: ${e.message}');

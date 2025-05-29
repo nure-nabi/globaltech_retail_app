@@ -9,7 +9,8 @@ import android.os.Looper
 import android.graphics.Paint
 import com.example.clientapp.utils.BaseUtils;
 
-
+import android.os.RemoteException
+import android.os.Bundle
 import android.util.Base64
 import java.nio.charset.StandardCharsets
 // BitmapDraw.kt
@@ -18,6 +19,7 @@ import com.example.clientapp.printer.PrintSize
 
 
 import com.example.clientapp.AppService
+import com.example.clientapp.constant.PackageType
 import acquire.client_connection.PaymentRequest
 import acquire.client_connection.PaymentResponse
 import acquire.client_connection.EcrPaymentResponse
@@ -69,12 +71,16 @@ class AppServicePlugin : MethodCallHandler {
 
         when (call.method) {
             "initService" -> {
-                val initService =  AppService.me().init(activity!!.applicationContext)
-                result.success(initService)
+                AppService.me().init(activity!!.applicationContext)
+                result.success(null)
+            }
+            "getPackage" -> {
+                  AppService.me().setPackageName(PackageType.CPLUS)
+                result.success(null)
             }
             "bindService" -> {
-                val bindService =   AppService.me().bindService()
-                result.success(bindService)
+                 AppService.me().bindService()
+                result.success(null)
             }
             "getSerialNumber" -> {
                 val serialNumber = AppService.me().getSerialNumber()
@@ -110,36 +116,21 @@ class AppServicePlugin : MethodCallHandler {
                     }
                 }
             }
-            "settlement" -> {
-                val callback = object : IPaymentCallback.Stub() {
-                    override fun onResponse(response: PaymentResponse) {
-                        showRequestToast(
-                            "Payment Response" to "SUCCESS",
-                            "Result Code" to response.resultCode,
-                            "Message" to response.message
-                        )
-                        result.success(response.message)
-                    }
-
-                    override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
-//                        showRequestToast(
-//                            "Payment Response" to "ERROR",
-//                            "ECR Code" to ecrResponse.resultCode,
-//                            "Error Message" to ecrResponse.message
-//                        )
-                        result.error("ECR_ERROR", ecrResponse.message, null)
-                    }
-
-                    override fun onSuccess(b: Boolean, s: String) {
-//                        showRequestToast(
-//                            "Transaction Status" to if (b) "SUCCESS" else "FAILED",
-//                            "Completion Message" to s
-//                        )
-                        result.success(s)
-                    }
-                }
-                AppService.me().doReconcilation(callback)
-            }
+//            "settlement" -> {
+//                AppService.me().startPrinting(base64StringValue, object : IPaymentCallback.Stub() {
+//                    override fun onResponse(bundle: Bundle) {
+//                        // Handle bundle response if needed
+//                    }
+//
+//                    override fun onSuccess(b: Boolean, s: String) {
+//                        // Handle response on main thread
+//                        Handler(Looper.getMainLooper()).post {
+//                            Toast.makeText(context, "Status: $b Message: $s", Toast.LENGTH_LONG).show()
+//                        }
+//                    }
+//                })
+//                AppService.me().doReconcilation(callback)
+//            }
             "makeTransaction" -> {
 
                     val amount = call.argument<Double>("amount") ?: 0.0
@@ -160,32 +151,54 @@ class AppServicePlugin : MethodCallHandler {
                     }
 
                     val callback = object : IPaymentCallback.Stub() {
-                        override fun onResponse(response: PaymentResponse) {
 
-                            // Create a map containing both message and resultCode resultCode
-                            val resultMap = hashMapOf<String, Any>(
-                                "message" to (response.message ?: ""),
-                                "ReferenceId" to response.referenceId
-                            )
-                            result.success(resultMap)
-                        }
+                        override fun onResponse(bundle: Bundle) {
+                            // Handle bundle response if needed
+                            // Convert Bundle to a Map that can be sent to Flutter
+                            val resultMap = HashMap<String, Any?>()
+                            for (key in bundle.keySet()) {
+                                resultMap[key] = bundle.get(key)
+                            }
 
-                        override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
-                            showRequestToast(
-                                "Payment Response" to "ERROR",
-                                "ECR Code" to ecrResponse.resultCode,
-                                "Error Message" to ecrResponse.message
-                            )
-                            result.error("ECR_ERROR", ecrResponse.message, null)
+                            // Send the result back to Flutter
+
+                                result.success(resultMap)
+
                         }
 
                         override fun onSuccess(b: Boolean, s: String) {
-//                            showRequestToast(
-//                                "Transaction Status" to if (b) "SUCCESS" else "FAILED",
-//                                "Completion Message" to s
-//                            )
-                            result.success(s)
+                            // Handle response on main thread
+                           // Handler(Looper.getMainLooper()).post {
+                               // Toast.makeText(activity, "Status: $b Message: $s", Toast.LENGTH_LONG).show()
+                           // }
                         }
+
+//                        override fun onResponse(response: PaymentResponse) {
+//
+//                            // Create a map containing both message and resultCode resultCode
+//                            val resultMap = hashMapOf<String, Any>(
+//                                "message" to (response.message ?: ""),
+//                                "ReferenceId" to response.referenceId
+//                            )
+//                            result.success(resultMap)
+//                        }
+
+//                        override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
+//                            showRequestToast(
+//                                "Payment Response" to "ERROR",
+//                                "ECR Code" to ecrResponse.resultCode,
+//                                "Error Message" to ecrResponse.message
+//                            )
+//                            result.error("ECR_ERROR", ecrResponse.message, null)
+//                        }
+
+//                        override fun onSuccess(b: Boolean, s: String) {
+////                            showRequestToast(
+////                                "Transaction Status" to if (b) "SUCCESS" else "FAILED",
+////                                "Completion Message" to s
+////                            )
+//                            result.success(s)
+//                        }
                     }
 
                     AppService.me().makeTransaction(request, callback)
@@ -218,52 +231,49 @@ class AppServicePlugin : MethodCallHandler {
         println("Processing payment: ${request.amount}")
     }
 
-    fun printReceipt(
-        heading: String,
-        content: String,
-        footer: String,
-        companyName: String,
-        refrenceId: String,
-        paymentMode: String,
-        callback: (Boolean, String) -> Unit
-    ) {
-        try {
-
-
-
-
-            val bitmapDraw = BitmapDraw().apply {
-                text(companyName, PrintSize.CONTENT.toFloat(), true, Paint.Align.CENTER)
-                text(refrenceId, PrintSize.CONTENT.toFloat(), true, Paint.Align.LEFT)
-                text(paymentMode, PrintSize.CONTENT.toFloat(), true, Paint.Align.LEFT)
-                text(heading, PrintSize.NORMAL.toFloat(), true, Paint.Align.CENTER)
-                text("-------------------------------------------------------------", PrintSize.NORMAL.toFloat(), true, Paint.Align.CENTER)
-                text(content, PrintSize.SMALL_CONTENT.toFloat(), true, Paint.Align.LEFT)
-                text("Total",footer, PrintSize.LINE.toFloat(), true)
-                text("----------------------------------------------------------", PrintSize.CONTENT.toFloat(), true, Paint.Align.CENTER)
-                feedPaper(PrintSize.TAIL_FEED.toFloat())
-            }
-            // Get the Bitmap and pass it to startPrinting
-            val receiptBitmap = bitmapDraw.getBitmap()
-            AppService.me().startPrinting(
-                receiptBitmap,  // Pass the Bitmap directly
-                false,         // isHeaderRequired (adjust as needed)
-                object : IPaymentCallback.Stub() {
-                    override fun onResponse(response: PaymentResponse) {
-                        callback(true, response.message)
-                    }
-                    override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
-                        callback(false, ecrResponse.message)
-                    }
-                    override fun onSuccess(success: Boolean, message: String) {
-                        callback(success, message)
-                    }
-                }
-            )
-        } catch (e: Exception) {
-            callback(false, e.message ?: "Unknown error")
-        }
-    }
+//    fun printReceipt(
+//        heading: String,
+//        content: String,
+//        footer: String,
+//        companyName: String,
+//        refrenceId: String,
+//        paymentMode: String,
+//        callback: (Boolean, String) -> Unit
+//    ) {
+//        try {
+//
+//            val bitmapDraw = BitmapDraw().apply {
+//                text(companyName, PrintSize.CONTENT.toFloat(), true, Paint.Align.CENTER)
+//                text(refrenceId, PrintSize.CONTENT.toFloat(), true, Paint.Align.LEFT)
+//                text(paymentMode, PrintSize.CONTENT.toFloat(), true, Paint.Align.LEFT)
+//                text(heading, PrintSize.NORMAL.toFloat(), true, Paint.Align.CENTER)
+//                text("-------------------------------------------------------------", PrintSize.NORMAL.toFloat(), true, Paint.Align.CENTER)
+//                text(content, PrintSize.SMALL_CONTENT.toFloat(), true, Paint.Align.LEFT)
+//                text("Total",footer, PrintSize.LINE.toFloat(), true)
+//                text("----------------------------------------------------------", PrintSize.CONTENT.toFloat(), true, Paint.Align.CENTER)
+//                feedPaper(PrintSize.TAIL_FEED.toFloat())
+//            }
+//            // Get the Bitmap and pass it to startPrinting
+//            val receiptBitmap = bitmapDraw.getBitmap()
+//            AppService.me().startPrinting(
+//                receiptBitmap,  // Pass the Bitmap directly
+//                false,         // isHeaderRequired (adjust as needed)
+//                object : IPaymentCallback.Stub() {
+//                    override fun onResponse(response: PaymentResponse) {
+//                        callback(true, response.message)
+//                    }
+//                    override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
+//                        callback(false, ecrResponse.message)
+//                    }
+//                    override fun onSuccess(success: Boolean, message: String) {
+//                        callback(success, message)
+//                    }
+//                }
+//            )
+//        } catch (e: Exception) {
+//            callback(false, e.message ?: "Unknown error")
+//        }
+//    }
 
     fun printReceipt2(
         heading: String,
@@ -275,24 +285,38 @@ class AppServicePlugin : MethodCallHandler {
         callback: (Boolean, String) -> Unit
     ) {
         try {
-            // Create a bitmap with your receipt content
-            val original: String = "Hello Flutter!"
-            //val base64String: String = base64Encode(utf8.encode(original))
-           // Toast.makeText(activity, encodeToBase64(content).toString(), Toast.LENGTH_LONG).show()
-            AppService.me().startPrinting(
-                "aGVsbG8gZXZlcnlvbmUgdGhpcyBpcyBoIHRvIHRoZSB1c2t5IGh1c2t5IGhlcmU=",
-                object : IPaymentCallback.Stub() {
-                    override fun onResponse(response: PaymentResponse) {
-                        callback(true, response.message)
-                    }
-                    override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
-                        callback(false, ecrResponse.message)
-                    }
-                    override fun onSuccess(success: Boolean, message: String) {
-                        callback(success, message)
+            val base64StringValue = encodeToBase64(content.toString())
+            //Toast.makeText(activity, encodeToBase64(content).toString(), Toast.LENGTH_LONG).show()
+            AppService.me().startPrinting(base64StringValue,30, object : IPaymentCallback.Stub() {
+                @Throws(RemoteException::class)
+                override fun onResponse(bundle: Bundle) {
+                }
+                @Throws(RemoteException::class)
+                override fun onSuccess(b: Boolean, s: String) {
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(activity, "Status: $b M essage: $s", Toast.LENGTH_LONG).show()
                     }
                 }
-            )
+            })
+
+            // Create a bitmap with your receipt content
+//            val original: String = "Hello Flutter!"
+//            //val base64String: String = base64Encode(utf8.encode(original))
+//           // Toast.makeText(activity, encodeToBase64(content).toString(), Toast.LENGTH_LONG).show()
+//            AppService.me().startPrinting(
+//                "aGVsbG8gZXZlcnlvbmUgdGhpcyBpcyBoIHRvIHRoZSB1c2t5IGh1c2t5IGhlcmU=",
+//                object : IPaymentCallback.Stub() {
+//                    override fun onResponse(response: PaymentResponse) {
+//                        callback(true, response.message)
+//                    }
+//                    override fun onEcrResponse(ecrResponse: EcrPaymentResponse) {
+//                        callback(false, ecrResponse.message)
+//                    }
+//                    override fun onSuccess(success: Boolean, message: String) {
+//                        callback(success, message)
+//                    }
+//                }
+//            )
         } catch (e: Exception) {
             callback(false, e.message ?: "Unknown error")
         }

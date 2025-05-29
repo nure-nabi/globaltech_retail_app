@@ -12,23 +12,24 @@ import 'native_android/native_bridge.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-
   // Bind the native service
   try {
+    // Initialize services
     await AppServiceBridge.initService();
-    await AppServiceBridge.bindService();
-
+   // await AppServiceBridge.getPackage();
+   // await AppServiceBridge.bindService();
 
     // Check connection status
     final isConnected = await AppServiceBridge.isServiceConnected();
-    if (isConnected!) {
-      Fluttertoast.showToast(msg: "isConnected");
+    if (isConnected == true) {
+     // Fluttertoast.showToast(msg: "Service is connected");
+      // Proceed with your app logic
+    } else {
+     // Fluttertoast.showToast(msg: "Service is not connected");
       // Handle connection failure
-    }else{
-      Fluttertoast.showToast(msg: "not isConnected");
     }
   } catch (e) {
+    Fluttertoast.showToast(msg: "Initialization failed: $e");
     // Handle initialization error
   }
 

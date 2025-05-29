@@ -311,7 +311,7 @@ class _SalesBillReportScreenState extends State<SalesBillReportScreen> {
                   SizedBox(width: 20,),
                   FloatingActionButton(
                     onPressed: () async{
-
+                      await state.saleReportPrint();
                    await state.printReceipt(value:state.dataList,billNo:widget.billNo);
                     state.init(billNo: widget.billNo);
                     },

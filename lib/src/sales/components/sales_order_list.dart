@@ -60,11 +60,13 @@ class _OrderListSectionState extends State<OrderListSection> {
 
   bool flag = false;
 
+  late bool dataInserted = false;
+
   final List<String> saleTypeList = [
     'Cash',
     'Credit',
-    'Card',
-    'Fonepay',
+    //'Card',
+    //'Fonepay',
   ];
   String? selectedValue ="";
 
@@ -262,7 +264,7 @@ class _OrderListSectionState extends State<OrderListSection> {
                             //drop
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 0),
-                              child: DropdownButtonFormField2<String>(
+                              child: state.salesPaymentModeCode == "" ? DropdownButtonFormField2<String>(
                                 isExpanded: true,
                                 decoration: InputDecoration(
                                   // Add Horizontal padding using menuItemStyleData.padding so it matches
@@ -308,6 +310,7 @@ class _OrderListSectionState extends State<OrderListSection> {
                                     state.tenderAmount.text ="0.0";
                                   }
                                   state.paymentType = value.toString();
+                                 // state.paymentMode
                                  // Fluttertoast.showToast(msg: state.paymentType);
                                 },
                                 onSaved: (value) {
@@ -333,14 +336,8 @@ class _OrderListSectionState extends State<OrderListSection> {
                                 menuItemStyleData: const MenuItemStyleData(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                 ),
-                              ),
-                            ),
-                            //drop payment mode
-                            SizedBox(height: 10,),
-                            state.salePaymentModeList.isNotEmpty ?
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0),
-                              child: DropdownButtonFormField2<String>(
+                              )
+                                  : DropdownButtonFormField2<String>(
                                 isExpanded: true,
                                 decoration: InputDecoration(
                                   // Add Horizontal padding using menuItemStyleData.padding so it matches
@@ -351,59 +348,105 @@ class _OrderListSectionState extends State<OrderListSection> {
                                   ),
                                   // Add more decoration..
                                 ),
-                                hint: const Text(
+                                hint:  Text(
                                   'Choose Online Payment',
                                   style: TextStyle(fontSize: 14),
                                 ),
-                                items: state.salePaymentModeList
-                                    .map((item) => DropdownMenuItem<String>(
-                                  value: item.paymentMode,
-                                  child: Text(
-                                    item.paymentMode!,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ))
-                                    .toList(),
-                                validator: (value) {
-                                  if (value == null) {
-                                    return 'Please select gender.';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (value) {
+                                items: const [],
+                                onChanged: (value) {},
 
-                                  state.paymentType = value.toString();
-                                  state.getSalePaymentModeCode = value.toString();
-                                  // Fluttertoast.showToast(msg: state.paymentType);
-                                },
-                                onSaved: (value) {
-                                  state.paymentType = value.toString();
-                                  state.getSalePaymentModeCode = value.toString();
-                                  // Fluttertoast.showToast(msg: state.paymentType);
-                                  // selectedValue = value.toString();
-                                },
-                                buttonStyleData: const ButtonStyleData(
-                                  padding: EdgeInsets.only(right: 8),
+                              ),
+                            ),
+                            //drop payment mode
+                            SizedBox(height: 10,),
+                            state.salePaymentModeList.isNotEmpty ?
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                              child: state.paymentType == "" ? DropdownButtonFormField2<String>(
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                // Add Horizontal padding using menuItemStyleData.padding so it matches
+                                // the menu padding when button's width is not specified.
+                                contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                                iconStyleData: const IconStyleData(
-                                  icon: Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.black45,
+                                // Add more decoration..
+                              ),
+                              hint:  Text(
+                                'Choose Online Payment',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              items: state.salePaymentModeList
+                                  .map((item) => DropdownMenuItem<String>(
+                                value: item.paymentMode,
+                                child: Text(
+                                  item.paymentMode!,
+                                  style: const TextStyle(
+                                    fontSize: 14,
                                   ),
-                                  iconSize: 24,
                                 ),
-                                dropdownStyleData: DropdownStyleData(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                              ))
+                                  .toList(),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Please select gender.';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+
+                                // state.paymentType = value.toString();
+                                state.getSalePaymentModeCode = value.toString();
+                                state.getTenderAmount = "0.0";
+                                // Fluttertoast.showToast(msg: state.paymentType);
+                              },
+                              onSaved: (value) {
+                                // state.paymentType = value.toString();
+                                state.getSalePaymentModeCode = value.toString();
+                                // Fluttertoast.showToast(msg: state.paymentType);
+                                // selectedValue = value.toString();
+                              },
+                              buttonStyleData: const ButtonStyleData(
+                                padding: EdgeInsets.only(right: 8),
+                              ),
+                              iconStyleData: const IconStyleData(
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black45,
                                 ),
-                                menuItemStyleData: const MenuItemStyleData(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                iconSize: 24,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
+                              menuItemStyleData: const MenuItemStyleData(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                              ),
+                            )
+                                  : DropdownButtonFormField2<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  // Add Horizontal padding using menuItemStyleData.padding so it matches
+                                  // the menu padding when button's width is not specified.
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  // Add more decoration..
+                                ),
+                                hint:  Text(
+                                  'Choose Online Payment',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                items: const [],
+                                onChanged: (value) {},
+
+                              ),
                             ) : SizedBox(),
+
                             SizedBox(height: 10,),
 
                             Row(
@@ -436,55 +479,67 @@ class _OrderListSectionState extends State<OrderListSection> {
                                 //     },
                                 // ),
                                 // SizedBox(width: 10,),
+                                if(state.salesPaymentModeCode.isNotEmpty)...[
+                                  ] else if(state.paymentMode == "Credit")...[
                                   Consumer<ProductOrderState>(builder: (BuildContext context, productOrderState, Widget? child) {
                                     if (productOrderState.tenderAmount.text != "") {
                                       return Text('Balance: ${productOrderState
                                           .balanceAmount.toStringAsFixed(2)}',style: labelTextStyle);
                                     } else {
-                                      return Text('Balance: 0.0',style: labelTextStyle);
+                                      return Text('Balance: 0.0 ${state.salesPaymentModeCode}',style: labelTextStyle);
                                     }
                                   }
-                               ),
+                                  )
+                                ]
 
                               ],
                             ),
 
-                            Container(
-                              height: 40,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: TextFormField(
-                                  controller: state.tenderAmount,
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    hintText: "Enter Tender Amount",
-                                  ),
-                                  validator: (value){
+                            if(state.salesPaymentModeCode.isNotEmpty)...[
+                            ]
+                            else if(state.paymentMode == "Credit")...[
+                              Container(
+                                height: 40,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: TextFormField(
+                                    controller: state.tenderAmount,
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      hintText: "Enter Tender Amount",
+                                    ),
+                                    validator: (value){
 
-                                  },
+                                    },
+                                    onTap: (){
+                                      state.getTenderAmount ="";
+                                    },
                                     onChanged: (value) {
-                                    state.calculateCash(double.parse(state.calculateTotalAmount()),double.parse(value == "" ? '0':value));
-                                     if(value == ""){
 
-                                     }
+                                      state.calculateCash(double.parse(state.calculateTotalAmount()),double.parse(value == "" ? '0':value));
+                                      if(value == ""){
+
+                                      }
                                       state.getTenderAmount = value;
                                       if(double.parse(value) > double.parse(state.calculateTotalAmount())){
-                                      //  Fluttertoast.showToast(msg: "value.toString");
+                                        //  Fluttertoast.showToast(msg: "value.toString");
 
                                       }else{
 
-                                       // Fluttertoast.showToast(msg: "value.toString()");
+                                        // Fluttertoast.showToast(msg: "value.toString()");
                                       }
                                       setState(() {
                                       });
 
 
-                                    }
+                                    },
 
 
+
+                                  ),
                                 ),
                               ),
-                            ),
+                            ] ,
                             SizedBox(height: 5,),
 
                             Container(
@@ -649,8 +704,8 @@ class _OrderListSectionState extends State<OrderListSection> {
                                     child: ElevatedButton(
                                       onPressed: (){
                                        // state.setIsChecked = false;
-                                        //Navigator.pop(context);
-                                        state.printNative();
+                                        Navigator.pop(context);
+                                       // state.printNative();
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xFFC53030),
@@ -684,23 +739,16 @@ class _OrderListSectionState extends State<OrderListSection> {
                                                  setState(() {
 
                                                  });
-                                                 await state.onFinalOrderSaveToDB()
-                                                     .whenComplete(() async {
-
-                                                   state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
-                                                   await state.productOrderAPICall(
-                                                       context);
+                                                 // await state.onFinalOrderSaveToDB()
+                                                 //     .whenComplete(() async {
+                                                 //   state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                                                 //   await state.productOrderAPICall(
+                                                 //       context);
+                                                 // });
+                                                 state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                                                 await state.productOrderAPICall(context).whenComplete(() async {
                                                  });
 
-                                                 // await state.productOrderAPICall(context)
-                                                 //     .whenComplete(() async {
-                                                 //   state.getBillImage = Provider
-                                                 //       .of<ImagePickerState>(
-                                                 //       context, listen: false)
-                                                 //       .myPickedImage;
-                                                 //   await state.onFinalOrderSaveToDB(
-                                                 //       );
-                                                 // });
                                                } else {
                                                  Fluttertoast.showToast(
                                                      msg: "Please enter valid tender amount");
@@ -709,19 +757,18 @@ class _OrderListSectionState extends State<OrderListSection> {
                                                Fluttertoast.showToast(
                                                    msg: "Please enter amount");
                                              }
-
                                            }else{
-
                                              state.setDataInserted = true;
                                              setState(() {
-
                                              });
-                                             await state.onFinalOrderSaveToDB()
-                                                 .whenComplete(() async {
-
-                                               state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
-                                               await state.productOrderAPICall(
-                                                   context);
+                                             // await state.onFinalOrderSaveToDB()
+                                             //     .whenComplete(() async {
+                                             //   state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                                             //   await state.productOrderAPICall(
+                                             //       context);
+                                             // });
+                                             state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                                             await state.productOrderAPICall(context).whenComplete(() async {
                                              });
                                            }
                                          },
@@ -811,14 +858,17 @@ class _OrderListSectionState extends State<OrderListSection> {
                                     flex: 2,
                                     child: ElevatedButton(
                                       onPressed: (){
-                                        if(state.comment.text.isNotEmpty && state.paymentType.isNotEmpty) {
-
+                                        if(state.paymentType.isNotEmpty  ) {
+                                          Navigator.pop(context);
                                           ShowDialog(context: context).dialog(
-                                            child: const OrderDetailsAlert(),
-                                          );
+                                            child: const OrderDetailsAlert(),);
                                           //   Navigator.pop(context);
-                                        } else{
-                                          Fluttertoast.showToast(msg: "Please enter remarks Or Payment type");
+                                        } else if(state.salesPaymentModeCode.isNotEmpty ){
+                                          Navigator.pop(context);
+                                          ShowDialog(context: context).dialog(
+                                            child: const OrderDetailsAlert(),);
+                                        }else{
+                                          Fluttertoast.showToast(msg: "Please select payment type!!!");
                                         }
                                         },
                                       child: const Text("Save Print"),
@@ -1982,6 +2032,7 @@ class OrderDetailsAlert extends StatefulWidget {
 
 class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
 
+  bool dataInserted = false;
 
   @override
   Widget build(BuildContext context) {
@@ -2152,7 +2203,37 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
-                'Total: Rs ${subtotal.toStringAsFixed(1)}',
+                'Sub Total: Rs ${subtotal.toStringAsFixed(1)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D3748),
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+          if(stateQR.paymentType != "Cash")
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Credit Total: Rs ${double.parse(stateQR.tenderAmount.text).toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D3748),
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+          if(stateQR.paymentType != "Cash")
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Total: Rs ${(subtotal - double.parse(stateQR.tenderAmount.text)).toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D3748),
@@ -2214,19 +2295,25 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
 
                   return  Expanded(
                     child: ElevatedButton(
-                      onPressed: state.dataInserted == true ? null : () async {
-                        state.setIsChecked = false;
+
+                      onPressed: dataInserted == true ? null : () async {
+                        dataInserted = false;
                         state.PrintOrNot = "print";
                         if(state.isCashOrCredit == "Cash") {
+
                           if(state.tenderAmount.text.isNotEmpty && state.tenderAmount.text != null){
                             if (double.parse(state.tenderAmount.text) == double.parse(state.calculateTotalAmount()) ) {
-                              await state.onFinalOrderSaveToDB()
-                                  .whenComplete(() async {
-                                state.getBillImage = Provider
-                                    .of<ImagePickerState>(
-                                    context, listen: false)
-                                    .myPickedImage;
-                                await state.productOrderAPICall(context);
+                              // await state.onFinalOrderSaveToDB()
+                              //     .whenComplete(() async {
+                              //   state.getBillImage = Provider
+                              //       .of<ImagePickerState>(
+                              //       context, listen: false)
+                              //       .myPickedImage;
+                              //   await state.productOrderAPICall(context);
+                              // });
+                              Navigator.pop(context);
+                              state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                              await state.productOrderAPICall(context).whenComplete(() async {
                               });
                             } else {
                               Fluttertoast.showToast(msg: "Please enter valid tender amount");
@@ -2238,18 +2325,20 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
 
                         }else{
                          // Fluttertoast.showToast(msg: "mfffsg");
-                          state.setDataInserted = true;
+                          dataInserted = true;
                           setState(() {
 
                           });
-                          await state.onFinalOrderSaveToDB()
-                              .whenComplete(() async {
-
-                            state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
-                            await state.productOrderAPICall(context).whenComplete((){
-
-
-                            });
+                          // Fluttertoast.showToast(msg: state.referenceId);
+                          // await state.onFinalOrderSaveToDB()
+                          //     .whenComplete(() async {
+                          //   state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                          //   await state.productOrderAPICall(context).whenComplete(() async {
+                          //   });
+                          // });
+                          Navigator.pop(context);
+                          state.getBillImage = Provider.of<ImagePickerState>(context, listen: false).myPickedImage;
+                          await state.productOrderAPICall(context).whenComplete(() async {
                           });
 
 

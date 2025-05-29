@@ -101,7 +101,7 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -112,7 +112,7 @@ flutter {
 }
 
 dependencies {
-    implementation files('libs/app-connection-V14.aar')  // Direct file reference
+    implementation files('libs/fewaConnector-V17.aar')  // Direct file reference
     // OR (if you have multiple .aar files)
     implementation fileTree(include: ['*.aar'], dir: 'libs')
     implementation 'com.google.android.material:material:1.11.0'

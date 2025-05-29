@@ -11,6 +11,7 @@ import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 import '../../model/basic_model.dart';
+import '../../native_android/native_bridge.dart';
 import 'db/sales_bill_report.dart';
 
 class SalesBillReportState extends ChangeNotifier {
@@ -358,6 +359,122 @@ class SalesBillReportState extends ChangeNotifier {
       return input.padRight(15, ' '); // Pad with spaces if it's shorter than 15
     } else {
       return input.substring(0, 15); // Truncate if it's longer than 15
+    }
+  }
+// Helper function with padding and truncation control
+  String fixedCol(String text, int width,
+      {bool rightPad = false,
+        bool truncate = true}) {
+    if (text.length > width && truncate) {
+      return text.substring(0, width);
+    }
+    int v = 0;
+    if (rightPad) {
+      if(text.length < width){
+        v =  width-text.length;
+      }
+      return text.padRight(width+v);
+    }else {
+      if(text.length < width){
+        v =  width-text.length;
+      }
+      return text.padLeft(width+v-v);
+    }
+  }
+  printNative(StringBuffer content,double total) async {
+
+    const lineWidth = 70; // Total characters per line
+
+    // ===== FOOTER SECTION =====
+    content.writeln('-' * lineWidth);
+    content.writeln('${fixedCol('', 40)}${fixedCol('Total:', 10)}${fixedCol(total.toStringAsFixed(2), 12)}');
+    content.writeln('-' * lineWidth);
+    content.writeln(fixedCol('Printed Date: ${await MyDate.showDateTime()}', lineWidth, rightPad: true));
+    content.writeln(fixedCol('Prepared by: ${await GetAllPref.userName()}', lineWidth, rightPad: true));
+    content.writeln();
+    content.writeln(fixedCol('** THANK YOU FOR YOUR BUSINESS **', lineWidth, rightPad: true));
+    content.writeln('-');
+    content.writeln('-');
+    content.writeln('-');
+    content.writeln('-');
+    content.writeln('-');
+
+    await AppServiceBridge.printNative(
+        header: "header",
+        content: content,
+        footer: "footer",
+        companyName: "OMS|Retails",
+        refrenceId: 'RefrenceNo: 12345678',
+        paymentMode: "Fonepay");
+  }
+
+  saleReportPrint() async {
+    StringBuffer content = StringBuffer();
+    //  ===== HEADER SECTION =====
+    content.writeln(fixedCol('${fixedCol('', 10)}${_companyDetail.aliasName}',62, rightPad: true));
+    content.writeln(fixedCol('${fixedCol('', 10)} ${_companyDetail.companyAddress}', 62, rightPad: true));
+    if (_companyDetail.vatNo.isNotEmpty) {
+      content.writeln(fixedCol('${fixedCol('', 23)}PAN No : ${_companyDetail.vatNo}', 62, rightPad: true));
+    }
+    content.writeln(fixedCol('${fixedCol('', 32)} INVOICE', 62, rightPad: true));
+    content.writeln();
+    content.writeln(fixedCol('Branch      :${await GetAllPref.unitCode()}', 62, rightPad: true));
+    content.writeln(fixedCol('Bill No     : ${dataList[0].hvno}', 62, rightPad: true));
+    content.writeln(fixedCol('Date        : ${await MyDate.showDateTime2()}(${await MyDate.showDateTimeNepali2()})', 62, rightPad: true));
+    content.writeln(fixedCol('Name        : ${dataList[0].hGlDesc}', 62, rightPad: true));
+    content.writeln(fixedCol('Address     : ${await GetAllPref.customerAddress()}', 62, rightPad: true));
+    content.writeln(fixedCol('Pan No      : ${dataList[0].hPanNo}', 62, rightPad: true));
+    //content.writeln(fixedCol('Payment Mode: $salesPaymentModeCode', 62, rightPad: true));
+    //// content.writeln(fixedCol('ReferenceId : $referenceId', 62, rightPad: true));
+    content.writeln();
+
+    //  ===== HEADER INFO =====
+    content.writeln('Sn.'.padRight(5) +
+        'Item'.padRight(10) +
+        'AltQty'.padRight(8) +
+        'Qty'.padRight(8) +
+        'Rate'.padRight(6) +
+        'Total'.padRight(10));
+    content.writeln('-'*69);
+    double grandTotal = 0.0;
+    int i = 0;
+    for (var item in dataList) {
+      i++;
+      // ===== INVOICE INFO =====
+      content.writeln(
+          '$i'.padRight(5).substring(0, 5)+
+              fixedCol('${item.dpDesc} ${item.unitCode} ',16,rightPad: true)+
+              fixedCol('${item.dQty.split('.')[0]}',6,rightPad: true)+
+              fixedCol('${item.dLocalRate}',5,rightPad: true)+
+              fixedCol('${item.dNetAmt}',9,rightPad: true)
+
+      );
+      // content.writeln(
+      //     fixedCol('$i',5,rightPad: true)+
+      //         fixedCol('1234567891123',14,rightPad: true)+
+      //         fixedCol('12345',6,rightPad: true)+
+      //         fixedCol('1234',5,rightPad: true)+
+      //         fixedCol('12345678',9,rightPad: true)
+      //
+      // );
+      // content.writeln('$i'.padRight(5).substring(0, 5) +
+      //     '${item.pName} ${item.altUnit}1234567891234567'.padRight(18).substring(0, 18) + // Truncate if too long
+      //     '${item.qty}----------'.padRight(10).substring(0, 10) +
+      //     '${item.rate}'.padRight(6).substring(0, 6) +
+      //     '${item.totalAmt}'.padRight(12).substring(0, 12));
+
+      // content.writeln(
+      //     fixedWidth(i.toString(), 5) +
+      //         fixedWidth('${item.pName} ${item.altUnit}', 16) +
+      //         fixedWidth('${item.qty}', 7) +
+      //         fixedWidth(item.rate.toString(), 7) +
+      //         fixedWidth(item.totalAmt.toString(), 12)
+      // );
+
+      grandTotal += double.parse(item.dNetAmt);
+      if (i == dataList.length) {
+        await printNative(content,grandTotal);
+      }
     }
   }
 }

@@ -10,6 +10,8 @@ import 'package:retail_app/src/salesreport/model/sales_report_model.dart';
 import 'package:retail_app/utils/connection_status.dart';
 import 'package:retail_app/utils/custom_log.dart';
 
+import '../../native_android/native_bridge.dart';
+import '../../utils/date_formater.dart';
 import '../datepicker/date_picker_state.dart';
 import '../ledger_report_party_bill/provider/report_provider.dart';
 
@@ -283,4 +285,25 @@ class SalesReportState extends ChangeNotifier {
 
     );
   }
+// Helper function with padding and truncation control
+  String fixedCol(String text, int width,
+      {bool rightPad = false,
+        bool truncate = true}) {
+    if (text.length > width && truncate) {
+      return text.substring(0, width);
+    }
+    int v = 0;
+    if (rightPad) {
+      if(text.length < width){
+        v =  width-text.length;
+      }
+      return text.padRight(width+v);
+    }else {
+      if(text.length < width){
+        v =  width-text.length;
+      }
+      return text.padLeft(width+v-v);
+    }
+  }
+
 }
