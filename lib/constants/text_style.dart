@@ -72,7 +72,7 @@ var cardTextWriteTitle = const TextStyle(
   fontSize: 16,
   //fontWeight: FontWeight.w500,
   overflow: TextOverflow.ellipsis,
-  color: Colors.black,
+  color: Colors.grey,
 );
 
 var cardTextStyleRemember = const TextStyle(

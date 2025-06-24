@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../../services/services.dart';
@@ -32,6 +33,16 @@ class LedgerDatabase {
     db = await DatabaseHelper.instance.database;
     String myQuery = '''  SELECT * From  ${DatabaseDetails.ledgerTable} Where LOWER(${DatabaseDetails.glCatagory}) = "$ledgerName" or LOWER(${DatabaseDetails.glCatagory}) ="customer/vendor"''';
     final List<Map<String, dynamic>> mapData = await db!.rawQuery(myQuery);
+    return List.generate(mapData.length, (i) {
+      return OutletDataModel.fromJson(mapData[i]);
+    });
+  }
+
+  Future<List<OutletDataModel>> getLedgerCashBookList(String ledgerName) async {
+    db = await DatabaseHelper.instance.database;
+    String myQuery = '''  SELECT * From  ${DatabaseDetails.ledgerTable} Where LOWER(${DatabaseDetails.glCatagory}) = "$ledgerName"''';
+    final List<Map<String, dynamic>> mapData = await db!.rawQuery(myQuery);
+    debugPrint('Cash Book =>   ${myQuery}');
     return List.generate(mapData.length, (i) {
       return OutletDataModel.fromJson(mapData[i]);
     });

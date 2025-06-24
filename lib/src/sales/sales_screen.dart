@@ -604,9 +604,10 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                             Expanded(
                               flex: 5,
                               child: TextFormField(
+                                readOnly: true,
                                 controller: state.salesRate,
                                 onTap: () {
-                                  state.salesRate.text = "";
+                               //   state.salesRate.text = "";
                                 },
                                 validator: (value) {
                                   if (value!.isEmpty) {
@@ -886,7 +887,7 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                                                 flex:2,
                                                 child: Container (
                                                   child: TextFormField(
-
+                                                   readOnly: true,
                                                     controller: _controllersAmount[index],
                                                     onTap: () {},
 
@@ -978,18 +979,75 @@ class _ProductOrderScreenState extends State<ProductOrderScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               )),
-                          const Expanded(
-                              child: Text(' : ',
-                                  textAlign: TextAlign.center)),
+                          SizedBox(width: 10,),
+                          Text(' : ',
+                              textAlign: TextAlign.center),
+
                           Expanded(
-                              flex: 2,
-                              child: Text(
-                                state.totalPrice.toStringAsFixed(2),
-                                style: const TextStyle(
-                                  fontSize: 18.0,
+                            flex: 2,
+                            child: TextFormField(
+                              controller: state.totalAmountController,
+                              onTap: () {
+                                   state.totalAmountController.text = "";
+                              },
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onChanged: (text) {
+                                state.orderFormKey.currentState!
+                                    .validate();
+
+                                state.calculate(salsesRate: state.salesRate.text);
+                                state.calculateProductQty();
+                                setState(() {});
+                              },
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                filled: true,
+                                counter: const Offstage(),
+                                isDense: true,
+                                hintText: "",
+                                labelStyle: const TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
                                 ),
-                              )),
+                                contentPadding:
+                                const EdgeInsets.all(10.0),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(5.0),
+                                  borderSide: BorderSide(
+                                    color: primaryColor,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(5.0),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(5.0),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Expanded(
+                          //     flex: 2,
+                          //     child: Text(
+                          //       state.totalPrice.toStringAsFixed(2),
+                          //       style: const TextStyle(
+                          //         fontSize: 18.0,
+                          //         fontWeight: FontWeight.bold,
+                          //       ),
+                          //     )),
                         ]),
 
                         Divider(

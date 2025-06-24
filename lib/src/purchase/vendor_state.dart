@@ -53,6 +53,7 @@ class LedgerState extends ChangeNotifier {
     await getLedgerListFromDB(ledgerName);
     await checkConnection(ledgerName);
     getCustomer = null;
+    getCashBook = null;
   }
 
   checkConnection(String ledgerName) async {
@@ -60,12 +61,14 @@ class LedgerState extends ChangeNotifier {
       getCompanyDetail = await GetAllPref.companyDetail();
       if(LedgerList.isEmpty){
         if (network) {
-          await getDataList(ledgerName);
+          await getDataList(ledgerName,"cash book");
         } else {
           await getLedgerListFromDB(ledgerName);
+          await getCashBookListFromDB("cash book");
         }
       }else{
         await getLedgerListFromDB(ledgerName);
+        await getCashBookListFromDB("cash book");
       }
 
     });
@@ -74,11 +77,22 @@ class LedgerState extends ChangeNotifier {
   clear() async {
    // _isLoading = true;
     _ledgerList = [];
+    _cashBookList = [];
     selectedGlCode="";
     _customer = null;
+    _cashBook = null;
   }
 
-  Future<List<OutletDataModel>> getDataList(String ledgerName) async {
+  customerClear(){
+   // _cashBookList = [];
+    _customer = null;
+  }
+  cashBookClear(){
+    // _cashBookList = [];
+    _cashBook = null;
+  }
+
+  Future<List<OutletDataModel>> getDataList(String ledgerName,String cashBook) async {
     // getCompanyDetail = await GetAllPref.companyDetail();
     getLoading = true;
     OutletModel outletData = await OutletList.partyList(
@@ -86,19 +100,20 @@ class LedgerState extends ChangeNotifier {
       unitCode: await GetAllPref.unitCode(),
     );
     if (outletData.statusCode == 200) {
-      await onSuccess(dataModel: outletData.data,ledgerName:ledgerName);
+      await onSuccess(dataModel: outletData.data,ledgerName:ledgerName, cashBook: cashBook);
       return outletData.data;
     } else {
       return [];
     }
   }
 
-  onSuccess({required List<OutletDataModel> dataModel,required String ledgerName}) async {
+  onSuccess({required List<OutletDataModel> dataModel,required String ledgerName,required String cashBook}) async {
     await LedgerDatabase.instance.deleteData();
     for (var element in dataModel) {
       await LedgerDatabase.instance.insertData(element);
     }
     await getLedgerListFromDB(ledgerName);
+    await getCashBookListFromDB(cashBook);
     notifyListeners();
   }
   getLedgerListFromDB(String ledgerName) async {
@@ -110,20 +125,43 @@ class LedgerState extends ChangeNotifier {
     notifyListeners();
   }
 
+  getCashBookListFromDB(String ledgerName) async {
+
+    await LedgerDatabase.instance.getLedgerCashBookList(ledgerName).then((value) {
+      getCashBookList = value;
+    });
+    getLoading = false;
+    notifyListeners();
+  }
+
   String? selectedGlCode;
 
   late String? _customer = null;
   String?  get customer => _customer;
 
+  late String? _cashBook = null;
+  String?  get cashBook => _cashBook;
+
   set getCustomer(String? customer) {
     _customer = customer;
+    notifyListeners();
+  }
+  set getCashBook(String? value) {
+    _cashBook = value;
     notifyListeners();
   }
   late List<OutletDataModel> _ledgerList = [];
   List<OutletDataModel> get LedgerList => _ledgerList;
 
+  late List<OutletDataModel> _cashBookList = [];
+  List<OutletDataModel> get cashBookList => _cashBookList;
+
   set getLedgerList(List<OutletDataModel> value) {
     _ledgerList = value;
+    notifyListeners();
+  }
+  set getCashBookList(List<OutletDataModel> value) {
+    _cashBookList = value;
     notifyListeners();
   }
 

@@ -51,7 +51,7 @@ class _LedgerMasterPageState extends State<LedgerMasterPage> {
       appBar: AppBar(
         title: Text(
           'Ledger Master',
-          style: cardTextStyleHeader,
+           style: TextStyle(letterSpacing: 1),
         ),
       ),
       body: Consumer<LedgerMasterState>(
@@ -428,6 +428,155 @@ class _LedgerMasterPageState extends State<LedgerMasterPage> {
                     ),
 
                     const SizedBox(
+                      height: 8,
+                    ),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton2<String>(
+                        value: state.accountSubGroup,
+                        isDense: true,
+                        isExpanded: true,
+                        hint: Text(
+                          'Select Account Sub Group',
+                          style: cardTextWriteTitle,
+                        ),
+                        items: state.accountSubGroupList.map<DropdownMenuItem<String>>(
+                                (party) {
+                              return DropdownMenuItem<String>(
+                                value: party.aCcountSubGroupDesc.toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(12.0)),
+                                      color: Colors.grey[200],
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(
+                                              0, 3), // changes position of shadow
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          party.aCcountSubGroupDesc.toString(),
+                                          style: cardTextStyleDropDownHeader,
+                                        ),
+
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+
+                        // Custom display of the selected item
+                        selectedItemBuilder: (BuildContext context) {
+                          return state.accountSubGroupList.map((party) {
+                            return Text(party.aCcountSubGroupDesc, style: cardTextStyleProductHeader,);
+                          }).toList();
+                        },
+
+                        onChanged: (value) {
+                          setState(() async {
+                            state.getAccountSubGroups = value.toString();
+                            isSubmittedAcountGroup = false;
+                            int index = state.accountSubGroupList.indexWhere(
+                                    (party) => party.aCcountSubGroupDesc.toString() == value);
+                            if (index != -1) {
+                              String selectedSubGlCode = state.accountSubGroupList[index].aCcountSubGroupCode;
+                              state.selectedAccountSubGrpCode = selectedSubGlCode;
+                            } else {}
+                          });
+                        },
+
+                        buttonStyleData: ButtonStyleData(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.only(left: 14, right: 14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.black26,
+                            ),
+                            // color: Colors.redAccent,
+                          ),
+                          // elevation: 2,
+                        ),
+                        dropdownStyleData: const DropdownStyleData(
+                          maxHeight: 400,
+                        ),
+                        menuItemStyleData: const MenuItemStyleData(
+                          height: 60,
+                          padding: EdgeInsets.only(left: 8, right: 8),
+                        ),
+                        dropdownSearchData: DropdownSearchData(
+                          searchController: textEditingController,
+                          searchInnerWidgetHeight: 50,
+                          searchInnerWidget: Container(
+                            height: 50,
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              bottom: 4,
+                              right: 8,
+                              left: 8,
+                            ),
+                            child: TextFormField(
+                              expands: true,
+                              maxLines: null,
+                              controller: textEditingController,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                hintText: 'Search for account sub group...',
+                                hintStyle: const TextStyle(fontSize: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.orange, width: 1),
+                                ),
+                              ),
+                            ),
+                          ),
+                          searchMatchFn: (item, searchValue) {
+                            String itemValue = item.value.toString();
+                            String lowercaseItemValue = itemValue.toLowerCase();
+                            String uppercaseItemValue = itemValue.toUpperCase();
+
+                            String lowercaseSearchValue =
+                            searchValue.toLowerCase();
+                            String uppercaseSearchValue =
+                            searchValue.toUpperCase();
+
+                            return lowercaseItemValue
+                                .contains(lowercaseSearchValue) ||
+                                uppercaseItemValue
+                                    .contains(uppercaseSearchValue) ||
+                                itemValue.contains(searchValue);
+                          },
+                        ),
+                        //This to clear the search value when you close the menu
+                        onMenuStateChange: (isOpen) {
+                          if (!isOpen) {
+                            textEditingController.clear();
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(
                       height: 8.0,
                     ),
                     SizedBox(
@@ -437,12 +586,12 @@ class _LedgerMasterPageState extends State<LedgerMasterPage> {
                         style: cardTextWriteTitle,
                         cursorColor: Colors.orange,
                         cursorHeight: 20,
-                        inputFormatters: <TextInputFormatter>[
-                          LengthLimitingTextInputFormatter(21),
-                          // Limit to 10 characters
-                        ],
+                        // inputFormatters: <TextInputFormatter>[
+                        //   LengthLimitingTextInputFormatter(21),
+                        //   // Limit to 10 characters
+                        // ],
                         decoration: InputDecoration(
-                          hintText: "Address",
+                          hintText: "Address *",
                           filled: true,
                           fillColor: Colors.white,
                           enabledBorder: OutlineInputBorder(
@@ -488,7 +637,7 @@ class _LedgerMasterPageState extends State<LedgerMasterPage> {
                       height: 50,
                       child: TextFormField(
                         controller: state.phone,
-                        keyboardType: TextInputType.number,
+                        keyboardType: TextInputType.phone,
                         style: cardTextWriteTitle,
                         cursorColor: Colors.orange,
                         cursorHeight: 20,
@@ -652,7 +801,7 @@ class _LedgerMasterPageState extends State<LedgerMasterPage> {
                         cursorColor: Colors.orange,
                         cursorHeight: 20,
                         inputFormatters: <TextInputFormatter>[
-                          LengthLimitingTextInputFormatter(21),
+                          LengthLimitingTextInputFormatter(50),
                         ],
                         decoration: InputDecoration(
                           hintText: "Contact Person",
@@ -710,12 +859,10 @@ class _LedgerMasterPageState extends State<LedgerMasterPage> {
                                });
                                FocusScope.of(context).requestFocus(nodeOne);
                                ShowToast.errorToast(
-                                 msg: "Please enter required field",
+                                 msg: "Please enter required fields",
                                );
                              }
-                       }, child: Text("Create Ledger"),
-
-
+                       }, child: const Text("Create Ledger",style: TextStyle(letterSpacing: 1,fontSize: 18),),
                        ),
                        // child: SaveButton(
                        //   buttonName: "Create Ledger",

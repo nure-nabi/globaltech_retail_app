@@ -195,6 +195,7 @@ class _OrderListSectionState extends State<OrderListSection> {
       context: context,
       builder: (BuildContext context) {
         Provider.of<ProductOrderState>(context, listen: true);
+        //context.watch<ProductOrderState>();
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -238,6 +239,12 @@ class _OrderListSectionState extends State<OrderListSection> {
                               ),
                             ),
                           ),
+                          InkWell(
+                            onTap: () async{
+                            await  state.godownClear();
+                            await  state.godownListApiCall();
+                            },
+                              child: const Icon(Icons.sync,color: Colors.white,))
                         ],
                       ),
                     ),
@@ -257,9 +264,78 @@ class _OrderListSectionState extends State<OrderListSection> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(height: 5,),
-                            Text('Bill Amount: ${state.calculateTotalAmount()}',style: labelTextStyle),
+                            SizedBox(height: 10,),
+                            state.godownList.isNotEmpty ?
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                              child: DropdownButtonFormField2<String>(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  // Add Horizontal padding using menuItemStyleData.padding so it matches
+                                  // the menu padding when button's width is not specified.
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  // Add more decoration..
+                                ),
+                                hint:  Text(
+                                  'Choose Godown',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                items: state.godownList
+                                    .map((item) => DropdownMenuItem<String>(
+                                  value: item.godownDesc,
+                                  child: Text(
+                                    item.godownDesc!,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ))
+                                    .toList(),
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Please select godown.';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
 
+                                  int index = state.godownList.indexWhere(
+                                          (party) => party.godownDesc.toString() == value);
+                                  if (index != -1) {
+                                    state.getGodownCode = state.godownList[index].godownCode!;
+                                  }
+                                },
+                                onSaved: (value) {
+                                //  state.getSalePaymentModeCode = value.toString();
+
+                                },
+                                buttonStyleData: const ButtonStyleData(
+                                  padding: EdgeInsets.only(right: 8),
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black45,
+                                  ),
+                                  iconSize: 24,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  maxHeight: 295,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                ),
+                              )
+
+                            ) : SizedBox(),
+                            SizedBox(height: 10,),
+                            Text('Bill Amount: ${state.calculateTotalAmount()}',style: labelTextStyle),
                             SizedBox(height: 10,),
                             //drop
                             Padding(
@@ -541,13 +617,12 @@ class _OrderListSectionState extends State<OrderListSection> {
                               ),
                             ] ,
                             SizedBox(height: 5,),
-
                             Container(
                               height: 40,
                               child: Padding(
                                 padding: const EdgeInsets.all(5.0),
                                 child: TextFormField(
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     hintText: "Remarks",
                                   ),
                                    controller: state.comment,
@@ -858,12 +933,12 @@ class _OrderListSectionState extends State<OrderListSection> {
                                     flex: 2,
                                     child: ElevatedButton(
                                       onPressed: (){
-                                        if(state.paymentType.isNotEmpty  ) {
+                                        if(state.paymentType.isNotEmpty) {
                                           Navigator.pop(context);
                                           ShowDialog(context: context).dialog(
                                             child: const OrderDetailsAlert(),);
                                           //   Navigator.pop(context);
-                                        } else if(state.salesPaymentModeCode.isNotEmpty ){
+                                        } else if(state.salesPaymentModeCode.isNotEmpty){
                                           Navigator.pop(context);
                                           ShowDialog(context: context).dialog(
                                             child: const OrderDetailsAlert(),);
@@ -1551,7 +1626,7 @@ class _OrderListSectionState extends State<OrderListSection> {
           itemCount: state.allTempOrderList.length,
           itemBuilder: (context, index) {
             TempProductOrderModel indexData = state.allTempOrderList[index];
-            // Fluttertoast.showToast(msg: indexData.id.toString());
+             //Fluttertoast.showToast(msg: indexData.altUnit.toString());
             // String vatAmount = (double.parse(indexData.rate)*double.parse(indexData.quantity)* 0.13).toStringAsFixed(2);
             // state.setVatAmt = double.parse(indexData.totalAmount);
 
@@ -1596,7 +1671,7 @@ class _OrderListSectionState extends State<OrderListSection> {
                             ),
                             RowDataWidget(
                               title: "Price",
-                              value: indexData.rate,
+                              value: "${(double.parse(indexData.rate)).toStringAsFixed(2)}",
                               valueAlign: TextAlign.end,
                             ),
                             RowDataWidget(
@@ -1605,7 +1680,7 @@ class _OrderListSectionState extends State<OrderListSection> {
                               valueBold: true,
                               valueAlign: TextAlign.end,
                               value:
-                              "${(double.parse(indexData.rate) * double.parse(indexData.quantity))}",
+                              "${(double.parse(indexData.rate) * double.parse(indexData.quantity)).toStringAsFixed(2)}",
                             ),
                             RowDataWidget(
                               title: "Discount",
@@ -2043,6 +2118,7 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
           (sum, item) =>
       sum + (double.tryParse(item.rate) ?? 0) * (double.tryParse(item.quantity) ?? 0),
     );
+     stateQR.getSubTotal = subtotal;
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -2168,7 +2244,7 @@ class _OrderDetailsAlertState extends State<OrderDetailsAlert> {
                         Expanded(
                           flex: 2,
                           child: Text(
-                            item.rate,
+                            double.parse(item.rate).toStringAsFixed(2),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.w500,

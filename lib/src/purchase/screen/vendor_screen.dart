@@ -182,11 +182,9 @@ class _LedgerListScreen extends State<LedgerListScreen> {
                                 await SetAllPref.customerName(
                                     value: value.toString());
                                 int index = state.LedgerList.indexWhere(
-                                    (party) =>
-                                        party.glDesc.toString() == value);
+                                    (party) => party.glDesc.toString() == value);
                                 if (index != -1) {
-                                  String selectedGlCode =
-                                      state.LedgerList[index].glCode;
+                                  String selectedGlCode = state.LedgerList[index].glCode;
                                   state.selectedGlCode = selectedGlCode;
                                   await SetAllPref.outLetCode(
                                       value: selectedGlCode);

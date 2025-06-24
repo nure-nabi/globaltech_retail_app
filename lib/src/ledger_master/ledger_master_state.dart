@@ -5,6 +5,7 @@ import 'package:retail_app/src/ledger_master/model/ledger_master_model.dart';
 import 'package:retail_app/src/login/model/login_model.dart';
 import 'package:retail_app/src/master/api/master_api.dart';
 import 'package:retail_app/src/master/model/group_model.dart';
+import 'package:retail_app/src/purchase/model/account_sub_group_model.dart';
 import '../../model/basic_model.dart';
 import '../../services/services.dart';
 import '../../utils/utils.dart';
@@ -46,6 +47,7 @@ class LedgerMasterState extends ChangeNotifier {
     await checkConnection();
     selectedGrpCode = null;
     getAccountGroup = null;
+    getAccountSubGroups = null;
   }
 
   checkConnection() async {
@@ -214,30 +216,58 @@ class LedgerMasterState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future getAccountSubGroupList() async {
+    AccountSubGroupModel godownData = await ListAccountSubGroup.accountSubGroupList(
+      dbName: _companyDetail.dbName,
+    );
+    if (godownData.statusCode == 200) {
+     // await onSuccessAccountGroupList(dataModel: outletData.data);
+      getAccountSubGroup = godownData.data;
+    } else {
+      // ShowToast.errorToast(msg: "ads  "+_companyDetail.dbName +" Failed to get data" );
+    }
+    notifyListeners();
+  }
+
 
   late List<AccountGroupListDataModel> _accountGroupList = [];
   List<AccountGroupListDataModel> get accountGroupList => _accountGroupList;
+  late List<AccountSubGroupDataModel> _accountSubGroupList = [];
+  List<AccountSubGroupDataModel> get accountSubGroupList => _accountSubGroupList;
 
   set getAccountList(List<AccountGroupListDataModel> value) {
     _accountGroupList = value;
+    notifyListeners();
+  }
+  set getAccountSubGroup(List<AccountSubGroupDataModel> value) {
+    _accountSubGroupList = value;
     notifyListeners();
   }
 
   late String? _accountGroup;
   String?  get accountGroup => _accountGroup;
 
+  late String? _accountSubGroup;
+  String?  get accountSubGroup => _accountSubGroup;
+
   set getAccountGroup(String? accountGroup) {
     _accountGroup = accountGroup;
     notifyListeners();
   }
 
+  set getAccountSubGroups(String? accountGroup) {
+    _accountSubGroup = accountGroup;
+    notifyListeners();
+  }
+
   String? selectedGrpCode;
-  String?
-  selectedAccountGrpCode;
+  String?selectedAccountGrpCode;
+  String?selectedAccountSubGrpCode;
 
   Future<void> networkSuccess() async {
     _isLoading = true;
     await getAccountGroupList();
+    await getAccountSubGroupList();
    // await sendPostRequest();
     _isLoading = false;
     notifyListeners();
@@ -247,7 +277,7 @@ class LedgerMasterState extends ChangeNotifier {
     try {
 
      // Fluttertoast.showToast(msg: selectedAccountGrpCode.toString());
-      var ledgerMasterDetails = LedgerMasterModel(
+      var body = LedgerMasterModel(
         longitude: '',
         outletName: outletName.text,
         panNo: panNo.text,
@@ -265,10 +295,11 @@ class LedgerMasterState extends ChangeNotifier {
         dbName: _companyDetail.dbName,
         catagory: selectedGrpCode.toString(),
         grpCode: selectedAccountGrpCode.toString(),
+       // grpCode: selectedAccountSubGrpCode.toString(),
       );
       try {
         BasicModel modelData = await LedgerMasterAPI.saveMasterLedger(
-            ledgerMasterModel: ledgerMasterDetails);
+            ledgerMasterModel: body);
         if(modelData.status == true){
           ShowToast.successToast(msg: modelData.message);
           setMappingInsert = true;

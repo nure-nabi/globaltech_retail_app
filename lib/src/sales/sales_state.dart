@@ -8,6 +8,7 @@ import 'package:retail_app/src/login/model/login_model.dart';
 import 'package:retail_app/src/sales/api/sales_api.dart';
 import 'package:retail_app/src/sales/db/product_sales_db.dart';
 import 'package:retail_app/src/sales/db/temp_product_sales_db.dart';
+import 'package:retail_app/src/sales/model/godown_model.dart';
 import 'package:retail_app/src/sales/model/outlet_model.dart';
 import 'package:retail_app/src/sales/model/post_sales_model.dart';
 import 'package:retail_app/src/sales/model/product_sales_model.dart';
@@ -70,6 +71,7 @@ class ProductOrderState extends ChangeNotifier {
     await clear2();
     await checkConnection();
     await salesPaymentModeApiCall();
+    await godownListApiCall();
     // selectedGlCode = null;
     getCustomer = null;
     altCountAltQty = 0.0;
@@ -100,6 +102,12 @@ class ProductOrderState extends ChangeNotifier {
     paymentType = "";
     paymentMode = "";
     _referenceId = "";
+    _godownCode = "";
+  }
+
+  godownClear(){
+    _godownCode = "";
+    _godownList = [];
   }
 
   clear() async {
@@ -114,6 +122,7 @@ class ProductOrderState extends ChangeNotifier {
     _discountRate = TextEditingController(text: "0.00");
     _discountAmt = TextEditingController(text: "0.00");
     _altQuantity = TextEditingController(text: "0.00");
+    _totalAmountController = TextEditingController(text: "0.00");
 
     // Total Price = Total Amount of the single product (ie rate * quantity)
     _totalPrice = 0.0;
@@ -158,6 +167,10 @@ class ProductOrderState extends ChangeNotifier {
 
   TextEditingController get salesRate => _salesRate;
 
+  late TextEditingController _totalAmountController = TextEditingController(text: "");
+
+  TextEditingController get totalAmountController => _totalAmountController;
+
   late TextEditingController _discountRate = TextEditingController(text: "");
 
   TextEditingController get discountRate => _discountRate;
@@ -195,6 +208,10 @@ class ProductOrderState extends ChangeNotifier {
 
   set getSalesRate(String value) {
     _salesRate.text = value;
+    notifyListeners();
+  }
+  set getTotalAmount(String value) {
+    _totalAmountController.text = value;
     notifyListeners();
   }
 
@@ -236,8 +253,15 @@ class ProductOrderState extends ChangeNotifier {
   }
 
   late double _totalPrice = 0.0;
+  late double _subTotal = 0.0;
 
   double get totalPrice => _totalPrice;
+  double get subTotal => _subTotal;
+
+  set getSubTotal(double value) {
+    _subTotal = value;
+    notifyListeners();
+  }
 
   set getTotalPrice(double value) {
     _totalPrice = value;
@@ -780,8 +804,7 @@ class ProductOrderState extends ChangeNotifier {
                 double.parse(productDetail.altQty);
             debugPrint('AltQty to Quantity: $quantityFactor');
             _quantity.text = quantityFactor.toStringAsFixed(1);
-          } else if (lastEditedField == "quantity" &&
-              _quantity.text != '0.00') {
+          } else if (lastEditedField == "quantity" && _quantity.text != '0.00') {
             double altQuantityFactor = double.parse(_quantity.text) /
                 double.parse(productDetail.altQty);
             debugPrint('Quantity to AltQty: $altQuantityFactor');
@@ -808,9 +831,9 @@ class ProductOrderState extends ChangeNotifier {
     notifyListeners();
   }
 
-  calculate() async {
+  calculate({salsesRate}) async {
     double quantityFactor = 0.00;
-
+   // Fluttertoast.showToast(msg: 'Invalid number formatff  $salsesRate');
     if (_quantity.text.isEmpty ||
         _salesRate.text.isEmpty ||
         _altQuantity.text.isEmpty) {
@@ -819,12 +842,22 @@ class ProductOrderState extends ChangeNotifier {
       altCountAltQty = 0.00;
     } else {
       if (double.parse(productDetail.altQty) > 0) {
+    //    Fluttertoast.showToast(msg: "msg");
         try {
           if (lastEditedField == "altQty" && _altQuantity.text != '0.00') {
             quantityFactor = double.parse(_altQuantity.text) *
                 double.parse(productDetail.altQty);
             debugPrint('AltQty to Quantity: $quantityFactor');
             _quantity.text = quantityFactor.toStringAsFixed(1);
+
+            if(_totalAmountController.text == ""){
+             // Fluttertoast.showToast(msg: _salesRate.text);
+              _salesRate.text = "0.00";
+            }else{
+              _salesRate.text = (double.parse(_totalAmountController.text) / double.parse(_quantity.text)).toString();
+            }
+
+          //  Fluttertoast.showToast(msg: _salesRate.text);
           } else if (lastEditedField == "quantity" &&
               _quantity.text != '0.00') {
             double altQuantityFactor = double.parse(_quantity.text) /
@@ -833,12 +866,56 @@ class ProductOrderState extends ChangeNotifier {
             _altQuantity.text = altQuantityFactor.toStringAsFixed(1);
 
             altCountAltQty = altQuantityFactor;
+            if(_totalAmountController.text == ""){
+              _salesRate.text = "0.00";
+            }else{
+              _salesRate.text = (double.parse(_totalAmountController.text) / double.parse(_quantity.text)).toString();
+            }
+           // Fluttertoast.showToast(msg: _salesRate.text);
           }
         } catch (e) {
-          Fluttertoast.showToast(msg: 'Invalid number format');
+          _salesRate.text = "0.00";
+         // Fluttertoast.showToast(msg: 'Invalid number formatff  $salsesRate');
           return;
         }
-      } else {}
+      } else {
+        try {
+          if (lastEditedField == "altQty" && _altQuantity.text != '0.00') {
+            quantityFactor = double.parse(_altQuantity.text) *
+                double.parse(productDetail.altQty);
+            debugPrint('AltQty to Quantity: $quantityFactor');
+            _quantity.text = quantityFactor.toStringAsFixed(1);
+
+            if(_totalAmountController.text == ""){
+              // Fluttertoast.showToast(msg: _salesRate.text);
+              _salesRate.text = "0.00";
+            }else{
+              _salesRate.text = (double.parse(_totalAmountController.text) / double.parse(_quantity.text)).toString();
+            }
+
+            //  Fluttertoast.showToast(msg: _salesRate.text);
+          } else if (lastEditedField == "quantity" &&
+              _quantity.text != '0.00') {
+            double altQuantityFactor = double.parse(_quantity.text) /
+                double.parse(productDetail.altQty);
+            debugPrint('Quantity to AltQty: $altQuantityFactor');
+            _altQuantity.text = altQuantityFactor.toStringAsFixed(1);
+
+            altCountAltQty = altQuantityFactor;
+            if(_totalAmountController.text == ""){
+              _salesRate.text = "0.00";
+            }else{
+              _salesRate.text = (double.parse(_totalAmountController.text) / double.parse(_quantity.text)).toString();
+            }
+            // Fluttertoast.showToast(msg: _salesRate.text);
+          }
+        } catch (e) {
+          _salesRate.text = "0.00";
+          // Fluttertoast.showToast(msg: 'Invalid number formatff  $salsesRate');
+          return;
+        }
+
+      }
 
       try {
         getTotalPrice = 0.00;
@@ -1079,7 +1156,6 @@ class ProductOrderState extends ChangeNotifier {
   deleteTempOrderProduct({required String productID}) async {
     await TempProductOrderDatabase.instance.deleteDataByID(productID);
     await getAllTempProductOrderList();
-
     notifyListeners();
   }
 
@@ -1127,13 +1203,12 @@ class ProductOrderState extends ChangeNotifier {
     }
   }
   printNative(StringBuffer content,double total) async {
-
     const lineWidth = 70; // Total characters per line
-
     // ===== FOOTER SECTION =====
     content.writeln('-' * lineWidth);
     content.writeln('${fixedCol('', 40)}${fixedCol('Total:', 10)}${fixedCol(total.toStringAsFixed(2), 12)}');
     content.writeln('-' * lineWidth);
+    content.writeln(fixedCol('Remarks: ${comment.text}', lineWidth, rightPad: true));
     content.writeln(fixedCol('Printed Date: ${await MyDate.showDateTime()}', lineWidth, rightPad: true));
     content.writeln(fixedCol('Prepared by: ${await GetAllPref.userName()}', lineWidth, rightPad: true));
     content.writeln();
@@ -1161,8 +1236,24 @@ class ProductOrderState extends ChangeNotifier {
 
   List<SalePaymentModel> get salePaymentModeList => _salePaymentModeList;
 
+  List<GodownModel> _godownList = [];
+
+  List<GodownModel> get godownList => _godownList;
+
+  String _godownCode = "";
+  String get godownCode => _godownCode;
+  set getGodownCode(String value) {
+    _godownCode = value;
+    notifyListeners();
+  }
+
   set getSalesPaymentMode(List<SalePaymentModel> value) {
     _salePaymentModeList = value;
+    notifyListeners();
+  }
+
+  set getGodownList(List<GodownModel> value) {
+    _godownList = value;
     notifyListeners();
   }
 
@@ -1175,10 +1266,17 @@ class ProductOrderState extends ChangeNotifier {
     getCompanyDetail = await GetAllPref.companyDetail();
     SalePaymentResModel salePaymentResMode =
         await SalePaymentMode.paymentMode(dbName: _companyDetail.dbName);
-
     if (salePaymentResMode.STATUS_CODE == 200) {
-      // Fluttertoast.showToast(msg: 'ReferenceId : ${salePaymentResMode.MESSAGE}');
       getSalesPaymentMode = salePaymentResMode.data;
+    }
+  }
+
+  Future godownListApiCall() async {
+    getCompanyDetail = await GetAllPref.companyDetail();
+    GodownResModel godownResModel =
+    await GodownList.godown(dbName: _companyDetail.dbName);
+    if (godownResModel.STATUS_CODE == 200) {
+      getGodownList = godownResModel.data;
     }
   }
 
@@ -1335,9 +1433,13 @@ class ProductOrderState extends ChangeNotifier {
                 // ===== INVOICE INFO =====
                 content.writeln(
                     '$i'.padRight(5).substring(0, 5)+
-                        fixedCol('${item.pName} ${item.altUnit}-${item.altQty} ',16,rightPad: true)+
+                       // fixedCol('${item.pName} (${item.altUnit}-${item.altQty.split('.')[0]}) ',17,rightPad: true)+
+                        fixedCol('${item.pName} ',10,rightPad: true)+
+                        fixedCol('${item.altUnit}',3,rightPad: true)+
+                        fixedCol('-',1,rightPad: true)+
+                        fixedCol('${item.altQty.split('.')[0]} ',3,rightPad: true)+
                         fixedCol('${item.qty.split('.')[0]}',6,rightPad: true)+
-                        fixedCol('${item.rate}',5,rightPad: true)+
+                        fixedCol('${item.rate.length >=5 ? item.rate.substring(0,5) : item.rate.length <=3 ?  item.rate.substring(0,3) : item.rate.substring(0,4)} ',item.rate.length >=5 ? 5 :item.rate.length <=3 ?3: 4,rightPad: false)+
                         fixedCol('${item.totalAmt}',9,rightPad: true)
 
                 );
@@ -1433,9 +1535,13 @@ class ProductOrderState extends ChangeNotifier {
               // ===== INVOICE INFO =====
               content.writeln(
                   '$i'.padRight(5).substring(0, 5)+
-                      fixedCol('${item.pName} ${item.altUnit}-${item.altQty.split('.')[0]} ',17,rightPad: true)+
+                      //fixedCol('${item.pName} (${item.altUnit}-${item.altQty.split('.')[0]}) ',17,rightPad: true)+
+                      fixedCol('${item.pName} ',10,rightPad: true)+
+                      fixedCol('${item.altUnit}',3,rightPad: true)+
+                      fixedCol('-',1,rightPad: true)+
+                      fixedCol('${item.altQty.split('.')[0]} ',3,rightPad: true)+
                       fixedCol('${item.qty.split('.')[0]}',6,rightPad: true)+
-                      fixedCol('${item.rate}',5,rightPad: true)+
+                      fixedCol('${item.rate.length >=5 ? item.rate.substring(0,5) : item.rate.length <=3 ?  item.rate.substring(0,3) : item.rate.substring(0,4)} ',item.rate.length >=5 ? 5 :item.rate.length <=3 ?3: 4,rightPad: false)+
                       fixedCol('${item.totalAmt}',9,rightPad: true)
 
               );
@@ -1495,7 +1601,6 @@ class ProductOrderState extends ChangeNotifier {
         if (salesPaymentModeCode == "PhonePay") {
           getSalePaymentModeCode = "Fonepay";
         }
-
         setDataInserted = false;
         Map<String, dynamic> response = await callPaymentNativeCode(salesPaymentModeCode);
         getReferenceId = response['referenceId'];
@@ -1527,11 +1632,11 @@ class ProductOrderState extends ChangeNotifier {
               }
               content.writeln(fixedCol('${fixedCol('', 32)} INVOICE', 62, rightPad: true));
               content.writeln();
-              content.writeln(fixedCol('Branch     :${await GetAllPref.unitCode()}', 62, rightPad: true));
+              content.writeln(fixedCol('Branch    :${await GetAllPref.unitCode()}', 62, rightPad: true));
               content.writeln(fixedCol('Bill No     : ${await GetAllPref.getVoucher()}', 62, rightPad: true));
               content.writeln(fixedCol('Date        : ${await MyDate.showDateTime2()}(${await MyDate.showDateTimeNepali2()})', 62, rightPad: true));
               content.writeln(fixedCol('Name      : ${await GetAllPref.customerName()}', 62, rightPad: true));
-              content.writeln(fixedCol('Address    : ${await GetAllPref.customerAddress()}', 62, rightPad: true));
+              content.writeln(fixedCol('Address   : ${await GetAllPref.customerAddress()}', 62, rightPad: true));
               content.writeln(fixedCol('Pan No      : ${await GetAllPref.customerpanno()}', 62, rightPad: true));
               content.writeln(fixedCol('Payment Mode: $salesPaymentModeCode', 62, rightPad: true));
               content.writeln(fixedCol('ReferenceId : $referenceId', 62, rightPad: true));
@@ -1551,9 +1656,13 @@ class ProductOrderState extends ChangeNotifier {
                 // ===== INVOICE INFO =====
                 content.writeln(
                     '$i'.padRight(5).substring(0, 5)+
-                        fixedCol('${item.pName} ${item.altUnit}-${item.altQty.split('.')[0]} ',17,rightPad: true)+
+                      //  fixedCol('${item.pName} (${item.altUnit}-${item.altQty.split('.')[0]}) ',17,rightPad: true)+
+                        fixedCol('${item.pName} ',10,rightPad: true)+
+                        fixedCol('${item.altUnit}',3,rightPad: true)+
+                        fixedCol('-',1,rightPad: true)+
+                        fixedCol('${item.altQty.split('.')[0]} ',3,rightPad: true)+
                         fixedCol('${item.qty.split('.')[0]}',6,rightPad: true)+
-                        fixedCol('${item.rate}',5,rightPad: true)+
+                        fixedCol('${item.rate.length >=5 ? item.rate.substring(0,5) : item.rate.length <=3 ?  item.rate.substring(0,3) : item.rate.substring(0,4)} ',item.rate.length >=5 ? 5 :item.rate.length <=3 ?3: 4,rightPad: false)+
                         fixedCol('${item.totalAmt}',9,rightPad: true)
 
                 );
@@ -1620,7 +1729,6 @@ class ProductOrderState extends ChangeNotifier {
 
             String fixedWidth(String s, int width) => s.padRight(width).substring(0, width);
 
-
             StringBuffer content = StringBuffer();
           //  ===== HEADER SECTION =====
             content.writeln(fixedCol('${fixedCol('', 10)}${_companyDetail.aliasName}',62, rightPad: true));
@@ -1633,9 +1741,9 @@ class ProductOrderState extends ChangeNotifier {
             content.writeln(fixedCol('Branch      :${await GetAllPref.unitCode()}', 62, rightPad: true));
             content.writeln(fixedCol('Bill No     : ${await GetAllPref.getVoucher()}', 62, rightPad: true));
             content.writeln(fixedCol('Date        : ${await MyDate.showDateTime2()}(${await MyDate.showDateTimeNepali2()})', 62, rightPad: true));
-            content.writeln(fixedCol('Name        : ${await GetAllPref.customerName()}', 62, rightPad: true));
-            content.writeln(fixedCol('Address     : ${await GetAllPref.customerAddress()}', 62, rightPad: true));
-            content.writeln(fixedCol('Pan No      : ${await GetAllPref.customerpanno()}', 62, rightPad: true));
+            content.writeln(fixedCol('Name      : ${await GetAllPref.customerName()}', 62, rightPad: true));
+            content.writeln(fixedCol('Address   : ${await GetAllPref.customerAddress()}', 62, rightPad: true));
+            content.writeln(fixedCol('Pan No    : ${await GetAllPref.customerpanno()}', 62, rightPad: true));
             content.writeln(fixedCol('Payment Mode: ${paymentType}', 62, rightPad: true));
             content.writeln();
           //
@@ -1653,9 +1761,13 @@ class ProductOrderState extends ChangeNotifier {
               // ===== INVOICE INFO =====
               content.writeln(
                   '$i'.padRight(5).substring(0, 5)+
-                      fixedCol('${item.pName} (${item.altUnit}-${item.altQty.split('.')[0]}) ',17,rightPad: true)+
+                     // fixedCol('${item.pName} (${item.altUnit}-${item.altQty.split('.')[0]}) ',17,rightPad: true)+
+                      fixedCol('${item.pName} ',10,rightPad: true)+
+                      fixedCol('${item.altUnit}',3,rightPad: true)+
+                      fixedCol('-',1,rightPad: true)+
+                      fixedCol('${item.altQty.split('.')[0]} ',3,rightPad: true)+
                       fixedCol('${item.qty.split('.')[0]}',6,rightPad: true)+
-                      fixedCol('${item.rate}',5,rightPad: true)+
+                      fixedCol('${item.rate.length >=5 ? item.rate.substring(0,5) : item.rate.length <=3 ?  item.rate.substring(0,3) : item.rate.substring(0,4)} ',item.rate.length >=5 ? 5 :item.rate.length <=3 ?3: 4,rightPad: false)+
                       fixedCol('${item.totalAmt}',9,rightPad: true)
 
               );
@@ -1704,6 +1816,7 @@ class ProductOrderState extends ChangeNotifier {
         notifyListeners();
       }
     }
+
   }
 
   Future productOrderAPICall2(BuildContext ctx) async {
@@ -1769,7 +1882,6 @@ class ProductOrderState extends ChangeNotifier {
 
   getIndexTotalAmount({required String rate}) {
     double vatAmount = (double.parse(rate) * 0.13);
-    CustomLog.actionLog(value: "TOTAL AMOUNT CHECK => $rate");
     return vatAmount + double.parse(rate);
   }
 
@@ -1788,13 +1900,11 @@ class ProductOrderState extends ChangeNotifier {
       _totalBalance += double.parse(element.totalAmount);
       // _totalBalance += vatAmt;
     }
-    //  showVatDiscAmount();
     showVatDiscAmountBill();
     return _totalBalance.toStringAsFixed(2);
   }
 
   late double _balanceAmount = 0.00;
-
   double get balanceAmount => _balanceAmount;
 
   set getBalanceAmount(double value) {
@@ -1915,6 +2025,7 @@ class ProductOrderState extends ChangeNotifier {
           qty: element.quantity,
           rate: element.rate,
           totalAmt: element.totalAmount,
+         // totalAmt: tenderAmount.text == "" ? element.totalAmount :,
           netTotalAmt:
               (double.parse(element.quantity) * double.parse(element.rate))
                   .toString(),
@@ -1939,7 +2050,7 @@ class ProductOrderState extends ChangeNotifier {
           bTerm3Rate: bTerm3Rate.toString(),
           bTerm3Amount: bTerm3Amount.toString(),
           bSign3: bSign3.toString(),
-          godownCode: '',
+          godownCode: godownCode,
           dbName: _companyDetail.dbName,
           salesImage: '',
           imagePath: '',
@@ -1952,10 +2063,12 @@ class ProductOrderState extends ChangeNotifier {
           altQty: element.altQty,
           hsCode: element.hsCode,
           factor: element.factor,
-          payAmount: tenderAmount.text.isNotEmpty ? tenderAmount.text : "0.0",
+        //  payAmount: tenderAmount.text.isNotEmpty ? tenderAmount.text : "0.0",
+          payAmount: subTotal.toString(),
           billNetAmt: element.totalAmount,
           userCode: await GetAllPref.userName(),
-          cashGlCode: salesPaymentModeCode != "" ?salesPaymentModeCode :  paymentType);
+          cashGlCode: salesPaymentModeCode != "" ? salesPaymentModeCode :  paymentType,
+          remarks: comment.text == "" ? "N/A" : comment.text);
       // "BillNetAmt": "5250.00",
       // "UserCode": "ABCD",
       await ProductOrderDatabase.instance.insertData(finalOrder);

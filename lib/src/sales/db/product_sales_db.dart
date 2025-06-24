@@ -100,6 +100,7 @@ class ProductOrderDatabase {
                         "BillNetAmt":"' || BillNetAmt || '",
                         "UserCode":"' || UserCode || '",
                         "CashGlCode":"' || CashGlCode || '",
+                        "Comment":"' || Remarks || '",
                         "ItemDetails":' || ItemDetails ||
              '}') || ']' AS OrderDetails
       FROM   
@@ -117,6 +118,7 @@ class ProductOrderDatabase {
      ${DatabaseDetails.bTerm3Amount} AS BTerm3Amount,
      SUM(BillNetAmt) AS BillNetAmt,
      ${DatabaseDetails.userCode} AS UserCode,
+     ${DatabaseDetails.remark} AS Remarks,
      ${DatabaseDetails.paymentMode} AS CashGlCode,
      
               '[' || GROUP_CONCAT('{
@@ -124,6 +126,8 @@ class ProductOrderDatabase {
                              "qty":"' || Qty || '",
                              "rate":"' || rate || '",
                              "totalAmt":"' || totalAmt || '",
+                             "AltUnit":"' || AltUnit || '",
+                             "AltQty":"' || AltQty || '",
                              "PTerm1Code":"' || PTerm1Code || '",
                              "PTerm1Rate":"' || PTerm1Rate || '",
                              "PTerm1Amount":"' || PTerm1Amount || '",

@@ -180,6 +180,7 @@ class CreateTable {
                                                 ${DatabaseDetails.userCode} TEXT,
                                                 ${DatabaseDetails.billNetAmt} TEXT,
                                                 ${DatabaseDetails.payAmount} TEXT,
+                                                ${DatabaseDetails.remark} TEXT,
                                                 ${DatabaseDetails.paymentMode} TEXT
                                           ) ''');
   }

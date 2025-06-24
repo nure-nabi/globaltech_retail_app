@@ -131,7 +131,8 @@ class PdfInvoiceProductSales {
         payAmount: element.payAmount,
           billNetAmt: element.billNetAmt,
           userCode: element.userCode,
-          cashGlCode: element.cashGlCode
+          cashGlCode: element.cashGlCode,
+          remarks: 're'
       ));
     }
 

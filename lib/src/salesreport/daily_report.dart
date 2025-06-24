@@ -32,7 +32,7 @@ class _DailyReportState extends State<DailyReport> {
   void initState() {
     super.initState();
     Provider.of<SalesReportState>(context, listen: false).getContext = context;
-    Provider.of<SalesReportState>(context, listen: false).dailyReport();
+  //  Provider.of<SalesReportState>(context, listen: false).dailyReport();
 
   }
   @override
@@ -41,7 +41,7 @@ class _DailyReportState extends State<DailyReport> {
    // final reportProvider = Provider.of<ReportProvider>(context, listen: true);
    // salesReportState.dailyReport();
     return Consumer<SalesReportState>(builder: (BuildContext context, salesReportState, Widget? child) {
-      salesReportState.dailyReport();
+     // salesReportState.dailyReport();
       return Stack(
         children: [
           Scaffold(
@@ -141,7 +141,7 @@ class _DailyReportState extends State<DailyReport> {
                             ),
                             height: 90.0,
                             child: Padding(
-                              padding:  EdgeInsets.fromLTRB(15.0,0.0, 15.0, 0.0),
+                              padding:  const EdgeInsets.fromLTRB(15.0,0.0, 15.0, 0.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -166,8 +166,6 @@ class _DailyReportState extends State<DailyReport> {
                                           'Date: ${salesReportState.filterCustomerList[index].billDate}',
                                           style: const TextStyle(fontSize: 12.0),
                                         ),
-
-
                                       ],
                                     ),
                                   ),

@@ -48,6 +48,7 @@ class OrderDetail {
     required this.billNetAmt,
     required this.userCode,
     required this.cashGlCode,
+    required this.comment,
     required this.itemDetails,
   });
 
@@ -66,6 +67,7 @@ class OrderDetail {
   final String billNetAmt;
   final String userCode;
   final String cashGlCode;
+  final String comment;
   final List<OrderPostItemDetailModel> itemDetails;
 
 
@@ -88,6 +90,7 @@ class OrderDetail {
       billNetAmt: json["BillNetAmt"] ?? "",
       userCode: json["UserCode"] ?? "",
       cashGlCode: json["CashGlCode"] ?? "",
+      comment: json["Comment"] ?? "",
       itemDetails: json["ItemDetails"] == null
           ? []
           : List<OrderPostItemDetailModel>.from(
@@ -111,6 +114,7 @@ class OrderDetail {
     "BillNetAmt": billNetAmt,
     "UserCode": userCode,
     "CashGlCode": cashGlCode,
+    "Comment": comment,
     "ItemDetails": List<dynamic>.from(itemDetails.map((x) => x.toJson())),
   };
 }
@@ -135,6 +139,8 @@ class OrderPostItemDetailModel {
     required this.pTerm3Rate,
     required this.pTerm3Amount,
     required this.godownCode,
+    required this.altUnit,
+    required this.altQty,
 
   });
 
@@ -152,6 +158,8 @@ class OrderPostItemDetailModel {
   final String pTerm3Rate;
   final String pTerm3Amount;
   final String godownCode;
+  final String altUnit;
+  final String altQty;
 
 
   factory OrderPostItemDetailModel.fromJson(Map<String, dynamic> json) {
@@ -171,6 +179,8 @@ class OrderPostItemDetailModel {
       pTerm3Amount: json["PTerm3Amount"] ?? "",
 
       godownCode: json["godownCode"] ?? "",
+      altUnit: json["AltUnit"] ?? "",
+      altQty: json["AltQty"] ?? "",
     );
   }
 
@@ -188,8 +198,9 @@ class OrderPostItemDetailModel {
     "PTerm3Code": pTerm3Code,
     "PTerm3Rate": pTerm3Rate,
     "PTerm3Amount": pTerm3Amount,
-
     "godownCode":godownCode,
+    "AltUnit":altUnit,
+    "AltQty":altQty,
   };
 }
 

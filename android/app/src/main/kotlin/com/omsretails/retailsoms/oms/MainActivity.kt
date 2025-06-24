@@ -25,7 +25,7 @@ import acquire.client_connection.PaymentResponse
 import acquire.client_connection.EcrPaymentResponse
 import acquire.client_connection.IPaymentCallback
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -34,7 +34,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.MethodCall
 import android.content.SharedPreferences
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity () {
     private val PREFS_NAME = "MyPrefs"
     private val myClass = AppService() // Instance of your class
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

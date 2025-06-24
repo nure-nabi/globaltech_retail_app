@@ -45,7 +45,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
     final termState = Provider.of<SalesTermState>(context, listen: false);
     orderState.clear();
     orderState.getProductDetails = state.filterProductList[index];
-    orderState.getSalesRate = state.filterProductList[index].salesRate;
+    //orderState.getSalesRate = state.filterProductList[index].salesRate;
+    orderState.getSalesRate = "0.00";
     purchaseOrderState.getProductDetails = state.filterProductList[index];
     purchaseOrderState.getSalesRate = state.filterProductList[index].salesRate;
 

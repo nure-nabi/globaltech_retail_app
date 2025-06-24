@@ -3,6 +3,7 @@ import 'package:retail_app/src/sales/model/outlet_model.dart';
 import '../../../model/model.dart';
 import '../../../services/services.dart';
 import '../../../utils/utils.dart';
+import '../model/godown_model.dart';
 import '../model/sale_payment_mode.dart';
 
 class OrderProductAPI {
@@ -43,7 +44,6 @@ class OutletList {
   }
 
 }
-
 class SalePaymentMode {
   static paymentMode({required  dbName}) async {
     var jsonData = await APIProvider.getAPI(
@@ -51,6 +51,18 @@ class SalePaymentMode {
     );
     CustomLog.successLog(value: "SalePaymentResMode => $jsonData");
     return SalePaymentResModel.fromJson(jsonData);
+  }
+
+}
+
+class GodownList {
+
+  static godown({required  dbName}) async {
+    var jsonData = await APIProvider.getAPI(
+      endPoint: "MasterList/GodownList?DbName=$dbName",
+    );
+    CustomLog.successLog(value: "GodownList => $jsonData");
+    return GodownResModel.fromJson(jsonData);
   }
 
 }

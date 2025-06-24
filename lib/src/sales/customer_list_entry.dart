@@ -19,6 +19,7 @@ import 'db/temp_product_sales_db.dart';
 class CustomerListEntry extends StatefulWidget {
   final String ledgerName;
 
+
   const CustomerListEntry({super.key, required this.ledgerName});
 
   @override
@@ -165,6 +166,7 @@ class _CustomerListEntryState extends State<CustomerListEntry> {
                                     value: address.toString());
                                 await SetAllPref.customerPanno(
                                     value: panno.toString());
+                             await   state.cashBookClear();
                               } else {}
                             });
                           },
@@ -263,18 +265,213 @@ class _CustomerListEntryState extends State<CustomerListEntry> {
                       );
                     }),
                   ),
-                  const SizedBox(
-                    height: 15.0,
+                //  const SizedBox(height: 10.0,),
+                  Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(5),
+                    child: Consumer<LedgerState>(
+                        builder: (BuildContext context, state, Widget? child) {
+                          return DropdownButtonHideUnderline(
+                            child: DropdownButton2<String>(
+                              value: state.cashBook,
+                              isDense: true,
+                              isExpanded: true,
+                              hint: Text(
+                                'Select Cash Book',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                ),
+                              ),
+                              items: state.cashBookList.map((party) =>
+                                  DropdownMenuItem<String>(
+                                    value: party.glDesc.toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        width: MediaQuery.of(context).size.width,
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(12.0)),
+                                          color: Colors.grey[200],
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: const Offset(0,
+                                                  3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              party.glDesc.toString(),
+                                              style: cardTextStyleDropDownHeader,
+                                            ),
+                                            const SizedBox(
+                                              height: 4,
+                                            ),
+                                            party.address.isNotEmpty
+                                                ? Text(
+                                              'Address: ${party.address.toString()}',
+                                              style:
+                                              cardTextStyleDropDownTitle,
+                                            )
+                                                : const SizedBox(),
+                                            const SizedBox(
+                                              height: 4,
+                                            ),
+                                            party.mobile.isNotEmpty
+                                                ? Text(
+                                                'Mobile No: ${party.mobile.toString()}',
+                                                style:
+                                                cardTextStyleDropDownTitle)
+                                                : const SizedBox(),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  )).toList(),
+                              // Custom display of the selected item
+                              selectedItemBuilder: (BuildContext context) {
+                                return state.cashBookList.map((party) {
+                                  return Text(
+                                    party.glDesc,
+                                    style: cardTextStyleProductHeader,
+                                  );
+                                }).toList();
+                              },
+                              onChanged: (value) {
+                                setState(() async {
+                                  state.getCashBook = value.toString();
+                                  await SetAllPref.customerName(
+                                      value: value.toString());
+                                  int index = state.cashBookList.indexWhere(
+                                          (party) => party.glDesc.toString() == value);
+                                  if (index != -1) {
+                                    String selectedGlCode = state.cashBookList[index].glCode;
+                                    String address = state.cashBookList[index].address;
+                                    String panno = state.cashBookList[index].panno;
+                                    state.selectedGlCode = selectedGlCode;
+                                    await SetAllPref.outLetCode(value: selectedGlCode);
+                                    await SetAllPref.customerAddress(
+                                        value: address.toString());
+                                    await SetAllPref.customerPanno(
+                                        value: panno.toString());
+                                    await   state.customerClear();
+                                  } else {}
+                                });
+                              },
+                              buttonStyleData: ButtonStyleData(
+                                height: 50,
+                                width: 350,
+                                padding: const EdgeInsets.only(left: 14, right: 14),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: Colors.black26,
+                                  ),
+                                  // color: Colors.redAccent,
+                                ),
+                                // elevation: 2,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                maxHeight: MediaQuery.of(context).size.height * 0.8,
+                                //maxHeight: 700,
+                              ),
+                              menuItemStyleData: MenuItemStyleData(
+                                height: state.cashBookList.every(
+                                        (party) => party.address.isEmpty)
+                                    ? 65
+                                    : state.cashBookList.every(
+                                        (party) => party.mobile.isEmpty)
+                                    ? 65
+                                    : 95,
+                                // widght: MediaQuery.of(context).size.width,
+                                padding: const EdgeInsets.only(left: 14, right: 14),
+                              ),
+                              dropdownSearchData: DropdownSearchData(
+                                searchController: textEditingController,
+                                searchInnerWidgetHeight: 50,
+                                searchInnerWidget: Container(
+                                  height: 50,
+                                  padding: const EdgeInsets.only(
+                                    top: 8,
+                                    bottom: 4,
+                                    right: 8,
+                                    left: 8,
+                                  ),
+                                  child: TextFormField(
+                                    expands: true,
+                                    maxLines: null,
+                                    controller: textEditingController,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 8,
+                                      ),
+                                      hintText: 'Search for cash book...',
+                                      hintStyle: const TextStyle(fontSize: 12),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        borderSide: const BorderSide(
+                                            color: Colors.orange, width: 1),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        borderSide: const BorderSide(
+                                            color: Colors.orange, width: 1),
+                                      ),
+
+                                    ),
+                                  ),
+                                ),
+                                searchMatchFn: (item, searchValue) {
+                                  String itemValue = item.value.toString();
+                                  String lowercaseItemValue =
+                                  itemValue.toLowerCase();
+                                  String uppercaseItemValue =
+                                  itemValue.toUpperCase();
+                                  String lowercaseSearchValue =
+                                  searchValue.toLowerCase();
+                                  String uppercaseSearchValue =
+                                  searchValue.toUpperCase();
+                                  return lowercaseItemValue
+                                      .contains(lowercaseSearchValue) ||
+                                      uppercaseItemValue
+                                          .contains(uppercaseSearchValue) ||
+                                      itemValue.contains(searchValue);
+                                },
+                              ),
+                              //This to clear the search value when you close the menu
+                              onMenuStateChange: (isOpen) {
+                                if (!isOpen) {
+                                  textEditingController.clear();
+                                }
+                              },
+                            ),
+                          );
+                        }),
                   ),
+                  const SizedBox(height: 15.0,),
                   InkWell(
                     onTap: () async {
-                      if (state.customer != null) {
+                      if (state.customer != null || state.cashBook != null) {
                         SetAllPref.salePurchaseMap(value: "sale");
                         Navigator.pushNamed(context, productScreenPath);
                         await ProductOrderDatabase.instance.deleteData();
                         await TempProductOrderDatabase.instance.deleteData();
                       } else {
-                        Fluttertoast.showToast(msg: "Please Select Customer");
+                        Fluttertoast.showToast(msg: "Please Select Customer/Cash Book");
                       }
                     },
                     child: Padding(

@@ -348,7 +348,7 @@ class SalesBillReportState extends ChangeNotifier {
     await SunmiPrinter.printText('Print Date & Time : ${await MyDate.showDateTime()}');
     await SunmiPrinter.printText('Prepared by : ${ await GetAllPref.userName()}');
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText("Thank you");
+    await SunmiPrinter.printText("THANK YOU");
     await SunmiPrinter.submitTransactionPrint();
     await SunmiPrinter.lineWrap(3);
     await SunmiPrinter.exitTransactionPrint(true);
@@ -424,7 +424,7 @@ class SalesBillReportState extends ChangeNotifier {
     content.writeln(fixedCol('Name        : ${dataList[0].hGlDesc}', 62, rightPad: true));
     content.writeln(fixedCol('Address     : ${await GetAllPref.customerAddress()}', 62, rightPad: true));
     content.writeln(fixedCol('Pan No      : ${dataList[0].hPanNo}', 62, rightPad: true));
-    //content.writeln(fixedCol('Payment Mode: $salesPaymentModeCode', 62, rightPad: true));
+   // content.writeln(fixedCol('Payment Mode: $salesPaymentModeCode', 62, rightPad: true));
     //// content.writeln(fixedCol('ReferenceId : $referenceId', 62, rightPad: true));
     content.writeln();
 
@@ -443,33 +443,30 @@ class SalesBillReportState extends ChangeNotifier {
       // ===== INVOICE INFO =====
       content.writeln(
           '$i'.padRight(5).substring(0, 5)+
-              fixedCol('${item.dpDesc} ${item.unitCode} ',16,rightPad: true)+
+             // fixedCol('${item.dpDesc} ${item.unitCode} ',16,rightPad: true)+
+              fixedCol('${item.dpDesc} ',12,rightPad: true)+
+              fixedCol('${item.unitCode} ',4,rightPad: true)+
               fixedCol('${item.dQty.split('.')[0]}',6,rightPad: true)+
-              fixedCol('${item.dLocalRate}',5,rightPad: true)+
+              fixedCol('${item.dLocalRate} ',6,rightPad: true)+
+            //  fixedCol('${item.dLocalRate.length >=5 ? item.dLocalRate.substring(0,5) : item.dLocalRate.length <=3 ?  item.dLocalRate.substring(0,3) : item.dLocalRate.substring(0,4)} -',item.dLocalRate.length >=5 ? 5 :item.dLocalRate.length <=3 ?3: 4,rightPad: false)+
               fixedCol('${item.dNetAmt}',9,rightPad: true)
 
       );
-      // content.writeln(
-      //     fixedCol('$i',5,rightPad: true)+
-      //         fixedCol('1234567891123',14,rightPad: true)+
-      //         fixedCol('12345',6,rightPad: true)+
-      //         fixedCol('1234',5,rightPad: true)+
-      //         fixedCol('12345678',9,rightPad: true)
-      //
-      // );
-      // content.writeln('$i'.padRight(5).substring(0, 5) +
-      //     '${item.pName} ${item.altUnit}1234567891234567'.padRight(18).substring(0, 18) + // Truncate if too long
-      //     '${item.qty}----------'.padRight(10).substring(0, 10) +
-      //     '${item.rate}'.padRight(6).substring(0, 6) +
-      //     '${item.totalAmt}'.padRight(12).substring(0, 12));
 
       // content.writeln(
-      //     fixedWidth(i.toString(), 5) +
-      //         fixedWidth('${item.pName} ${item.altUnit}', 16) +
-      //         fixedWidth('${item.qty}', 7) +
-      //         fixedWidth(item.rate.toString(), 7) +
-      //         fixedWidth(item.totalAmt.toString(), 12)
+      //     '$i'.padRight(5).substring(0, 5)+
+      //         // fixedCol('${item.pName} (${item.altUnit}-${item.altQty.split('.')[0]}) ',17,rightPad: true)+
+      //         fixedCol('${item.pName} ',10,rightPad: true)+
+      //         fixedCol('${item.altUnit}',3,rightPad: true)+
+      //         fixedCol('-',1,rightPad: true)+
+      //         fixedCol('${item.altQty.split('.')[0]} ',3,rightPad: true)+
+      //         fixedCol('${item.qty.split('.')[0]}',6,rightPad: true)+
+      //         fixedCol('${item.rate.length >=5 ? item.rate.substring(0,5) : item.rate.length <=3 ?  item.rate.substring(0,3) : item.rate.substring(0,4)} ',item.rate.length >=5 ? 5 :item.rate.length <=3 ?3: 4,rightPad: false)+
+      //         fixedCol('${item.totalAmt}',9,rightPad: true)
+      //
       // );
+
+
 
       grandTotal += double.parse(item.dNetAmt);
       if (i == dataList.length) {
