@@ -35,6 +35,7 @@ class OrderDetail {
   OrderDetail({
     required this.outletCode,
     required this.unit,
+    required this.orderBy,
     required this.payAmount,
     required this.bTerm1,
     required this.bTerm1Rate,
@@ -54,6 +55,7 @@ class OrderDetail {
 
   final String outletCode;
   final String unit;
+  final String orderBy;
   final String payAmount;
   final String bTerm1;
   final String bTerm1Rate;
@@ -77,6 +79,8 @@ class OrderDetail {
     return OrderDetail(
       outletCode: json["OutletCode"] ?? "",
       unit: json["Unit"] ?? "",
+      orderBy: json["OrderBy"] ?? "",
+     // cashGlCode: json["OrderBy"] ?? "",
       payAmount: json["PayAmount"] ?? "",
       bTerm1: json["BTerm1"] ?? "",
       bTerm1Rate: json["BTerm1Rate"] ?? "",
@@ -101,6 +105,7 @@ class OrderDetail {
   Map<String, dynamic> toJson() => {
     "OutletCode": outletCode,
     "Unit": unit,
+    "OrderBy": orderBy,
     "PayAmount": payAmount,
     "BTerm1": bTerm1,
     "BTerm1Rate": bTerm1Rate,

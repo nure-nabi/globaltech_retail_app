@@ -10,6 +10,8 @@ import 'package:retail_app/src/sales_bill_report/sales_bill_report.dart';
 import 'package:retail_app/src/sales_bill_report/sales_bill_report_state.dart';
 import 'package:retail_app/utils/show_toast.dart';
 
+import '../qrcodegenerate.dart';
+
 class SalesBillReportScreen extends StatefulWidget {
   final String billNo;
   final String glDesc;
@@ -301,6 +303,17 @@ class _SalesBillReportScreenState extends State<SalesBillReportScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  FloatingActionButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>QRGeneratorScreen(
+                        voucherNo: widget.billNo,
+                        qty: '10',
+                        rate: '1000',
+                      )));
+                    },
+                    backgroundColor: Colors.green,
+                    child: const Icon(Icons.qr_code_2_outlined),
+                  ),
                         FloatingActionButton(
                           onPressed: () {
                             state.onPrint(name: widget.billNo);

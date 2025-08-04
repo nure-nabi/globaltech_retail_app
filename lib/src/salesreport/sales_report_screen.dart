@@ -19,8 +19,10 @@ import '../../widgets/container_decoration.dart';
 import '../../widgets/no_data_widget.dart';
 import '../../widgets/text_field_decoration.dart';
 import '../datepicker/date_picker_screen.dart';
+import '../qrcodegenerate.dart';
 
 class SalesReportScreen extends StatefulWidget {
+
   const SalesReportScreen({Key? key});
 
   @override
@@ -82,6 +84,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
               String _currentTime = DateFormat('dd/MM/yyyy hh:mm:ss a').format(DateTime.now());
               await SetAllPref.setTimeCurrent(value: _currentTime);
             }, icon: const Icon(Icons.refresh)),
+
 
           ],
         ),

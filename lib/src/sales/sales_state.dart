@@ -1170,6 +1170,8 @@ class ProductOrderState extends ChangeNotifier {
   }
 
    Future<Map<String, dynamic>> callPaymentNativeCode(String saleType) async {
+
+
     getCompanyDetail = await GetAllPref.companyDetail();
     Map<String, dynamic> referenceId = await AppServiceBridge.makeTransaction(
       amount: totalBalance, // amount in smallest currency unit
@@ -1218,6 +1220,8 @@ class ProductOrderState extends ChangeNotifier {
     content.writeln('-');
     content.writeln('-');
     content.writeln('-');
+
+    Fluttertoast.showToast(msg: 'total : ${total}');
 
     await AppServiceBridge.printNative(
         header: "header",
@@ -1371,6 +1375,7 @@ class ProductOrderState extends ChangeNotifier {
 
 
   Future productOrderAPICall(BuildContext ctx) async {
+
     if (PrintOrNot == "pdf") {
       if (salesPaymentModeCode == "Card Payment" || salesPaymentModeCode == "PhonePay" || salesPaymentModeCode == "QR Payment") {
         if (salesPaymentModeCode == "Card Payment") {
@@ -2063,8 +2068,8 @@ class ProductOrderState extends ChangeNotifier {
           altQty: element.altQty,
           hsCode: element.hsCode,
           factor: element.factor,
-        //  payAmount: tenderAmount.text.isNotEmpty ? tenderAmount.text : "0.0",
-          payAmount: subTotal.toString(),
+          payAmount: tenderAmount.text.isNotEmpty ? tenderAmount.text : "0.0",
+          //payAmount: subTotal.toString(),
           billNetAmt: element.totalAmount,
           userCode: await GetAllPref.userName(),
           cashGlCode: salesPaymentModeCode != "" ? salesPaymentModeCode :  paymentType,

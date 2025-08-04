@@ -87,6 +87,7 @@ class ProductOrderDatabase {
         '[' || GROUP_CONCAT('{
                         "OutletCode":"' || OutletCode || '",
                         "Unit":"' || Unit || '",
+                        "OrderBy":"' || CashGlCode || '",
                         "BTerm1":"' || BTerm1 || '",
                         "PayAmount":"' || PayAmount || '",
                         "BTerm1Rate":"' || BTerm1Rate || '",
@@ -106,6 +107,7 @@ class ProductOrderDatabase {
       FROM   
     (SELECT ${DatabaseDetails.outletCode} AS OutletCode,
      ${DatabaseDetails.unit} AS Unit,
+      ${DatabaseDetails.paymentMode} AS OrderBy,
      ${DatabaseDetails.bTerm1} AS BTerm1,
      ${DatabaseDetails.payAmount} AS PayAmount,
      ${DatabaseDetails.bTerm1Rate} AS BTerm1Rate,
